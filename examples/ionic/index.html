@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <!-- un-comment this code to enable service worker
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(() => console.log('service worker installed'))
+          .catch(err => console.log('Error', err));
+      }
+    </script>-->
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <!-- MW CONFIG FILE -->
+    <script src="js/MWBConfig.js"></script> 
+    <!-- our config file, if it feels dirty you can implement the code that's here (mainly the configuration of the scanner and license registration) in one of your controllers, or you main app directive, and not include this file -->
+  </head>
+  <body ng-app="starter" ng-controller="mainscanner">
+    <!-- this pane is added by manateeworks for the purpose of getting a scanner running and showing the result in an input field
+     Add this in the ng-app="starter" (notice how we added a controller mainscanner see app.js for handling the events)
+     -->
+    <ion-pane>
+        <ion-header-bar class="bar-stable">
+            <h1 class="title">Ionic Manateeworks Starter</h1>
+        </ion-header-bar>
+        <ion-content>
+          <label class="item item-input">
+              <input type="text" placeholder="Barcode Result" ng-model="barcoderesult">
+          </label>
+          <div class="text-center" style="margin-top:10px">
+              <button class="button" ng-click="startScanner()">
+                  Start Scanner
+              </button>
+          </div>
+        </ion-content>
+    </ion-pane>
+  </body>
+</html>

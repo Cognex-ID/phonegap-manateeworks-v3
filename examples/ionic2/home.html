@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Manateeworks Scanner Example
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+	
+	<ion-item>
+		<ion-input placeholder="Barcode type" type="text" [(ngModel)]="barcodetype"></ion-input>
+	</ion-item>    
+	<ion-item>
+		<ion-input placeholder="Barcode Result" type="text" [(ngModel)]="barcoderesult"></ion-input>
+	</ion-item>  
+	<ion-item>
+	<button ion-button (click)="startScanner($event)">
+		Start Scanner
+	</button>
+	</ion-item>
+</ion-content>
