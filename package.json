@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/manateeworks/phonegap-mwbarcodescanner.git"
+    "url": "git+https://github.com/manateeworks/phonegap-manateeworks-v3.git"
   },
   "nativescript": {
     "platforms": {
@@ -32,7 +32,7 @@
   "author": "Manatee Works",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/manateeworks/phonegap-mwbarcodescanner/issues"
+    "url": "https://github.com/manateeworks/phonegap-manateeworks-v3.git/issues"
   },
-  "homepage": "https://github.com/manateeworks/phonegap-mwbarcodescanner#readme"
+  "homepage": "https://github.com/manateeworks/phonegap-manateeworks-v3.git#readme"
 }

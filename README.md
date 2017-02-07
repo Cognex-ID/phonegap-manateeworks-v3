@@ -1,41 +1,36 @@
 Manatee Works Barcode Scanner SDK Plugin
 
 PhoneGap implementation (see below for ionic and ionic2)
-----------------------
+--------------------------------
 
 Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to your project(s)
 
-*For more in-depth info, visit our website at [www.manateeworks.com/phonegap-plugin](https://manateeworks.com/phonegap-plugin)*
+*For more info, visit our website at [www.manateeworks.com/phonegap-plugin](https://manateeworks.com/phonegap-plugin)*
 
-##Install using CLI interface (Phonegap 3.0 and above)
-
-
+1. Install using CLI interface (Phonegap 3.0 and above).   
+*First make sure you have the latsst software required to run phonegap apps. This means nodejs and git should be on your system. For more info about that visit: http://docs.phonegap.com/getting-started/1-install-phonegap/cli/*
 
  - Install PhoneGap:
 
             sudo npm install -g phonegap@latest
 
-
-*For other software requirements regarding phoneGap installation visit:  [http://docs.phonegap.com/getting-started/1-install-phonegap/cli/](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
-
  - Create your app by using CLI interface:
  
 			phonegap create my-mw-app 
 
-            //or use bundle identifiers, these are important we bind our license with the bundle identifier
+            //or use bundle identifiers, we bind our license with the bundle identifier!
 
             phonegap create my-mw-app --id "org.mwscanner.sampleapp" --name "mwbScanner"
 
-- Previous setp will create a folder *my-mw-app*, next you navigate to your newly created folder and add the platforms we want to build with:
+- Previous step will create a folder named *my-mw-app*, navigate to your newly created folder and add the platforms you want to build with:
 
             cd my-mw-app
-			phonegap build android 		    //if you are developing an android app
+			phonegap build android 	//if you are developing an android app
 		    phonegap build ios    //if you are developing an ios app
 
-* Add plugin to the project with:
+* Add our plugin to the project with:
 
 		 phonegap plugin add manateeworks-barcodescanner
-
 
 	or   
 
@@ -47,11 +42,12 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
     
 	    plugman install --platform ios|android --project platforms/ios|platforms/android --plugin com.manateeworks.barcodescanner --plugins_dir plugins/ --www www/ 
     
-    Once you do that, you can set your license key directly in the plugin.xml file that's found under the manateeworks-barcodescanner folder in the plugins folder see:
+    
+   Once you do that, you can set your license key directly in the **plugin.xml** file that's found in the **manateeworks-barcodescanner** folder in the plugins folder see:
     
       APP_PATH/plugins/manateeworks-barcodescanner/plugin.xml
       
-    edit this file and set your keys there, for android look for:
+    edit this file and set your keys, for android look for:
     
             <meta-data
           android:name="MW_LICENSE_KEY"
@@ -63,21 +59,30 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
             <string>PUT YOUR KEY HERE</string>
         </config-file>
         
+
+    
     If you do that, these params will automatically be created for you for each platform repsectively.
     You can leave these fields empty and build the app, the scanner will stlil work, but the results will be masked. You can set them/change them in the .plist file on ios or the android manifest file on android.
     
-* Perform initial build for each platform. You can get errors building, on iOS it can complain about signing profile. Android could complain that it can't find the right version. We leave these for you to handle
+
+* Perform initial build for each platform.   
+  You can get errors building, on iOS it can complain about the signing profile.   
+    Android could complain that it can't find the right gradle version.
 
         phonegap build ios
         phonegap build android
         phonegap build wp8
 
 * Add a button to index.html which will handle the call to the scanning function
-    ```html
-            <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
-    ```
 
-    The scanner is initialized with default setting. You can change these settings with the loadSettings method. For phoneGap we include a MWBConfig.js where this can be handles. It needs to be included with a script tag in the index.html file.
+  ```html
+  <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
+  ```
+
+    The scanner is initialized with default settings.   
+    You can change these settings with the **loadSettings** method.  
+         
+* For phoneGap apps we include a **MWBConfig.js** where this can be handled. It needs to be included with a script tag in the index.html file.
     
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
@@ -86,13 +91,19 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
             app.initialize();
         </script>   
     
-    You can set your key with setKey  //if you previously skipped adding it to the plugin.xml file    
+    Here you can do a few things...    
+    If you skipped adding your license key to your plugin.xml file, you can set your key with **setKey()**
     
+     ```html
        return mwbScanner.setKey('input-your-key-here').then(function(response){
-       //response of the setKey action
+             //response of the setKey action
        });
+     ```
+    This method returns a promise that resolves to a boolean value which is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
     
-    or load different settings
+    To configure your scanner with the desired settings you should use **loadSettings()**.   
+    Expects an array of key/value objects used to set preferences for the scanner, where the key is the name of the method used and the value is the parameters expected by that method.   
+    A list of all possible configuration methods is shown bellow.
     
     ```html
         var cc =  mwbScanner.getConstants(),settings;
@@ -102,15 +113,6 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
       //load your settings with
        return mwbScanner.loadSettings(settings).catch(function(reason){console.log(reason)});
     ```
-```html
-        <button onClick="mwbScanner.startScanning(function(result){
-            if(result && result.code){
-            alert('CUSTOM CALLBACK type: ' + result.type + 'result: ' + result.code);
-            }
-            else
-            console.log('Custom no result');
-            },0,0,50,50);" style="width:80%;margin:15%;height:180px">Scanner With Custom Callback</button>
-```
 
 ###How to build online with bulid.phonegap.com:
 
