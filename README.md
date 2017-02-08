@@ -159,7 +159,7 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
         Zoom             -  scanner.toggleZoom()
 
 
-## Configuraton parameters
+## Configuration parameters
     
 
     
