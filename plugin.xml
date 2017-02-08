@@ -79,7 +79,7 @@
     
    <!-- ios -->
     <platform name="ios">
-        <!-- <preference name="MW_LICENSE_KEY"/> -->
+        <preference name="MW_LICENSE_KEY"/>
      
         <!-- Camera Usage Description for iOS 10+ -->
         <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
@@ -110,7 +110,7 @@
         <source-file src="src/ios/MWBarcodeScanner/MWScannerViewController.xib" target-dir="MWBarcodeScanner"/>
 
         <config-file target="*-Info.plist" parent="MW_LICENSE_KEY">
-            <string></string>
+            <string>$MW_LICENSE_KEY</string>
         </config-file>        
         
         <resource-file src="src/ios/MWBarcodeScanner/close_button.png" target-dir="MWBarcodeScanner"/>
