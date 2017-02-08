@@ -404,13 +404,16 @@ NSMutableDictionary *recgtVals;
    
     int registrationResult;
     
-    if(key != '\0')
+    if(key != '\0' && strlen(key) > 5){
         registrationResult = MWB_registerSDK(key);
+    }
     else{
         key=[license_key UTF8String];
         registrationResult = MWB_registerSDK(key);        
     }
     
+//    NSLog(@"Value of license_key = %@", key);
+
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat:@"%d",registrationResult]];
     
