@@ -14,8 +14,9 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
 
 2. Install PhoneGap:
 ```ssh
-   sudo npm install -g phonegap@latest
-```ssh
+$ sudo npm install -g phonegap@latest
+```
+
 3. Create your app by using CLI interface:
  
 			phonegap create my-mw-app 
