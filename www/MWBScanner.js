@@ -922,12 +922,6 @@ var Scanner = function(){
         }
     }
 
-    self.setKey(this.key);
-    //initialize decoder and get it ready for scanning
-    self.initDecoder().then(function(response){
-        //scanner object initialized
-        console.log('MWBScanner Ready!');
-    });
 }
 
   /**
@@ -1196,6 +1190,17 @@ var Scanner = function(){
   };  
 
   var scanner = new Scanner();
+
+  document.addEventListener("deviceready", function(result){
+    
+    scanner.setKey(this.key);
+    //initialize decoder and get it ready for scanning
+    scanner.initDecoder().then(function(response){
+        //scanner object initialized
+        console.log('MWBScanner Ready!');
+    });    
+    
+  }, false);
 
   module.exports = scanner;
   
