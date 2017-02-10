@@ -1193,7 +1193,7 @@ var Scanner = function(){
 
   document.addEventListener("deviceready", function(result){
     
-    scanner.setKey(this.key);
+    scanner.setKey(scanner.key);
     //initialize decoder and get it ready for scanning
     scanner.initDecoder().then(function(response){
         //scanner object initialized
