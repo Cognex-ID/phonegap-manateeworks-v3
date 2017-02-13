@@ -159,6 +159,29 @@ version="3.0.1">
 
     
 </platform>
+<!-- windows uwp -->
+<platform name="windows">
+    
+    <js-module src="src/windows/MWBarcodeScannerProxy.js" name="MWBarcodeScannerProxy">
+        <merges target="" />
+    </js-module>
+
+    <config-file target="package.appxmanifest" parent="/Package/Capabilities">
+        <DeviceCapability Name="webcam" />
+    </config-file>
+    
+    <framework src="src/windows/WinRTCproj/WindowsComponnent/WindowsComponnent/WindowsComponnent.csproj" custom="true" type="projectReference"/>
+ 
+    <asset src="src/windows/assets/plugin-barcodeScanner.css" target="css/plugin-barcodeScanner.css" />
+    <asset src="src/windows/assets/flashbuttonoff.png" target="assets/flashbuttonoff.png" />
+    <asset src="src/windows/assets/flashbuttonon.png" target="assets/flashbuttonon.png" />
+    <asset src="src/windows/assets/flashbuttonnotsupported.png" target="assets/flashbuttonnotsupported.png" />
+    <asset src="src/windows/assets/zoom.png" target="assets/zoom.png" />
+    <asset src="src/windows/assets/zoomnotsupported.png" target="assets/zoomnotsupported.png" />
+    <asset src="src/windows/assets/overlay_mw.png" target="assets/overlay_mw.png" />
+    <asset src="src/windows/assets/overlay.png" target="assets/overlay.png" />
+    
+</platform>
 
 
 </plugin>
