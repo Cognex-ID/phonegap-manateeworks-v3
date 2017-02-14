@@ -86,9 +86,9 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
             app.initialize();
         </script>
 	```
-    
-    Here you can do a few things:    
-    * If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
+ 
+Here you can do a few things:    
+* If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
     
        ```html
          return mwbScanner.setKey('input-your-key-here').then(function(response){
@@ -352,6 +352,3 @@ Build for your platform
     
 
 And run your app.
-
-
-
