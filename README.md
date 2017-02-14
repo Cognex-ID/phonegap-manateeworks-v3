@@ -95,7 +95,8 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
                //response of the setKey action
          });
        ```
-    	This method returns a promise that resolves to a boolean value which is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
+    
+    This method returns a promise that resolves to a boolean value which is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
     
     * Configure your scanner with the desired settings - you should use **loadSettings()**.   
     Expects an array of key/value objects used to set preferences for the scanner, where the key is the name of the method used and the value is the parameters expected by that method.   
@@ -108,26 +109,6 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
         //load your settings with
          return mwbScanner.loadSettings(settings).catch(function(reason){console.log(reason)});
       ```
-
-
-#### How to build online with bulid.phonegap.com:
-
-* Copy confing.xml from project’s dir to /www
-* Add  this line in www/confing.xml:
-    
-        <gap:plugin name="manateeworks-barcodescanner-v3" source="npm"/>
-
-* Add this code in www/index.html:
-
-  ```html
-  <form style="width: 100%; text-align: center;">
-          <input type="button" value="Scan Barcode" onclick="mwbScanner.startScanning()" style="font-size: 40px; width: 300px; height: 50px; margin-top: 100px;"/>
-  </form>
-  ```
-* Compress /www folder
-* Upload www.zip to build.phonegap.com 
-* Build
-
 
 #### How to scan an image
 
