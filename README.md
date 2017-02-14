@@ -59,11 +59,11 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
     
 6.  Perform initial build for each platform.   
 
-```ssh
-phonegap build ios
-phonegap build android
-phonegap build wp8
-```
+	```ssh
+	phonegap build ios
+	phonegap build android
+	phonegap build wp8
+	```
 
 ### Setting up your app
 
