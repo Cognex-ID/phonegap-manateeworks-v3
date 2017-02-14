@@ -19,36 +19,51 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
 
 3. Create your app by using CLI interface:
  
-			phonegap create my-mw-app 
+	```ssh
+	phonegap create my-mw-app 
+	```
 
-            //or use bundle identifiers, we bind our license with the bundle identifier!
+	or use bundle identifiers, we bind our license with the bundle identifier!
 
-            phonegap create my-mw-app --id "org.mwscanner.sampleapp" --name "mwbScanner"
+	```ssh
+	phonegap create my-mw-app --id "org.mwscanner.sampleapp" --name "mwbScanner"
+	```
+	
 4.  Previous step will create a folder named *my-mw-app*, navigate to your newly created folder and add the platforms you want to build with:
-
-            cd my-mw-app
-			phonegap build android 	//if you are developing an android app
-		    phonegap build ios    //if you are developing an ios app
+	
+	```ssh
+	cd my-mw-app
+	phonegap build android 	//if you are developing an android app
+	phonegap build ios    //if you are developing an ios app
+	```
 
 5. Add our plugin to the project with:
 
-		 phonegap plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+	```ssh
+	phonegap plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+	```
 
 	or   
 
-	    phonegap plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+	```ssh
+	phonegap plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+	```
+	
 	or   
 
-	    phonegap plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN (if you are adding from local folder)   
-   
+	```ssh
+	phonegap plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN (if you are adding from local folder)   
+   	```
    
     MW_LICENSE_KEY variable is required but it can be left empty and added later in your .plist file or android manifest file. We also provide setting the key via a javaScript call.
     
 6.  Perform initial build for each platform.   
 
-        phonegap build ios
-        phonegap build android
-        phonegap build wp8
+```ssh
+phonegap build ios
+phonegap build android
+phonegap build wp8
+```
 
 ### Setting up your app
 
@@ -63,12 +78,14 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
          
 8. For phoneGap apps we include a **MWBConfig.js** where this can be handled. It needs to be included with a script tag in the index.html file.
     
+    	```html
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="js/MWBConfig.js"></script>  <---add it here!!
         <script type="text/javascript">
             app.initialize();
-        </script>   
+        </script>
+	```
     
     Here you can do a few things:    
     * If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
