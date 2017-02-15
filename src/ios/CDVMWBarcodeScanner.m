@@ -14,6 +14,8 @@
 #import "MWOverlay.h"
 #import "MWParser.h"
 
+#define MWBackgroundQueue "MWBackgroundQueue"
+
 @implementation CDVMWBarcodeScanner
 
 
@@ -57,39 +59,46 @@ NSMutableDictionary *recgtVals;
         recgtVals = nil;
         [MWOverlay setPaused:NO];
 
-        currentOrientation = [[UIApplication sharedApplication]statusBarOrientation];
-        scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
-        scannerViewController.delegate = self;
-        [MWScannerViewController setUseFrontCamera:useFCamera];
-        scannerViewController.customParams = customParams;
-        [[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(decodeNotification:) name: @"DecoderResultNotification" object: nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didRotate:)
-                                                     name:@"UIDeviceOrientationDidChangeNotification" object:nil];
-        
-
-        UIView *view = [[UIView alloc] init];
-        [view setTag:9158436];
-        [self.viewController.view addSubview:view];
-        
-        
-        [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
-    
-        
-        scannerViewController.state = LAUNCHING_CAMERA;
-        [scannerViewController.captureSession startRunning];
-        scannerViewController.state = CAMERA;
-        
+        dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+            UIView *view = [[UIView alloc] init];
+            [view setTag:9158436];
+            
+            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                currentOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+                scannerViewController.delegate = self;
+                [MWScannerViewController setUseFrontCamera:useFCamera];
+                scannerViewController.customParams = customParams;
+                [[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(decodeNotification:) name: @"DecoderResultNotification" object: nil];
+                [[NSNotificationCenter defaultCenter] addObserver:self
+                                                         selector:@selector(didRotate:)
+                                                             name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+                
+                [self.viewController.view addSubview:view];
+                
+                
+                [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
+                
+                
+                scannerViewController.state = LAUNCHING_CAMERA;
+                [scannerViewController.captureSession startRunning];
+                scannerViewController.state = CAMERA;
+                
 #if !__has_feature(objc_arc)
-        callbackId= [command.callbackId retain];
+                callbackId= [command.callbackId retain];
 #else
-        callbackId= command.callbackId;
+                callbackId= command.callbackId;
 #endif
+            });
+        });
     }else{
-        [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
+//        [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
+        [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
     }
     
 }
+
 - (void)resizePartialScanner:(CDVInvokedUrlCommand*)command
 {
     if (command != nil) {
@@ -100,7 +109,6 @@ NSMutableDictionary *recgtVals;
     }
     
     if ([self.viewController.view viewWithTag:9158436]) {
-        
         float x =  leftP /100 * [[UIScreen mainScreen] bounds].size.width;
         float y =  topP /100 * [[UIScreen mainScreen] bounds].size.height;
         
@@ -108,40 +116,42 @@ NSMutableDictionary *recgtVals;
         float height =heightP /100 *[[UIScreen mainScreen] bounds].size.height;
         
         UIView *view = [self.viewController.view viewWithTag:9158436];
+        [view setFrame:CGRectMake(x,y,width,height)];
         
         if (!scannerPreviewLayer) {
             scannerPreviewLayer = [scannerViewController generateLayerWithRect:CGPointMake(width, height)];
             [view.layer addSublayer:scannerPreviewLayer];
+        }else{
+            [scannerPreviewLayer setFrame:CGRectMake(0, 0, width, height)];
         }
+                
         
-        [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
-        
-
         if (leftP == 0 && topP == 0 && widthP == 1 && heightP == 1) {
             [view setHidden:YES];
         } else {
             [view setHidden:NO];
         }
         
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+            [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
+            if ([MWScannerViewController getOverlayMode] == 1) {
+                [MWOverlay removeFromPreviewLayer];
+                [MWOverlay addToPreviewLayer:scannerPreviewLayer];
+            }else if([MWScannerViewController getOverlayMode] == 2){
+                if (!overlayImage) {
+                    overlayImage = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, width, height)];
+                    overlayImage.contentMode = UIViewContentModeScaleToFill;
+                    overlayImage.image = [UIImage imageNamed:@"overlay_mw.png"];
+                }
+                if(![view viewWithTag:1111]){
+                    [overlayImage setTag:1111];
+                    [view addSubview:overlayImage];
+                }
+                [overlayImage setFrame:CGRectMake(0, 0, width, height)];
+                [overlayImage setHidden:NO];
+            }
+        });
         
-        view.frame = CGRectMake(x,y,width,height);
-        [scannerPreviewLayer setFrame:CGRectMake(0, 0, width, height)];
-        if ([MWScannerViewController getOverlayMode] == 1) {
-            [MWOverlay removeFromPreviewLayer];
-            [MWOverlay addToPreviewLayer:scannerPreviewLayer];
-        }else if([MWScannerViewController getOverlayMode] == 2){
-            if (!overlayImage) {
-                overlayImage = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, width, height)];
-                overlayImage.contentMode = UIViewContentModeScaleToFill;
-                overlayImage.image = [UIImage imageNamed:@"overlay_mw.png"];
-            }
-            if(![view viewWithTag:1111]){
-                [overlayImage setTag:1111];
-                [view addSubview:overlayImage];
-            }
-            [overlayImage setFrame:CGRectMake(0, 0, width, height)];
-            [overlayImage setHidden:NO];
-        }
         
         if ([MWScannerViewController isFlashEnabled] && [scannerViewController.device isTorchModeSupported:AVCaptureTorchModeOn]) {
             if (!scannerViewController.flashButton) {
@@ -180,16 +190,22 @@ NSMutableDictionary *recgtVals;
     }else{
         [self stopScanner:command];
         
-        scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
-        scannerViewController.delegate = self;
-        [MWScannerViewController setUseFrontCamera:useFCamera];
-        scannerViewController.customParams = customParams;
-        [self.viewController presentViewController:scannerViewController animated:YES completion:^{}];
+        dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                scannerViewController.delegate = self;
+                [MWScannerViewController setUseFrontCamera:useFCamera];
+                scannerViewController.customParams = customParams;
+                
+                [self.viewController presentViewController:scannerViewController animated:YES completion:^{}];
 #if !__has_feature(objc_arc)
-        callbackId= [command.callbackId retain];
+                callbackId= [command.callbackId retain];
 #else
-        callbackId= command.callbackId;
+                callbackId= command.callbackId;
 #endif
+            });
+        });
     }
 }
 -(void)setUseAutorect:(CDVInvokedUrlCommand*)command
@@ -206,8 +222,6 @@ NSMutableDictionary *recgtVals;
         [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
         scannerViewController = nil;
-        
-        
     }
 }
 - (void)duplicateCodeDelay:(CDVInvokedUrlCommand*)command
@@ -217,50 +231,56 @@ NSMutableDictionary *recgtVals;
 
 - (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat isGS1: (bool) isGS1 andRawResult: (NSData *) rawResult locationPoints:(MWLocation *)locationPoints imageWidth:(int)imageWidth imageHeight:(int)imageHeight
 {
-    CDVPluginResult* pluginResult = nil;
-    
-    NSMutableArray *bytesArray = [[NSMutableArray alloc] init];
-    unsigned char *bytes = (unsigned char *) [rawResult bytes];
-    for (int i = 0; i < rawResult.length; i++){
-        [bytesArray addObject:[NSNumber numberWithInt: bytes[i]]];
-    }
-    NSMutableDictionary *resultDict;
-    if (locationPoints) {
-        NSArray *xyArray = [NSArray arrayWithObjects:@"x",@"y", nil];
+    dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
         
-        NSDictionary *p1 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p1.x],[NSNumber numberWithFloat:locationPoints.p1.y], nil]
-                                                       forKeys:xyArray];
-        NSDictionary *p2 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p2.x],[NSNumber numberWithFloat:locationPoints.p2.y], nil]
-                                                       forKeys:xyArray];
-        NSDictionary *p3 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p3.x],[NSNumber numberWithFloat:locationPoints.p3.y], nil]
-                                                       forKeys:xyArray];
-        NSDictionary *p4 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p4.x],[NSNumber numberWithFloat:locationPoints.p4.y], nil]
-                                                       forKeys:xyArray];
         
-        NSDictionary *location =[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:p1,p2,p3,p4 ,nil]
-                                                        forKeys:[NSArray arrayWithObjects:@"p1",@"p2",@"p3",@"p4",nil]];
-        resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], location, [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
-                                                          forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
-
-    }else{
-        resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], [NSNumber numberWithBool:NO], [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
-                                                          forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
-    }
-    
-    
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
-    if(![MWScannerViewController getCloseScannerOnDecode]){
-        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
-    }
-    
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        CDVPluginResult* pluginResult = nil;
+        
+        NSMutableArray *bytesArray = [[NSMutableArray alloc] init];
+        unsigned char *bytes = (unsigned char *) [rawResult bytes];
+        for (int i = 0; i < rawResult.length; i++){
+            [bytesArray addObject:[NSNumber numberWithInt: bytes[i]]];
+        }
+        NSMutableDictionary *resultDict;
+        if (locationPoints) {
+            NSArray *xyArray = [NSArray arrayWithObjects:@"x",@"y", nil];
+            
+            NSDictionary *p1 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p1.x],[NSNumber numberWithFloat:locationPoints.p1.y], nil]
+                                                           forKeys:xyArray];
+            NSDictionary *p2 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p2.x],[NSNumber numberWithFloat:locationPoints.p2.y], nil]
+                                                           forKeys:xyArray];
+            NSDictionary *p3 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p3.x],[NSNumber numberWithFloat:locationPoints.p3.y], nil]
+                                                           forKeys:xyArray];
+            NSDictionary *p4 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p4.x],[NSNumber numberWithFloat:locationPoints.p4.y], nil]
+                                                           forKeys:xyArray];
+            
+            NSDictionary *location =[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:p1,p2,p3,p4 ,nil]
+                                                                forKeys:[NSArray arrayWithObjects:@"p1",@"p2",@"p3",@"p4",nil]];
+            resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], location, [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
+                                                              forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
+            
+        }else{
+            resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], [NSNumber numberWithBool:NO], [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
+                                                              forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
+        }
+        
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
+        
+        if(![MWScannerViewController getCloseScannerOnDecode]){
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+        }
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        
+    });
     
 }
 - (void)decodeNotification: (NSNotification *)notification {
     
-    
     if ([notification.object isKindOfClass:[DecoderResult class]])
     {
+        
         DecoderResult *obj = (DecoderResult*)notification.object;
         if (obj.succeeded)
         {
@@ -268,8 +288,7 @@ NSMutableDictionary *recgtVals;
                 [self stopScanner:nil];
             }
             
-            [self scanningFinished:obj.result.text withType: obj.result.typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
-            
+                [self scanningFinished:obj.result.text withType: obj.result.typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
         }
     }
 }
@@ -619,12 +638,16 @@ NSMutableDictionary *recgtVals;
 - (void)closeScanner:(CDVInvokedUrlCommand*)command
 {
     if ([self.viewController.view viewWithTag:9158436]) {
-        [[self.viewController.view viewWithTag:9158436]removeFromSuperview];
-        [scannerViewController stopScanning];
-        scannerPreviewLayer = nil;
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
-        scannerViewController = nil;
+        [[self.viewController.view viewWithTag:9158436] removeFromSuperview];
+        dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+            [scannerViewController stopScanning];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                scannerPreviewLayer = nil;
+                scannerViewController = nil;
+            });
+        });
         
         
     }
