@@ -277,7 +277,11 @@ Set active parser types
 @n      MWP_PARSER_MASK_SCM    
 example : [{"method":"setActiveParser" : "value" : [cc.MWP_PARSER_MASK_GS1 | cc.MWP_PARSER_MASK_IUID]}]
 ```
-       
+
+##Windows platform specific instructions
+
+
+
 
 # IONIC 1 Implementation
 
