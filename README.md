@@ -8,73 +8,73 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
 
 *For more info, visit our website at [www.manateeworks.com/phonegap-plugin](https://manateeworks.com/phonegap-plugin)*
 
-1. Install using CLI interface (Phonegap >6.0 and above).          
+Install using CLI interface (Phonegap >6.0 and above).          
 
-    *First make sure you have the latest software required to run phoneGap apps. This means nodejs and git should be on your system. For more info about that, visit: http://docs.phonegap.com/getting-started/1-install-phonegap/cli/*
+*First make sure you have the latest software required to run phoneGap apps. This means nodejs and git should be on your system.*
+*For more information about that, visit: [phonegap's getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/) *
 
-2. Install PhoneGap:
-	```ssh
-	$ sudo npm install -g phonegap@latest
-	```
+Install PhoneGap:
 
-3. Create your app by using CLI interface:
+```ssh
+$ sudo npm install -g phonegap@latest
+```
+
+Create your app by using CLI interface:
  
-	```ssh
-	phonegap create my-mw-app 
-	```
+```ssh
+phonegap create my-mw-app 
+```
 
-	or use bundle identifiers, we bind our license with the bundle identifier!
+or use bundle identifiers, we bind our license with the bundle identifier!
 
-	```ssh
-	phonegap create my-mw-app --id "org.mwscanner.sampleapp" --name "mwbScanner"
-	```
+```ssh
+phonegap create my-mw-app --id "org.mwscanner.sampleapp" --name "mwbScanner"
+```
 	
-4.  Previous step will create a folder named *my-mw-app*, navigate to your newly created folder and add the platforms you want to build with:
+Previous step will create a folder named *my-mw-app*, navigate to your newly created folder and add the platforms you want to build with:
 	
-	```ssh
-	cd my-mw-app
-	phonegap build android 	//if you are developing an android app
-	phonegap build ios    //if you are developing an ios app
-	```
+```ssh
+cd my-mw-app
+phonegap build android 	//if you are developing an android app
+phonegap build ios    //if you are developing an ios app
+```
+Add our plugin to the project with:
 
-5. Add our plugin to the project with:
+```ssh
+phonegap plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+```
 
-	```ssh
-	phonegap plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
-	```
+or   
 
-	or   
+```ssh
+phonegap plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+```
+or   
 
-	```ssh
-	phonegap plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
-	```
-	
-	or   
-
-	```ssh
-	phonegap plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN (if you are adding from local folder)   
-   	```
-   
-    MW_LICENSE_KEY variable is required but it can be left empty and added later in your .plist file or android manifest file. We also provide setting the key via a javaScript call.
+```ssh
+phonegap plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN (if you are adding from local folder)   
+```
+ 
+ **Important**  
+ MW_LICENSE_KEY variable is required but it can be left empty and added later in your .plist file or android manifest file. We also provide setting the key via a javaScript call.
     
-6.  Perform initial build for each platform.   
+Perform initial build for each platform.   
 
-	```ssh
-	phonegap build ios
-	phonegap build android
-	phonegap build wp8
-	```
+```ssh
+phonegap build ios
+phonegap build android
+phonegap build wp8
+```
 
 ### Setting up your app
 
   Add a button to index.html which will handle the call to the scanning function
 
 ```html
-    <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
+<button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
 ```
 
-The scanner is initialized with default settings.   
-You can change these settings with the **loadSettings()** method.
+The scanner is initialized with default settings.   You can change these settings with the **loadSettings()** method.
 
 
 For phoneGap apps we include a **MWBConfig.js** where this can be handled. Obviously for your use case you don't need to use this file, and you can provide your own, and you probably will handle it differently, but for the needs of this document let's include it in our **index.html**. It needs to be included with a script tag like:
