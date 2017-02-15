@@ -67,198 +67,216 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
 
 ### Setting up your app
 
-7. Add a button to index.html which will handle the call to the scanning function
+  Add a button to index.html which will handle the call to the scanning function
 
-    ```html
+```html
     <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
-    ```
+```
 
-    The scanner is initialized with default settings.   
-    You can change these settings with the **loadSettings()** method.  
-         
-8. For phoneGap apps we include a **MWBConfig.js** where this can be handled. It needs to be included with a script tag in the index.html file.
+The scanner is initialized with default settings.   
+You can change these settings with the **loadSettings()** method.
+
+
+For phoneGap apps we include a **MWBConfig.js** where this can be handled. Obviously for your use case you don't need to use this file, and you can provide your own, and you probably will handle it differently, but for the needs of this document let's include it in our **index.html**. It needs to be included with a script tag like:
     
-    	```html
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript" src="js/MWBConfig.js"></script>  <---add it here!!
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-	```
+```html
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+  <script type="text/javascript" src="js/MWBConfig.js"></script><---add it here!! ->
+  <script type="text/javascript">
+      app.initialize();
+  </script>
+```
  
 Here you can do a few things:    
-* If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
+If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
     
-       ```html
-         return mwbScanner.setKey('input-your-key-here').then(function(response){
-               //response of the setKey action
-         });
-       ```
+```javaScript
+  return mwbScanner.setKey('input-your-key-here').then(function(response){
+        //response of the setKey action
+  });
+```
     
-    This method returns a promise that resolves to a boolean value which is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
+   This method returns a promise that resolves to a boolean value which is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
     
-    * Configure your scanner with the desired settings - you should use **loadSettings()**.   
-    Expects an array of key/value objects used to set preferences for the scanner, where the key is the name of the method used and the value is the parameters expected by that method.   
+  Configure your scanner with the desired settings - you should use **loadSettings()**.   
+  
+  **Expects an array of key/value objects** used to set preferences for the scanner. The **key** is the name of the **method** and the **value** is the **parameters** (passed as an array) expected by that method.   
 
-      ```html
-      var cc =  mwbScanner.getConstants(),settings;
-          settings = [
-          {'method': 'MWBsetActiveCodes', 'value' : [cc.MWB_CODE_MASK_25 | cc.MWB_CODE_MASK_39 | cc.MWB_CODE_MASK_93 | cc.MWB_CODE_MASK_128 | cc.MWB_CODE_MASK_AZTEC | cc.MWB_CODE_MASK_DM | cc.MWB_CODE_MASK_EANUPC | cc.MWB_CODE_MASK_PDF | cc.MWB_CODE_MASK_QR | cc.MWB_CODE_MASK_CODABAR | cc.MWB_CODE_MASK_11 | cc.MWB_CODE_MASK_MSI | cc.MWB_CODE_MASK_RSS | cc.MWB_CODE_MASK_MAXICODE | cc.MWB_CODE_MASK_POSTAL] }
-        ];
-        //load your settings with
-         return mwbScanner.loadSettings(settings).catch(function(reason){console.log(reason)});
-      ```
+```javascript
+var cc =  mwbScanner.getConstants(),settings;
+   settings = [{'method': 'MWBsetActiveCodes', 'value' : [cc.MWB_CODE_MASK_25 | cc.MWB_CODE_MASK_39 | cc.MWB_CODE_MASK_93 | cc.MWB_CODE_MASK_128 | cc.MWB_CODE_MASK_AZTEC | cc.MWB_CODE_MASK_DM | cc.MWB_CODE_MASK_EANUPC | cc.MWB_CODE_MASK_PDF | cc.MWB_CODE_MASK_QR | cc.MWB_CODE_MASK_CODABAR | cc.MWB_CODE_MASK_11 | cc.MWB_CODE_MASK_MSI | cc.MWB_CODE_MASK_RSS | cc.MWB_CODE_MASK_MAXICODE | cc.MWB_CODE_MASK_POSTAL]}];
+```
+Load your settings with
+```javascript
+return mwbScanner.loadSettings(settings).catch(function(reason){
+			console.log(reason)
+		});
+```
 
 #### How to scan an image
 
-* Instead of mwbScanner.startScanning() use:
+Instead of mwbScanner.startScanning() use:
 
-        mwbScanner.scanImage(URI);
+```javascript
+mwbScanner.scanImage(URI);
+```
         
-        
-    or with custom init and callback:
-    
-        mwbScanner.scanImage(URI,function(result){//custom callback function});
-        
-* Params:   
-        
-        URI                     - the path to the image
-        callback                - custom callback function
-        
-        
+or with custom init and callback:
 
+```javascript
+mwbScanner.scanImage(URI,function(result){
+	//custom callback 
+});
+```
+        
+Params:   
+```javascript        
+URI                     - the path to the image
+callback                - custom callback function
+```        
+        
 #### How to scan in partial screen view
 
-* Instead of mwbScanner.startScanning() use:
+Instead of mwbScanner.startScanning() use:
 
-        mwbScanner.startScanning(x, y, width, height);
+```javascript
+mwbScanner.startScanning(x, y, width, height);
+```
         
         
-    or with custom init and callback:
-    
-        mwbScanner.startScanning(function(result){//custom callback}, x, y, width, height);
+or with a custom init and callback:
+
+```javascript    
+mwbScanner.startScanning(function(result){
+//custom callback
+}, x, y, width, height);
+```        
         
-
+Params:   
         
-* Params:   
-        
-        x, y, width, height     - rectangle of the view in percentages relative to the screen size
-        callback  - result callback
+```
+x, y, width, height     - rectangle of the view in percentages relative to the screen size
+callback  - result callback
 
-        TODO: ADD HOW TO SET PARAMS WITH SETTINGS CALLS
+TODO: ADD HOW TO SET PARAMS WITH SETTINGS CALLS
 
-* Example:   
+```
 
-        Scan fullscreen  -  scanner.startScanning()
-        Scan in view     -  scanner.startScanning(0,4,100,50)
-        Pause/Resume     -  scanner.togglePauseResume()
-        Close            -  scanner.closeScanner()
-        Flash            -  scanner.toggleFlash()
-        Zoom             -  scanner.toggleZoom()
+Example:   
+
+     Scan fullscreen  -  scanner.startScanning()
+     Scan in view     -  scanner.startScanning(0,4,100,50)
+     Pause/Resume     -  scanner.togglePauseResume()
+     Close            -  scanner.closeScanner()
+     Flash            -  scanner.toggleFlash()
+     Zoom             -  scanner.toggleZoom()
 
 
 ## Configuration parameters
     
 
-    
-	    @name "setActiveCodes"  Sets active or inactive status of decoder types     
-	    @param[in]	activeCodes   ORed bit flags (MWB_CODE_MASK_...) of decoder types to be activated.
-	      @n       MWB_CODE_MASK_NONE
-	      @n       MWB_CODE_MASK_QR
-	      @n       MWB_CODE_MASK_DM
-	      @n       MWB_CODE_MASK_RSS
-	      @n       MWB_CODE_MASK_39
-	      @n       MWB_CODE_MASK_EANUPC
-	      @n       MWB_CODE_MASK_128
-	      @n       MWB_CODE_MASK_PDF
-	      @n       MWB_CODE_MASK_AZTEC
-	      @n       MWB_CODE_MASK_25
-	      @n       MWB_CODE_MASK_93
-	      @n       MWB_CODE_MASK_CODABAR
-	      @n       MWB_CODE_MASK_DOTCODE
-	      @n       MWB_CODE_MASK_11
-	      @n       MWB_CODE_MASK_MSI
-	      @n       MWB_CODE_MASK_MAXICODE
-	      @n       MWB_CODE_MASK_POSTAL
-	      @n       MWB_CODE_MASK_ALL    
+```javascript
 
-	      CodeMask constants are available for all codeMask variables
+@name "setActiveCodes"  Sets active or inactive status of decoder types     
+@param[in]	activeCodes   ORed bit flags (MWB_CODE_MASK_...) of decoder types to be activated.
 
-	    @name "setActiveSubcodes"  Set active subcodes for given code group flag.  Subcodes under some decoder type are all activated by default.
-	    @param[in]  codeMask    Single decoder type/group (MWB_CODE_MASK_...)
-	    @param[in]  subMask     ORed bit flags of requested decoder subtypes (MWB_SUBC_MASK_)
+  @n       MWB_CODE_MASK_NONE
+  @n       MWB_CODE_MASK_QR
+  @n       MWB_CODE_MASK_DM
+  @n       MWB_CODE_MASK_RSS
+  @n       MWB_CODE_MASK_39
+  @n       MWB_CODE_MASK_EANUPC
+  @n       MWB_CODE_MASK_128
+  @n       MWB_CODE_MASK_PDF
+  @n       MWB_CODE_MASK_AZTEC
+  @n       MWB_CODE_MASK_25
+  @n       MWB_CODE_MASK_93
+  @n       MWB_CODE_MASK_CODABAR
+  @n       MWB_CODE_MASK_DOTCODE
+  @n       MWB_CODE_MASK_11
+  @n       MWB_CODE_MASK_MSI
+  @n       MWB_CODE_MASK_MAXICODE
+  @n       MWB_CODE_MASK_POSTAL
+  @n       MWB_CODE_MASK_ALL   
 
-	    @name "setFlags"   Sets active or inactive status of decoder types    
-	    @param[in]   codeMask   Single decoder type (MWB_CODE_MASK_...)
-	    @param[in]   flags      ORed bit mask of selected decoder type options (MWB_FLAG_...)
+CodeMask constants are available for all codeMask variables
 
-	    @name "setMinLength" configures minimum result length for decoder type specified in codeMask.
-		@param[in]   codeMask   Single decoder type (MWB_CODE_MASK_...)
-		@param[in]   minLength  Minimum result length for selected decoder type
+@name "setActiveSubcodes"  Set active subcodes for given code group flag.  Subcodes under some decoder type are all activated by default.
 
-	    @name "setDirection" 
-	    @param[in]   direction   ORed bit mask of direction modes given with MWB_SCANDIRECTION_... bit-masks
-	    @n     MWB_SCANDIRECTION_HORIZONTAL - horizontal lines
-	    @n     MWB_SCANDIRECTION_VERTICAL - vertical lines
-	    @n     MWB_SCANDIRECTION_OMNI - omnidirectional lines
-	    @n     MWB_SCANDIRECTION_AUTODETECT - enables BarcodeScanner's autodetection of barcode direction
+@param[in]  codeMask    Single decoder type/group (MWB_CODE_MASK_...)
+@param[in]  subMask     ORed bit flags of requested decoder subtypes (MWB_SUBC_MASK_)
 
-	    @name "setScanningRect"
-	    Sets the scanning rectangle
-	    Parameters are interpreted as percentage of image dimensions, i.e. ranges are 0 - 100 for all parameters.
-	    @param[in]   codeMask    Single decoder type selector (MWB_CODE_MASK_...)
-	    @param[in]   left        X coordinate of left edge (percentage)
-	    @param[in]   top         Y coordinate of top edge (percentage)
-	    @param[in]   width       Rectangle witdh (x axis) (percentage)
-	    @param[in]   height      Rectangle height (y axis) (percentage)
+@name "setFlags"   Sets active or inactive status of decoder types    
+@param[in]   codeMask   Single decoder type (MWB_CODE_MASK_...)
+@param[in]   flags      ORed bit mask of selected decoder type options (MWB_FLAG_...)
 
-	    @name "setLevel"
-	    Effort level of the scanner values can be 
-	    @param[in]   level     1,2,3,4 and 5
-	    example : [{"method":"setLevel" : "value" : [3]}]    
+@name "setMinLength" configures minimum result length for decoder type specified in codeMask.
+@param[in]   codeMask   Single decoder type (MWB_CODE_MASK_...)
+@param[in]   minLength  Minimum result length for selected decoder type
 
-	    @name "setInterfaceOrientation"
-	    Sets prefered User Interface orientation of scanner screen
-	    @param[in]   orientation
-	    @n     OrientationPortrait    
-	    @n     OrientationLandscapeLeft
-	    @n     OrientationLandscapeRight
-	    default is OrientationPortrait
+@name "setDirection" 
+@param[in]   direction   ORed bit mask of direction modes given with MWB_SCANDIRECTION_... bit-masks
+@n     MWB_SCANDIRECTION_HORIZONTAL - horizontal lines
+@n     MWB_SCANDIRECTION_VERTICAL - vertical lines
+@n     MWB_SCANDIRECTION_OMNI - omnidirectional lines
+@n     MWB_SCANDIRECTION_AUTODETECT - enables BarcodeScanners autodetection of barcode direction
 
-	    @name "setOverlayMode"
-	    @param[in]    OverlayMode
-	    @n  OverlayModeNone     No overlay is displayed
-	    @n  OverlayModeMW       Use MW Dynamic Viewfinder with blinking line
-	    @n  OverlayModeImage    Show image on top of camera preview
-	    example : [{"method":"setOverlayMode" : "value" : [cc.OverlayModeImage]}]    
+@name "setScanningRect"
+Sets the scanning rectangle
+Parameters are interpreted as percentage of image dimensions, i.e. ranges are 0 - 100 for all parameters.
+@param[in]   codeMask    Single decoder type selector (MWB_CODE_MASK_...)
+@param[in]   left        X coordinate of left edge (percentage)
+@param[in]   top         Y coordinate of top edge (percentage)
+@param[in]   width       Rectangle witdh (x axis) (percentage)
+@param[in]   height      Rectangle height (y axis) (percentage)
 
-	    @name "resizePartialScanner"
-	    Resizes partial scanner dimensions. If usePartialScanner is true the scanner will open in a window with these dimensions
-	    @param[in]   left      X coordinate of left edge (percentage)
-	    @param[in]   top       Y coordinate of top edge (percentage)
-	    @param[in]   width     Rectangle witdh (x axis) (percentage)
-	    @param[in]   height    Rectangle height (y axis) (percentage)
-	    example : [{"method":"resizePartialScanner" : "value" : [0,0,50,50]}]    
+@name "setLevel"
+Effort level of the scanner values can be 
+@param[in]   level     1,2,3,4 and 5
+example : [{"method":"setLevel" : "value" : [3]}]    
 
+@name "setInterfaceOrientation"
+Sets prefered User Interface orientation of scanner screen
+@param[in]   orientation
+@n     OrientationPortrait    
+@n     OrientationLandscapeLeft
+@n     OrientationLandscapeRight
+default is OrientationPortrait
 
-	    @name "usePartialScanner"
-	    Boolean value that opens a partial scanner if set true
-	    @param[in]   bool               true/false
-	    example : [{"method":"usePartialScanner" : "value" : [true]}]
+@name "setOverlayMode"
+@param[in]    OverlayMode
+@n  OverlayModeNone     No overlay is displayed
+@n  OverlayModeMW       Use MW Dynamic Viewfinder with blinking line
+@n  OverlayModeImage    Show image on top of camera preview
+example : [{"method":"setOverlayMode" : "value" : [cc.OverlayModeImage]}]    
 
-	    @name "setActiveParser"
-	    Set active parser types
-	    @param[in]    ActiveParser    ORed values
-	    @n      MWP_PARSER_MASK_NONE
-	    @n      MWP_PARSER_MASK_AUTO
-	    @n      MWP_PARSER_MASK_GS1
-	    @n      MWP_PARSER_MASK_IUID
-	    @n      MWP_PARSER_MASK_ISBT
-	    @n      MWP_PARSER_MASK_AAMVA
-	    @n      MWP_PARSER_MASK_HIBC
-	    @n      MWP_PARSER_MASK_SCM    
-	    example : [{"method":"setActiveParser" : "value" : [cc.MWP_PARSER_MASK_GS1 | cc.MWP_PARSER_MASK_IUID]}]
+@name "resizePartialScanner"
+Resizes partial scanner dimensions. If usePartialScanner is true the scanner will open in a window with these dimensions
+@param[in]   left      X coordinate of left edge (percentage)
+@param[in]   top       Y coordinate of top edge (percentage)
+@param[in]   width     Rectangle witdh (x axis) (percentage)
+@param[in]   height    Rectangle height (y axis) (percentage)
+example : [{"method":"resizePartialScanner" : "value" : [0,0,50,50]}]    
+
+@name "usePartialScanner"
+Boolean value that opens a partial scanner if set true
+@param[in]   bool               true/false
+example : [{"method":"usePartialScanner" : "value" : [true]}]
+
+@name "setActiveParser"
+Set active parser types
+@param[in]    ActiveParser    ORed values
+@n      MWP_PARSER_MASK_NONE
+@n      MWP_PARSER_MASK_AUTO
+@n      MWP_PARSER_MASK_GS1
+@n      MWP_PARSER_MASK_IUID
+@n      MWP_PARSER_MASK_ISBT
+@n      MWP_PARSER_MASK_AAMVA
+@n      MWP_PARSER_MASK_HIBC
+@n      MWP_PARSER_MASK_SCM    
+example : [{"method":"setActiveParser" : "value" : [cc.MWP_PARSER_MASK_GS1 | cc.MWP_PARSER_MASK_IUID]}]
+```
        
 
 # IONIC 1 Implementation
@@ -266,7 +284,7 @@ Here you can do a few things:
 
 Manateeworks barcode scanner can be loaded as an ionic plugin, which uses cordova, so every phonegap plugin could run as an ionic plugin with little to none change. Most of the changes are in the configuration files, due to how the projects are organized in ionic (or even ionic2)
 
-Just like phonegap, 
+Just like phoneGap, 
 
 
 1. First we ensure we have nodejs installed and latest ionic and cordova
