@@ -1,9 +1,3 @@
-
-
-
-> Written with [StackEdit](https://stac# Manatee Works Barcode Scanner SDK Plugin
-
-
 ## PhoneGap implementation (see below for ionic and ionic2)
 
 
