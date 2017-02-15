@@ -13,7 +13,6 @@ using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System.Profile;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
-using Windows.ApplicationModel.Resources;
 
 namespace WindowsComponnent
 {
@@ -224,20 +223,6 @@ namespace WindowsComponnent
 
         public static void initDecoder()
         {
-            //del this debug only
-            //var loader = ResourceLoader.GetForCurrentView("WindowsComponnent/Resources"); //this namespace path is very crucial
-            //var str = loader.GetString("MW_LICENSE_KEY");
-
-            // Create a ResourceContext.
-            /*var resourceContext = new Windows.ApplicationModel.Resources.Core.ResourceContext();
-            var resList = resourceContext.Languages;
-
-            foreach(string val in resList)
-            { Debug.WriteLine(val); }*/ //en-US
-
-            //Debug.WriteLine(str);
-
-            //**END OF DEBUG**
             WindowsComponnent.ScannerPage.iniClear(); //needed for multithreading
             PDF_OPTIMIZED = false;
             RECT_LANDSCAPE_1D = new Windows.Foundation.Rect(2, 20, 96, 60);
@@ -245,7 +230,7 @@ namespace WindowsComponnent
             RECT_PORTRAIT_1D = new Windows.Foundation.Rect(20, 5, 60, 90);
             RECT_PORTRAIT_2D = new Windows.Foundation.Rect(2, 2, 96, 96);
             RECT_FULL_1D = new Windows.Foundation.Rect(2, 2, 96, 96); //2, 2, 96, 96
-            RECT_FULL_2D = new Windows.Foundation.Rect(20, 5, 60, 90); //20, 5, 60, 90
+            RECT_FULL_2D = new Windows.Foundation.Rect(2, 2, 96, 96); //20, 5, 60, 90
             RECT_DOTCODE = new Windows.Foundation.Rect(30, 20, 40, 60);
 
             // register your copy of the mobiScan SDK with the given key
@@ -334,9 +319,6 @@ namespace WindowsComponnent
                 MWBsetScanningRect(Scanner.MWB_CODE_MASK_MSI, RECT_FULL_1D);
 				MWBsetScanningRect(Scanner.MWB_CODE_MASK_MAXICODE, RECT_FULL_2D);
 				MWBsetScanningRect(Scanner.MWB_CODE_MASK_POSTAL, RECT_FULL_1D);
-
-                Windows.Foundation.Rect maxiRect = MWBgetScanningRect(Scanner.MWB_CODE_MASK_MAXICODE); //if not set its full set 0,0,100,100
-                Debug.WriteLine("maxi rect: " + maxiRect);
 
             }
 

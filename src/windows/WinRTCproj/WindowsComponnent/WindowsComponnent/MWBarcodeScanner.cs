@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BarcodeLib;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Media.Capture;
+using Windows.ApplicationModel.Resources;
 
 //using  MWBarcodeRuntimeComponent;
 
@@ -79,7 +80,20 @@ namespace WindowsComponnent
 
         public static int registerSDK(string key)
         {
-            return Scanner.MWBregisterSDK(key);
+            var licenceKey = "YOUR_LICENSE_KEY";
+
+            if (key.Length > 5) licenceKey = key;
+            else
+            {
+                try
+                {
+                    var loader = ResourceLoader.GetForCurrentView("WindowsComponnent/Resources"); //this namespace path is very crucial
+                    licenceKey = loader.GetString("MW_LICENSE_KEY");
+                }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
+            }
+
+            return Scanner.MWBregisterSDK(licenceKey);
         }
 
         public static int setLevel(int level)
@@ -99,12 +113,12 @@ namespace WindowsComponnent
 
         public static int setScanningRect(int codeMask, float left, float top, float width, float height)
         {
-            return Scanner.MWBsetScanningRect(codeMask, left, top, width, height); //values will have to be updated before this call, also, a translator for different orientation as it always sees it from upper-right point on landscape
+            return Scanner.MWBsetScanningRect(codeMask, left, top, width, height);
         }
 
         public static int getScanningRect(int codeMask, out float left, out float top, out float width, out float height)
         {
-            return Scanner.MWBgetScanningRect(codeMask, out left, out top, out width, out height); //staj go na proxy, or not
+            return Scanner.MWBgetScanningRect(codeMask, out left, out top, out width, out height);
         }
 
         public static int getResultType()
@@ -133,32 +147,19 @@ namespace WindowsComponnent
         }
 
         /*custom cs functions*/
-        public void setInterfaceOrientation(string interfaceOrientation)
-        {
-            if (interfaceOrientation.Equals("Portrait"))
-            {
-                //WindowsComponnent.ScannerPage.param_Orientation = SupportedPageOrientation.Portrait; //fix this
-            }
-            else
-            {
-                //WindowsComponnent.ScannerPage.param_Orientation = SupportedPageOrientation.Landscape;
-            }
-
-        }
 
         public static bool isLampApiSupported { get; set; }
         public static async void turnFlashOn(bool flashOn)
         {
-            //ScannerPage.some_flash_var = enableFlash;
             if (flashOn)
             {
                 Windows.Devices.Lights.Lamp lamp = await Windows.Devices.Lights.Lamp.GetDefaultAsync();
 
                 if (lamp == null)
                 {
-                    System.Diagnostics.Debug.WriteLine("The Lamp API is unsupported on the device.");
+                    System.Diagnostics.Debug.WriteLine("The Lamp API is unsupported on this device.");
                     //use the win8.1 method
-                    //probably gonna need to be on the js side - doesn't work there either
+                    //doesn't work on js side either
 
                     isLampApiSupported = false;
 
@@ -195,6 +196,11 @@ namespace WindowsComponnent
         public static void togglePauseResume()
         {
             ScannerPage.pauseDecoder = !ScannerPage.pauseDecoder;
+        }
+
+        public static void setParam(int codeMask, int paramId, int paramValue)
+        {
+            Scanner.MWBsetParam(codeMask, paramId, paramValue);
         }
     }
 

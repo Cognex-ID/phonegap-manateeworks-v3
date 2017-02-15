@@ -75,6 +75,8 @@ var Normal  = 2;
 var USE_CAMERA_RESOLUTION = supportedResolutions[HD];
 var HARDWARE_CAMERA_RESOLUTION = { width: 0, height: 0 }; //ini
 
+var _useFrontCamera = false;
+
 var numberOfSupporedCodes = 16;
 
 var codeMasksArray = [];
@@ -88,6 +90,10 @@ var mwOverlayProperties = { mode: 1, pauseMode: 1, lineColor: "rgba(255, 0, 0, 1
 var mwBlinkingLines = { v: null, h: null };
 
 var partialView = { x: 5, y: 5, width: 90, height: 54.73, orientation: 0 };
+var _usePartialScanner = false;
+
+var resizePartialScannerView = null;
+var DOM_complete = false;
 
 var fullscreenButtons = {
     flashReference: null,
@@ -108,256 +114,160 @@ var fullscreenButtons = {
 var anyReader = null;
 var anyScannerStarted = false;
 
-var debug_print = true;
+var debug_print = false;
 
 cordova.commandProxy.add("MWBarcodeScanner", {
     initDecoder: function (successCallback, errorCallback, args) {
-		WindowsComponnent.BarcodeHelper.initDecoder();
-        successCallback();
+        MWBarcodeScanner.initDecoder(successCallback, errorCallback);
     },
+
     startScanner: function (successCallback, errorCallback, args) {
-        MWBarcodeScanner.startScanner(successCallback, errorCallback, args);
+
+        if (!_usePartialScanner)    MWBarcodeScanner.startScanner(successCallback, errorCallback, args);
+        else                        MWBarcodeScanner.startScannerView(successCallback, errorCallback, args);
     },
+
     startScannerView: function (successCallback, errorCallback, args) {
         MWBarcodeScanner.startScannerView(successCallback, errorCallback, args);
     },
-    registerSDK: function (successCallback, errorCallback, key) {
-        WindowsComponnent.MWBarcodeScanner.registerSDK(key);
-        successCallback();
+
+    registerSDK: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.registerSDK(successCallback, errorCallback, args);
     },
 
-    setActiveCodes: function (successCallback, errorCallback, activeCodes) {
-         WindowsComponnent.MWBarcodeScanner.setActiveCodes(activeCodes);
+    setActiveCodes: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setActiveCodes(successCallback, errorCallback, args);
     },
 
-    setActiveSubcodes: function (successCallback, errorCallback, codeMask, activeSubcodes) {
-        WindowsComponnent.MWBarcodeScanner.setActiveSubcodes(codeMask, activeSubcodes);
+    setActiveSubcodes: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setActiveSubcodes(successCallback, errorCallback, args);
     },
 
-    setFlags: function (successCallback, errorCallback, codeMask, flags) {
-         WindowsComponnent.MWBarcodeScanner.setFlags(codeMask, flags);
+    setFlags: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setFlags(successCallback, errorCallback, args);
     },
 
-    setMinLength: function (successCallback, errorCallback, codeMask, flags) {
-        WindowsComponnent.MWBarcodeScanner.setMinLength(codeMask, flags);
+    setMinLength: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setMinLength(successCallback, errorCallback, args);
     },
 
-    setDirection: function (successCallback, errorCallback, direction) {
-        WindowsComponnent.MWBarcodeScanner.setDirection(direction);
+    setDirection: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setDirection(successCallback, errorCallback, args);
     },
 
-    setScanningRect: function (successCallback, errorCallback, argsArray) {
-        var codeMask    = argsArray[0];
-        var left        = argsArray[1];
-        var top         = argsArray[2];
-        var width       = argsArray[3];
-        var height      = argsArray[4];
-        WindowsComponnent.MWBarcodeScanner.setScanningRect(codeMask, left, top, width, height);
+    setScanningRect: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setScanningRect(successCallback, errorCallback, args);
     },
 
-    setLevel: function (successCallback, errorCallback, level) {
-        WindowsComponnent.MWBarcodeScanner.setLevel(level);
+    setLevel: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setLevel(successCallback, errorCallback, args);
     },
 
-    setInterfaceOrientation: function (successCallback, errorCallback, interfaceOrientation) {
-        WindowsComponnent.MWBarcodeScanner.setInterfaceOrientation(interfaceOrientation);
+    setInterfaceOrientation: function (successCallback, errorCallback, args) {
+        // N/A
     },
 
-    setOverlayMode: function (successCallback, errorCallback, overlayMode) {
-        //WindowsComponnent.MWBarcodeScanner.setOverlayMode(overlayMode);
-        mwOverlayProperties.mode = overlayMode;
+    setOverlayMode: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setOverlayMode(successCallback, errorCallback, args);
     },
 
-    setBlinkingLineVisible: function (successCallback, errorCallback, visible) {
-        mwOverlayProperties.lineColor = "rgba(255, 0, 0, 0.0)"; // will affect the viewfinder border as well
+    setBlinkingLineVisible: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setBlinkingLineVisible(successCallback, errorCallback, args);
     },
 
-    setPauseMode: function (successCallback, errorCallback, pauseMode) {
-
-        /* What happens when the scanner is paused:
-            *
-            *   PM_NONE             - Nothing happens
-            *   PM_PAUSE            - Blinking lines are replaced with a pause view
-            *   PM_STOP_BLINKING    - Blinking lines stop blinking
-            *
-            *   Default value is PM_PAUSE
-        */
-        mwOverlayProperties.pauseMode = pauseMode; // TO IMPLEMENT, currently it's PM_STOP_BLINKING
+    setPauseMode: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setPauseMode(successCallback, errorCallback, args);
     },
 
-    enableHiRes: function (successCallback, errorCallback, enableHiRes) {
-        //WindowsComponnent.MWBarcodeScanner.enableHiRes(enableHiRes);
-        if (enableHiRes)    USE_CAMERA_RESOLUTION = supportedResolutions[HD];
-        else                USE_CAMERA_RESOLUTION = supportedResolutions[Normal];
+    enableHiRes: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.enableHiRes(successCallback, errorCallback, args);
     },
 
-    enableFlash: function (successCallback, errorCallback, enableFlash) {
-        // SHOW IMAGE BUTTONS OR NOT in FULL SCREEN
-        fullscreenButtons.hideFlash = !enableFlash;
-
+    enableFlash: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.enableFlash(successCallback, errorCallback, args);
     },
-    turnFlashOn: function (successCallback, errorCallback, flashOn) {
-        WindowsComponnent.MWBarcodeScanner.turnFlashOn(flashOn);
+    turnFlashOn: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.turnFlashOn(successCallback, errorCallback, args);
     },
 
     toggleFlash: function (successCallback, errorCallback) {
-        //WindowsComponnent.MWBarcodeScanner.toggleFlash();
-        if (anyScannerStarted)
-        {
-            //flash
-            if (debug_print) console.log('clicked flash');
-
-            if (fullscreenButtons.flashState == -1) return;
-
-            if (WindowsComponnent.MWBarcodeScanner.isLampApiSupported)
-            {
-                if (fullscreenButtons.flashState == 0) {
-                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(true);
-                    fullscreenButtons.flashState = 1;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
-                }
-                else {
-                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
-                    fullscreenButtons.flashState = 0;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
-                }
-            }
-            else
-            {
-                //torchLight.powerPercent = 100;
-                if (fullscreenButtons.flashState == 0) {
-                    fullscreenButtons.flashReference.enabled = true;
-                    fullscreenButtons.flashState = 1;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
-                }
-                else {
-                    fullscreenButtons.flashReference.enabled = false;
-                    fullscreenButtons.flashState = 0;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
-                }
-            }
-        }
+        MWBarcodeScanner.toggleFlash(successCallback, errorCallback);
     },
 
-    enableZoom: function (successCallback, errorCallback, enableZoom) {
-        fullscreenButtons.hideZoom = !enableZoom;
+    enableZoom: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.enableZoom(successCallback, errorCallback, args);
     },
 
-    setZoomLevels: function (successCallback, errorCallback, argsArray) {
-        var zoomLevel1 = argsArray[0];
-        var zoomLevel2 = argsArray[1];
-        var initialZoomLevel = argsArray[2];
-
-        fullscreenButtons.zoom_lvl_ini = initialZoomLevel;
-        fullscreenButtons.zoomLevels[1] = zoomLevel1;
-        fullscreenButtons.zoomLevels[2] = zoomLevel2;
+    setZoomLevels: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setZoomLevels(successCallback, errorCallback, args);
     },
 
-    toggleZoom: function (successCallback, errorCallback) {
-        //WindowsComponnent.MWBarcodeScanner.toggleZoom();
-        if (anyScannerStarted)
-        {
-            if (debug_print) console.log('clicked zoom');
-
-            if (fullscreenButtons.zoomState == -1) return;
-
-            var zoomSettings = new Windows.Media.Devices.ZoomSettings();
-
-            var zoomControlRef = fullscreenButtons.zoomReference;
-            // toggle zoom levels 1 - 2 - 4
-            /*if (zoomControlRef.value == zoomControlRef.min) zoomSettings.value = zoomControlRef.max / 2;
-            else if (zoomControlRef.value == (zoomControlRef.max / 2)) zoomSettings.value = zoomControlRef.max;
-            else if (zoomControlRef.value == zoomControlRef.max) zoomSettings.value = zoomControlRef.min;*/
-
-            // new way to handle things because of setZoomLevels
-            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
-            fullscreenButtons.zoom_lvl_ini = ((++fullscreenButtons.zoom_lvl_ini) % 3);
-
-            zoomSettings.mode = zoomControlRef.supportedModes.first();
-            zoomControlRef.configure(zoomSettings);
-        }
+    toggleZoom: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.toggleZoom(successCallback, errorCallback);
     },
 
-    setMaxThreads: function (successCallback, errorCallback, maxThreads) {
-        WindowsComponnent.MWBarcodeScanner.setMaxThreads(maxThreads);
+    setMaxThreads: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setMaxThreads(successCallback, errorCallback, args)
     },
 
-    setCustomParam: function (successCallback, errorCallback, key, value) {
+    setCustomParam: function (successCallback, errorCallback, args) {
+        // TO BE REMOVED
+    },
+
+    closeScannerOnDecode: function (successCallback, errorCallback, args) {
         // N/A
     },
 
-    closeScannerOnDecode: function (successCallback, errorCallback, shouldClose) {
+    resumeScanning: function (successCallback, errorCallback, args) {
         // N/A
     },
 
-    resumeScanning: function (successCallback, errorCallback) {
-        //WindowsComponnent.MWBarcodeScanner.resumeScanning();
-        WindowsComponnent.ScannerPage.pauseDecoder = true;
+    closeScanner: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.closeScanner(successCallback, errorCallback);
     },
 
-    closeScanner: function (successCallback, errorCallback) {
-        if (debug_print) console.log('about to close');
-        if (anyReader != null)
-        {
-            anyReader && anyReader.stop();
-
-            anyScannerStarted = false;
-            anyReader = null;
-            //document.getElementById("b1").disabled = false;
-            //document.getElementById("b2").disabled = false;
-        } // nice, finaly ref is useful
-    },
-
-    use60fps: function (successCallback, errorCallback, use) {
+    use60fps: function (successCallback, errorCallback, args) {
         // N/A
     },
 
-    scanImage: function (successCallback, errorCallback,imageURI) {
-       WindowsComponnent.MWBarcodeScanner.scanImage(imageURI);
+    scanImage: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.scanImage(successCallback, errorCallback, args);
     },
 
-    setParam: function (successCallback, errorCallback,codeMask, paramId, paramValue) {
-         WindowsComponnent.MWBarcodeScanner.setParam(codeMask, paramId, paramValue);
+    setParam: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setParam(successCallback, errorCallback, args);
     },
 
-    togglePauseResume: function (successCallback, errorCallback) {
-        if (debug_print) {
-            if (!WindowsComponnent.ScannerPage.pauseDecoder) console.log('about to pause scanning');
-            else console.log('about to unpause scanning');
-        }
-
-        WindowsComponnent.MWBarcodeScanner.togglePauseResume();
-
-        if (!WindowsComponnent.ScannerPage.pauseDecoder)
-        {
-            mwBlinkingLines.v.style.animationPlayState = "running";
-            mwBlinkingLines.h.style.animationPlayState = "running";
-        }
-        else
-        {
-            mwBlinkingLines.v.style.animationPlayState = "paused";
-            mwBlinkingLines.h.style.animationPlayState = "paused";
-        }
+    togglePauseResume: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.togglePauseResume(successCallback, errorCallback);
     },
 
-    duplicateCodeDelay: function (successCallback, errorCallback,delay) {
-        WindowsComponnent.MWBarcodeScanner.duplicateCodeDelay(delay);
+    duplicateCodeDelay: function (successCallback, errorCallback, args) {
+        // N/A
     },
 
-    setUseAutoRect: function (successCallback, errorCallback,useAutoRect) {
-        WindowsComponnent.MWBarcodeScanner.setUseAutoRect(useAutoRect);
+    setUseAutoRect: function (successCallback, errorCallback, args) {
+        // N/A
     },
 
-    useFrontCamera: function (successCallback, errorCallback,useFrontCamera) {
-        WindowsComponnent.MWBarcodeScanner.useFrontCamera(useFrontCamera);
+    useFrontCamera: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.useFrontCamera(successCallback, errorCallback, args);
     },
 
-    enableParser: function (successCallback, errorCallback, enableParser) {
-        WindowsComponnent.MWBarcodeScanner.enableParser(enableParser);
+    enableParser: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.enableParser(successCallback, errorCallback, args);
     },
 
-    setActiveParser: function (successCallback, errorCallback,activeParser) {
-        WindowsComponnent.MWBarcodeScanner.setActiveParser(activeParser);
+    setActiveParser: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.setActiveParser(successCallback, errorCallback, args);
+    },
+
+    resizePartialScanner: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.resizePartialScanner(successCallback, errorCallback, args);
+    },
+
+    usePartialScanner: function (successCallback, errorCallback, args) {
+        MWBarcodeScanner.usePartialScanner(successCallback, errorCallback, args);
     }
 });
 
@@ -376,6 +286,8 @@ function findCamera() {
         var backCameras = cameras.filter(function (camera) {
             return camera.enclosureLocation && camera.enclosureLocation.panel === Devices.Panel.back;
         });
+
+        //console.log('available cameras: ' + cameras.length + ' of which back cameras: ' + backCameras.length);
 
         // If there is back cameras, return the id of the first,
         // otherwise take the first available device's id
@@ -529,6 +441,7 @@ BarcodeReader.prototype.stop = function () {
 };
 
 var MWBarcodeScanner = {
+
     /**
      * Scans image via device camera and retieves barcode from it.
      * @param  {function} success Success callback
@@ -564,7 +477,7 @@ var MWBarcodeScanner = {
         WindowsComponnent.ScannerPage.iniClear();
 
         // EXPERIMENTAL - TO BE DECIDED
-        //WindowsComponnent.BarcodeHelper.initDecoder();
+        WindowsComponnent.BarcodeHelper.initDecoder();
 
         var torchLight;
         var zoomControl;
@@ -619,7 +532,11 @@ var MWBarcodeScanner = {
                     /*none*/
             }
 
-            resizeCanvas(); // this handles phone/tablet, the event listener for window resize handles desktop
+            // do this to prevent rotational lag in UI update 
+            setTimeout(function () {
+                resizeCanvas(); // this handles phone/tablet, the event listener for window resize handles desktop
+            }, 100);
+            
 
             if (operatingSystem == 'WindowsPhone')
                 return capture.setEncodingPropertiesAsync(Windows.Media.Capture.MediaStreamType.videoPreview, videoEncodingProperties, null);
@@ -1249,12 +1166,22 @@ var MWBarcodeScanner = {
 
         // check if already scanning
         if (anyScannerStarted) return;
-        else anyScannerStarted = true;
+        else
+        {
+            DOM_complete = false;
+            anyScannerStarted = true;
+        }
 
         // disable b1 b2, tho since its full screen theres no need, but still
 		// DEPENDENCY: buttons will need to be named that way in the index
         //document.getElementById("b1").disabled = true;
         //document.getElementById("b2").disabled = true;
+
+        // copy args
+        /*partialView.x = args[0];
+        partialView.y = args[1];
+        partialView.width = args[2];
+        partialView.height = args[3];*/
 
         // clear needs to be done for every scan
         WindowsComponnent.ScannerPage.iniClear();
@@ -1305,32 +1232,37 @@ var MWBarcodeScanner = {
 					is_portrait = false;
                     viewfinderOnScreenView.orientation = 0;
                     //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
+                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation); //in setTimeout
                     break;
                 case Windows.Graphics.Display.DisplayOrientations.portrait:
 					is_portrait = true;
                     viewfinderOnScreenView.orientation = 1;
                     //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
+                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
                     break;
                 case Windows.Graphics.Display.DisplayOrientations.landscapeFlipped:
 					is_portrait = false;
                     viewfinderOnScreenView.orientation = 2;
                     //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
+                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
                     break;
                 case Windows.Graphics.Display.DisplayOrientations.portraitFlipped: //not handled for anchoring
 					is_portrait = true;
                     viewfinderOnScreenView.orientation = 3;
                     //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
+                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
                     break;
                 default:
                     /*none*/
             }
 			
-			calcPreview(is_portrait);
-            resizeCanvas(); // this handles phone/tablet, the event listener for window resize handles desktop
+            // aid slow perfomance on rotation
+            setTimeout(function () {
+                anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
+                calcPreview(is_portrait);
+                resizeCanvas(); // this handles phone/tablet, the event listener for window resize handles desktop
+            }, 100);
+			
 
             if (operatingSystem == 'WindowsPhone')
                 return capture.setEncodingPropertiesAsync(Windows.Media.Capture.MediaStreamType.videoPreview, videoEncodingProperties, null);
@@ -1341,7 +1273,8 @@ var MWBarcodeScanner = {
         /**
          * Resize partial scanning view.
          */
-        function resizeView(x1, y1, w1, h1) {
+        if (resizePartialScannerView == null)
+            resizePartialScannerView = function resizeView(/*x1, y1, w1, h1*/) {
 
             // USE THIS IF YOU WANT TO STORE THE VALUES OF THE RESIZE FOR THE NEXT SCAN
             /*partialView.x = x1;
@@ -1349,8 +1282,8 @@ var MWBarcodeScanner = {
             partialView.width = w1;
             partialView.height = h1;*/
 
-            //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
-            anchorView_toOrientation(x1, y1, w1, h1, partialView.orientation, viewfinderOnScreenView.orientation);
+            anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
+            //anchorView_toOrientation(x1, y1, w1, h1, partialView.orientation, viewfinderOnScreenView.orientation);
             calcPreview(is_portrait);
             resizeCanvas();
         }
@@ -1749,10 +1682,14 @@ var MWBarcodeScanner = {
             });
 
             //DEBUG: USE THIS TO TEST RESIZE
-            setTimeout(function () {
+            /*setTimeout(function () {
                 //console.log(document.body.innerHTML); //doesn't print longer strings in console
-                resizeView(0, 0, 80, 80);
-            }, 10000);
+                partialView.x = 10;
+                partialView.y = 0;
+                partialView.width = 80;
+                partialView.height = 30;
+                resizePartialScannerView();
+            }, 10000);*/
         }
 
         function focus(controller) {
@@ -1967,6 +1904,8 @@ var MWBarcodeScanner = {
                 document.body.appendChild(canvasOverlay);
                 document.body.appendChild(canvasBlinkingLineV);
                 document.body.appendChild(canvasBlinkingLineH);
+
+                DOM_complete = true;
 				
                 calcPreview(false);
 				resizeCanvas();
@@ -2070,6 +2009,370 @@ var MWBarcodeScanner = {
             fail(error);
         });
     },
+
+    // ADDITIONAL WRAPPER FUNCTIONS ----------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Initializes the decoder
+     */
+    initDecoder: function (success, fail) {
+        WindowsComponnent.BarcodeHelper.initDecoder();
+        success();
+    },
+
+    /**
+     * Registers the SDK
+     */
+    registerSDK: function (success, fail, args) {
+        var key = ((typeof args[0]) == 'string') ? args[0] : '';
+
+        if (debug_print) console.log('REGISTER HAS ARRIVED');
+
+        var retVal = -1;
+
+        retVal = WindowsComponnent.MWBarcodeScanner.registerSDK(key);
+        success(retVal);
+    },
+
+    /**
+     * Sets the activeCodes
+     */
+    setActiveCodes: function (success, fail, args) {
+        var activeCodes = ((typeof args[0]) == 'number') ? args[0] : 0;
+
+        if (activeCodes != 0)
+        WindowsComponnent.MWBarcodeScanner.setActiveCodes(activeCodes);
+    },
+
+    /**
+     * Sets the activeSubcodes
+     */
+    setActiveSubcodes: function (success, fail, args) {
+        var codeMask        = ((typeof args[0]) == 'number') ? args[0] : 0;
+        var activeSubcodes  = ((typeof args[1]) == 'number') ? args[1] : 0;
+
+        if ((codeMask + activeSubcodes) != 0)
+        WindowsComponnent.MWBarcodeScanner.setActiveSubcodes(codeMask, activeSubcodes);
+    },
+
+    /**
+     * Sets the flags
+     */
+    setFlags: function (success, fail, args) {
+        var codeMask    = ((typeof args[0]) == 'number') ? args[0] : 0;
+        var flags       = ((typeof args[1]) == 'number') ? args[1] : 0;
+
+        if ((codeMask + flags) != 0)
+        WindowsComponnent.MWBarcodeScanner.setFlags(codeMask, flags);
+    },
+
+    /**
+     * Sets the minimumLength
+     */
+    setMinLength: function (success, fail, args) {
+        var codeMask    = ((typeof args[0]) == 'number') ? args[0] : 0;
+        var minLength   = ((typeof args[1]) == 'number') ? args[1] : 0;
+
+        if ((codeMask + minLength) != 0)
+        WindowsComponnent.MWBarcodeScanner.setMinLength(codeMask, minLength);
+    },
+
+    /**
+     * Sets the direction
+     */
+    setDirection: function (success, fail, args) {
+        var direction = ((typeof args[0]) == 'number') ? args[0] : 4;
+        WindowsComponnent.MWBarcodeScanner.setDirection(direction);
+    },
+
+    /**
+     * Sets the scanningRect area to be scanned by the decoder
+     */
+    setScanningRect: function (success, fail, args) {
+        var codeMask    = ((typeof args[0]) == 'number') ? args[0] : 0;
+        var left        = ((typeof args[1]) == 'number') ? args[1] : 0;
+        var top         = ((typeof args[2]) == 'number') ? args[2] : 0;
+        var width       = ((typeof args[3]) == 'number') ? args[3] : 100;
+        var height      = ((typeof args[4]) == 'number') ? args[4] : 100;
+
+        if (codeMask != 0)
+        WindowsComponnent.MWBarcodeScanner.setScanningRect(codeMask, left, top, width, height);
+    },
+
+    /**
+     * Sets the decoder level
+     */
+    setLevel: function (success, fail, args) {
+        var level = ((typeof args[0]) == 'number') ? args[0] : 2;
+        WindowsComponnent.MWBarcodeScanner.setLevel(level);
+    },
+
+    /**
+     * Sets the overlayMode
+     */
+    setOverlayMode: function (success, fail, args) {
+        mwOverlayProperties.mode = ((typeof args[0]) == 'number') ? args[0] : 1;
+    },
+
+    /**
+     * Sets the visibility of the blinking line
+     */
+    setBlinkingLineVisible: function (success, fail, args) {
+        var visible = ((typeof args[0]) == 'boolean') ? args[0] : true;
+
+        if (visible)    mwOverlayProperties.lineColor = "rgba(255, 0, 0, 1.0)"; // the color will be reset to red
+        else            mwOverlayProperties.lineColor = "rgba(255, 0, 0, 0.0)"; // will affect the viewfinder border as well
+    },
+
+    /**
+     * Sets the pauseMode
+     */
+    setPauseMode: function (success, fail, args) {
+
+        /* What happens when the scanner is paused:
+            *
+            *   PM_NONE             - Nothing happens
+            *   PM_PAUSE            - Blinking lines are replaced with a pause view
+            *   PM_STOP_BLINKING    - Blinking lines stop blinking
+            *
+            *   Default value is PM_PAUSE
+        */
+        mwOverlayProperties.pauseMode = ((typeof args[0]) == 'number') ? args[0] : 1; // currently PM_STOP_BLINKING
+    },
+
+    /**
+     * Enable or disable 720p camera resolution
+     */
+    enableHiRes: function (success, fail, args) {
+        var enableHiRes = ((typeof args[0]) == 'boolean') ? args[0] : true;
+
+        if (enableHiRes)    USE_CAMERA_RESOLUTION = supportedResolutions[HD];
+        else                USE_CAMERA_RESOLUTION = supportedResolutions[Normal];
+    },
+
+    /**
+     * Show image buttons or not in full screen
+     */
+    enableFlash: function (success, fail, args) {
+        fullscreenButtons.hideFlash = ((typeof args[0]) == 'boolean') ? !args[0] : false;
+    },
+
+    /**
+     * Turns the flash ON or OFF
+     */
+    turnFlashOn: function (success, fail, args) {
+        var flashOn = ((typeof args[0]) == 'boolean') ? args[0] : false;
+        WindowsComponnent.MWBarcodeScanner.turnFlashOn(flashOn);
+    },
+
+    /**
+     * Implements toggleFlash
+     */
+    toggleFlash: function (success, fail) {
+        if (anyScannerStarted) {
+            //flash
+            if (debug_print) console.log('clicked flash');
+
+            if (fullscreenButtons.flashState == -1) return;
+
+            if (WindowsComponnent.MWBarcodeScanner.isLampApiSupported) {
+                if (fullscreenButtons.flashState == 0) {
+                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(true);
+                    fullscreenButtons.flashState = 1;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                }
+                else {
+                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
+                    fullscreenButtons.flashState = 0;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                }
+            }
+            else {
+                //torchLight.powerPercent = 100;
+                if (fullscreenButtons.flashState == 0) {
+                    fullscreenButtons.flashReference.enabled = true;
+                    fullscreenButtons.flashState = 1;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                }
+                else {
+                    fullscreenButtons.flashReference.enabled = false;
+                    fullscreenButtons.flashState = 0;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                }
+            }
+        }
+    },
+
+    /**
+     * Show image buttons or not in full screen
+     */
+    enableZoom: function (success, fail, args) {
+        fullscreenButtons.hideZoom = ((typeof args[0]) == 'boolean') ? !args[0] : false;
+    },
+
+    /**
+     * Sets the camera zoom levels
+     */
+    setZoomLevels: function (success, fail, args) {
+
+        var zoomLevel1          = ((typeof args[0]) == 'number') ? args[0] : 2;
+        var zoomLevel2          = ((typeof args[1]) == 'number') ? args[1] : 4;
+        var initialZoomLevel    = ((typeof args[2]) == 'number') ? args[2] : 0;
+
+            fullscreenButtons.zoom_lvl_ini = initialZoomLevel;
+            fullscreenButtons.zoomLevels[1] = zoomLevel1;
+            fullscreenButtons.zoomLevels[2] = zoomLevel2;
+    },
+
+    /**
+     * Implements toggleZoom of the camera zoom levels
+     */
+    toggleZoom: function (success, fail) {
+        if (anyScannerStarted) {
+            if (debug_print) console.log('clicked zoom');
+
+            if (fullscreenButtons.zoomState == -1) return;
+
+            var zoomSettings = new Windows.Media.Devices.ZoomSettings();
+
+            var zoomControlRef = fullscreenButtons.zoomReference;
+            // toggle zoom levels 1 - 2 - 4
+            /*if (zoomControlRef.value == zoomControlRef.min) zoomSettings.value = zoomControlRef.max / 2;
+            else if (zoomControlRef.value == (zoomControlRef.max / 2)) zoomSettings.value = zoomControlRef.max;
+            else if (zoomControlRef.value == zoomControlRef.max) zoomSettings.value = zoomControlRef.min;*/
+
+            // new way to handle things because of setZoomLevels
+            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
+            fullscreenButtons.zoom_lvl_ini = ((++fullscreenButtons.zoom_lvl_ini) % 3);
+
+            zoomSettings.mode = zoomControlRef.supportedModes.first();
+            zoomControlRef.configure(zoomSettings);
+        }
+    },
+
+    /**
+     * Sets the number of maximum threads for the decoder to use
+     */
+    setMaxThreads: function (success, fail, args) {
+        var maxThreads = ((typeof args[0]) == 'number') ? args[0] : 4;
+        WindowsComponnent.MWBarcodeScanner.setMaxThreads(maxThreads);
+    },
+
+    /**
+     * Implements the closing of the scanner previously created by calling startScanner
+     */
+    closeScanner: function (success, fail) {
+        if (debug_print) console.log('about to close');
+        if (anyReader != null) {
+            anyReader && anyReader.stop();
+
+            anyScannerStarted = false;
+            anyReader = null;
+            //document.getElementById("b1").disabled = false;
+            //document.getElementById("b2").disabled = false;
+        } // nice, finaly ref is useful
+    },
+
+    /**
+     * Scans an image
+     */
+    scanImage: function (success, fail, args) {
+        var imageURI = ((typeof args[0]) == 'string') ? args[0] : '';
+        
+        // clear needs to be done for every scan
+        WindowsComponnent.ScannerPage.iniClear();
+
+        if (debug_print) console.log('about to scan image: ' + imageURI);
+
+        // TO BE DECIDED
+    },
+
+    /**
+     * Sets parameters in the SDK
+     */
+    setParam: function (success, fail, args) {
+
+        var codeMask    = ((typeof args[0]) == 'number') ? args[0] : 0;
+        var paramId     = ((typeof args[1]) == 'number') ? args[1] : 0;
+        var paramValue  = ((typeof args[2]) == 'number') ? args[2] : 0;
+
+        if ((codeMask | paramId | paramValue) != 0)
+        WindowsComponnent.MWBarcodeScanner.setParam(codeMask, paramId, paramValue);
+    },
+
+    /**
+     * Implements togglePauseResume of the scanner
+     */
+    togglePauseResume: function (success, fail) {
+        if (anyScannerStarted) {
+            if (debug_print) {
+                if (!WindowsComponnent.ScannerPage.pauseDecoder) console.log('about to pause scanning');
+                else console.log('about to unpause scanning');
+            }
+
+            WindowsComponnent.MWBarcodeScanner.togglePauseResume();
+
+            if (!WindowsComponnent.ScannerPage.pauseDecoder) {
+                mwBlinkingLines.v.style.animationPlayState = "running";
+                mwBlinkingLines.h.style.animationPlayState = "running";
+            }
+            else {
+                mwBlinkingLines.v.style.animationPlayState = "paused";
+                mwBlinkingLines.h.style.animationPlayState = "paused";
+            }
+        }
+    },
+
+    /**
+     * Enables or disables the use of the front camera if available
+     */
+    useFrontCamera: function (success, fail, args) {
+        _useFrontCamera = ((typeof args[0]) == 'boolean') ? args[0] : false;
+        // TO-DO
+    },
+
+    /**
+     * Enables or disables the parser
+     */
+    enableParser: function (success, fail, args) {
+        var enableParser = ((typeof args[0]) == 'boolean') ? args[0] : false;
+        WindowsComponnent.MWBarcodeScanner.enableParser(enableParser);
+    },
+
+    /**
+     * Sets the mask of the parser to be used
+     */
+    setActiveParser: function (success, fail, args) {
+        var activeParser = ((typeof args[0]) == 'number') ? args[0] : 0;
+        WindowsComponnent.MWBarcodeScanner.setActiveParser(activeParser);
+    },
+
+    /**
+     * Resizes the partialPreview
+     */
+    resizePartialScanner: function (success, fail, args) {
+        if (true) { //instead of _usePartialScanner because this function is called before _usePartialScanner is set
+
+            // IF this is called BEFORE startScannerView then only args should be set
+            partialView.x       = ((typeof args[0]) == 'number') ? args[0] : 0;
+            partialView.y       = ((typeof args[1]) == 'number') ? args[1] : 0;
+            partialView.width   = ((typeof args[2]) == 'number') ? args[2] : 50;
+            partialView.height = ((typeof args[3]) == 'number') ? args[3] : 50;
+
+            // ONLY IF startScannerView has completed loading elements in DOM and is actively running should resizeView be called
+            if (anyScannerStarted && DOM_complete) resizePartialScannerView();
+        }
+    },
+
+    /**
+     * Enables or disables the use of startScannerView
+     */
+    usePartialScanner: function (success, fail, args) {
+        _usePartialScanner = ((typeof args[0]) == 'boolean') ? args[0] : false;
+    },
+
+    // --------------------------------------------------------------------------------------------------------------------------------------
+
 
     /**
      * Encodes specified data into barcode

@@ -230,7 +230,7 @@ namespace WindowsComponnent
 
                         string displayString = "";
 
-                        if (USE_MWPARSER == true)
+                        if (MWPARSER_MASK != Scanner.MWP_PARSER_MASK_NONE) //instead of USE_MWPARSER
                         {
                             double parserRes = -1;
                             //ignore results shorter than 4 characters for barcodes with weak checksum
@@ -242,7 +242,7 @@ namespace WindowsComponnent
                                 if (MWPARSER_MASK != Scanner.MWP_PARSER_MASK_NONE && !(MWPARSER_MASK == Scanner.MWP_PARSER_MASK_GS1 && !mwResult.isGS1))
                                 {
 
-                                    parserRes = BarcodeLib.Scanner.MWPgetFormattedText(MWPARSER_MASK, System.Text.Encoding.UTF8.GetBytes(mwResult.encryptedResult), parsedResult);
+                                    parserRes = BarcodeLib.Scanner.MWPgetJSON(MWPARSER_MASK, System.Text.Encoding.UTF8.GetBytes(mwResult.encryptedResult), parsedResult);
 
                                     if (parserRes >= 0)
                                     {
