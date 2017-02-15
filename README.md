@@ -280,7 +280,7 @@ example : [{"method":"setActiveParser" : "value" : [cc.MWP_PARSER_MASK_GS1 | cc.
 The license is not set during plugin add, instead, you can set it in Resources.resw, which is an xml file. 
 This file is part of the WindowsComponnent project and is located in Strings\en-US. Once the solution is built, you can open it via Visual Studio. It contains one element named **MW_LICENSE_KEY**, where you can set your license in place of **YOUR_LICENSE_KEY** in the value section. This license won't be taken into account during registration if you set a key string in **MWBScanner.js** (which is not advised).
 
-The function **scanImage** is currently not available.
+The function **scanImage()** is currently not available.
 
 
 # IONIC 1 Implementation
