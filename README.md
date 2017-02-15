@@ -1,4 +1,7 @@
-# Manatee Works Barcode Scanner SDK Plugin
+
+
+
+> Written with [StackEdit](https://stac# Manatee Works Barcode Scanner SDK Plugin
 
 
 ## PhoneGap implementation (see below for ionic and ionic2)
@@ -280,7 +283,9 @@ example : [{"method":"setActiveParser" : "value" : [cc.MWP_PARSER_MASK_GS1 | cc.
 
 ##Windows platform specific instructions
 
+The license is not set during plugin add, instead, you can set it in Resources.resw, which is an xml file. This file is part of the WindowsComponnent project and is located in Strings\en-US. Once the solution is built, you can open it via Visual Studio. It contains one element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section. This license won't be taken into account during registration if you already have set one in MWBScanner.js
 
+The function scanImage currently is not available.
 
 
 # IONIC 1 Implementation
@@ -373,4 +378,4 @@ Build for your platform
     ionic build ios
     
 
-And run your app.
+And run your app.kedit.io/).
