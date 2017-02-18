@@ -43,7 +43,6 @@ using BarcodeLib;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.ComponentModel;
 
-
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace WindowsComponnent
@@ -482,6 +481,68 @@ namespace WindowsComponnent
             convertedQueue.Enqueue(cResult);
             law_n_order.ReleaseMutex();
             //throw new NotImplementedException();
+        }
+
+        // scanImage implementation
+        public static MWResult scanImage([ReadOnlyArray()] byte[] rawImage, int width, int height)
+        {
+            MWResult mwResult = null;
+
+            int size = width * height;
+            byte[] gray = new byte[size];
+
+            int colorChannels = 4;
+            int colorChannelOffset = 1;
+
+            for (int y = 0; y < height; y++)
+            {
+                int dstOffset = y * width;
+                int srcOffset = ((y * width) * colorChannels) + colorChannelOffset;
+                for (int x = 0; x < width; x++)
+                {
+                    gray[dstOffset + x] = rawImage[srcOffset];
+                    srcOffset += colorChannels;
+                }
+            }
+
+            string s = null;
+
+            Scanner.MWBsetResultType(Scanner.MWB_RESULT_TYPE_MW);
+            byte[] p_data = new byte[10000];
+            int len = Scanner.MWBscanGrayscaleImage(gray, width, height, p_data);
+
+            if (len > 0)
+            {
+                MWResults mwres = new MWResults(p_data);
+                mwResult = null;
+                if (mwres != null && mwres.count > 0)
+                {
+                    mwResult = mwres.getResult(0);
+
+                    // with parser
+                    if (MWPARSER_MASK != Scanner.MWP_PARSER_MASK_NONE && !(MWPARSER_MASK == Scanner.MWP_PARSER_MASK_GS1 && !mwResult.isGS1))
+                    {
+                        double parserRes = -1;
+                        byte[] pp_data = new byte[10000];
+
+                        if (mwResult != null && mwResult.bytesLength > 4 || (mwResult != null && mwResult.bytesLength > 0 && mwResult.type != Scanner.FOUND_39 && mwResult.type != Scanner.FOUND_25_INTERLEAVED && mwResult.type != Scanner.FOUND_25_STANDARD))
+                        {
+                            parserRes = BarcodeLib.Scanner.MWPgetJSON(MWPARSER_MASK, System.Text.Encoding.UTF8.GetBytes(mwResult.encryptedResult), pp_data);
+
+                            if (parserRes >= 0)
+                            {
+                                mwResult.text = Encoding.UTF8.GetString(pp_data, 0, pp_data.Length);
+
+                                int index = mwResult.text.IndexOf('\0');
+                                if (index >= 0)
+                                    mwResult.text = mwResult.text.Remove(index);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return mwResult;
         }
     }
 

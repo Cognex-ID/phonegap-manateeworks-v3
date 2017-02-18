@@ -97,8 +97,10 @@ var DOM_complete = false;
 
 var fullscreenButtons = {
     flashReference: null,
+	flashControlRef: null,					  
     flashState: 0,
     zoomReference: null,
+	zoomControlRef: null,					 
     zoomState: 0,
     zoom_lvl_ini: 0,
     zoomLevels: [1, 2, 4],
@@ -476,7 +478,7 @@ var MWBarcodeScanner = {
         // clear needs to be done for every scan
         WindowsComponnent.ScannerPage.iniClear();
 
-        // EXPERIMENTAL - TO BE DECIDED
+        // and for all scanningRects in the sdk
         WindowsComponnent.BarcodeHelper.initDecoder();
 
         var torchLight;
@@ -488,6 +490,8 @@ var MWBarcodeScanner = {
         // get device type
         var easClientDeviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
         var operatingSystem = easClientDeviceInformation.operatingSystem;
+
+        var firstTimeUpdate = true;
 
         function updatePreviewForRotation(evt) {
             if (!capture) {
@@ -532,10 +536,8 @@ var MWBarcodeScanner = {
                     /*none*/
             }
 
-            // do this to prevent rotational lag in UI update 
-            setTimeout(function () {
-                resizeCanvas(); // this handles phone/tablet, the event listener for window resize handles desktop
-            }, 100);
+            // PREVIEW UPDATE SHOULD BE DONE AFTER UI CHANGE WHICH MAY TAKE SOME TIME TO COMPLETE RENDERING AFTER ORIENTATION CHANGE | HANDLED BY window.resizeEvent->resizeCanvas
+            if (firstTimeUpdate) { resizeCanvas(); firstTimeUpdate = false; }
             
 
             if (operatingSystem == 'WindowsPhone')
@@ -580,7 +582,7 @@ var MWBarcodeScanner = {
             // get viewfinder (landscape)
             var viewfinderUnionRect = WindowsComponnent.BarcodeHelper.mwBgetScanningRect(0);
 			
-			if (debug_print) console.log('resizeCanvas ');
+            if (debug_print) console.log('resizeCanvas | window size ' + window.innerWidth + ' ' + window.innerHeight);
 
             // set viewfinder in pixels
             viewfinderOnScreen.x = window.innerWidth * (viewfinderUnionRect.x / 100);
@@ -707,8 +709,8 @@ var MWBarcodeScanner = {
             else if (zoomControl.value == zoomControl.max) zoomSettings.value = zoomControl.min;*/
 
             // new way to handle things courtesy of setZoomLevels
-            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
             fullscreenButtons.zoom_lvl_ini = ((++fullscreenButtons.zoom_lvl_ini) % 3);
+            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
 
             zoomSettings.mode = zoomControl.supportedModes.first();
             zoomControl.configure(zoomSettings);
@@ -804,8 +806,7 @@ var MWBarcodeScanner = {
 
             resizeCanvas();
 
-            // register an event listener to be notified and execute resizeCanvas upon window resize for desktop only
-            if (operatingSystem == 'WINDOWS')
+            // register an event listener to be notified and execute resizeCanvas upon window resize for desktop only AND orientation->UI change for phone/tablet
             window.addEventListener('resize', resizeCanvas, false);
 
             /*closeButton = document.createElement("div");
@@ -980,6 +981,13 @@ var MWBarcodeScanner = {
 
                     if (!(fullscreenButtons.zoom_lvl_ini == 0 || fullscreenButtons.zoom_lvl_ini == 1 || fullscreenButtons.zoom_lvl_ini == 2))
                         fullscreenButtons.zoom_lvl_ini = 0;
+					// apply ini zoomLevel
+                    var zoomSettings = new Windows.Media.Devices.ZoomSettings();
+
+                    zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
+
+                    zoomSettings.mode = zoomControl.supportedModes.first();
+                    zoomControl.configure(zoomSettings);					  
 
                     fullscreenButtons.zoomReference.getElementsByTagName("img")[0].src = fullscreenButtons.zoom0;
                 }
@@ -1053,8 +1061,7 @@ var MWBarcodeScanner = {
             Windows.Graphics.Display.DisplayInformation.getForCurrentView().removeEventListener("orientationchanged", updatePreviewForRotation, false);
             document.removeEventListener('backbutton', cancelPreview);
 
-            if (operatingSystem == 'WINDOWS')
-            document.removeEventListener('resize', resizeCanvas);
+            window.removeEventListener('resize', resizeCanvas, false);
 
             fullscreenButtons.flashReference.removeEventListener('click', clickedFlash, false);
             fullscreenButtons.zoomReference.removeEventListener('click', clickedZoom, false);
@@ -1196,6 +1203,9 @@ var MWBarcodeScanner = {
         var torchLight;
         var zoomControl;
 
+        //var TimeN = new Date();
+        var firstTimeUpdate = true;
+
         function updatePreviewForRotation(evt) {
             if (!capture) {
                 return;
@@ -1219,11 +1229,8 @@ var MWBarcodeScanner = {
 			
 			if (debug_print)
 			{
-			    //TO BE REMOVED
-			    /*var argc = 0; var arglen = args.length; 
-				for (; argc < arglen; argc++) console.log('arg[' + argc + '] = ' + args[argc]);*/
-
-			    console.log('partialViewView properties ' + partialView);
+			    console.log('currentOrientation' + currentOrientation);
+			    //console.log('time from previous orientation change ' + (new Date - TimeN)); TimeN = new Date();
 			}
 
             // update style depending on orientation
@@ -1231,37 +1238,25 @@ var MWBarcodeScanner = {
                 case Windows.Graphics.Display.DisplayOrientations.landscape:
 					is_portrait = false;
                     viewfinderOnScreenView.orientation = 0;
-                    //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation); //in setTimeout
                     break;
                 case Windows.Graphics.Display.DisplayOrientations.portrait:
 					is_portrait = true;
                     viewfinderOnScreenView.orientation = 1;
-                    //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
                     break;
                 case Windows.Graphics.Display.DisplayOrientations.landscapeFlipped:
 					is_portrait = false;
                     viewfinderOnScreenView.orientation = 2;
-                    //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
                     break;
                 case Windows.Graphics.Display.DisplayOrientations.portraitFlipped: //not handled for anchoring
 					is_portrait = true;
                     viewfinderOnScreenView.orientation = 3;
-                    //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
-                    //anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
                     break;
                 default:
                     /*none*/
             }
 			
-            // aid slow perfomance on rotation
-            setTimeout(function () {
-                anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
-                calcPreview(is_portrait);
-                resizeCanvas(); // this handles phone/tablet, the event listener for window resize handles desktop
-            }, 100);
+            // PREVIEW UPDATE SHOULD BE DONE AFTER UI CHANGE WHICH MAY TAKE SOME TIME TO COMPLETE RENDERING AFTER ORIENTATION CHANGE | HANDLED BY window.resizeEvent->resizePartialScannerView
+            if (firstTimeUpdate) { resizePartialScannerView(); firstTimeUpdate = false; }
 			
 
             if (operatingSystem == 'WindowsPhone')
@@ -1273,8 +1268,9 @@ var MWBarcodeScanner = {
         /**
          * Resize partial scanning view.
          */
-        if (resizePartialScannerView == null)
-            resizePartialScannerView = function resizeView(/*x1, y1, w1, h1*/) {
+        resizePartialScannerView = function resizeView(/*x1, y1, w1, h1*/) {
+				
+			if (debug_print) console.log('resizePartialView | window size ' + window.innerWidth + ' ' + window.innerHeight);
 
             // USE THIS IF YOU WANT TO STORE THE VALUES OF THE RESIZE FOR THE NEXT SCAN
             /*partialView.x = x1;
@@ -1651,7 +1647,7 @@ var MWBarcodeScanner = {
             // make this call to lamp here, by the time you're in startPreview it should be completed
 			WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
 			
-			// OPTIONAL: call initDecoder from BarcodeHelper
+			// scanningRects need to be reset in the sdk
             WindowsComponnent.BarcodeHelper.initDecoder();
 			
             initCodeMasksArray_and_untouchedScanningRectsArray_and_untouchedScanningRectsUnion(numberOfSupporedCodes);
@@ -1659,6 +1655,11 @@ var MWBarcodeScanner = {
             // register an event listener to be notified and execute resizeCanvas upon window resize for desktop only
             if (operatingSystem == 'WINDOWS')
             window.addEventListener('resize', resizeCanvas, false);
+
+            // PROBLEM: on two consecutive orientation changes UI update lag causes unsynchronised preview update
+            // SOLUTION: instead of updating preview on orientation change register an event listener for handling UI change which is reflected in changed window' width and height
+            else if (operatingSystem == 'WindowsPhone')
+            window.addEventListener('resize', resizePartialScannerView, false);
 
             capturePreviewAlignmentMark = document.createElement('div');
             capturePreviewAlignmentMark.className = "barcode-scanner-mark";
@@ -1809,7 +1810,7 @@ var MWBarcodeScanner = {
                 var controller = capture.videoDeviceController;
                 var deviceProps = controller.getAvailableMediaStreamProperties(Windows.Media.Capture.MediaStreamType.videoRecord);
 
-                fullscreenButtons.flashReference = torchLight = controller.torchControl;
+                fullscreenButtons.flashControlRef = torchLight = controller.torchControl;
                 if (torchLight.supported)
                 {
                     console.log('Torch is supported.'); // torch / flash / light
@@ -1833,7 +1834,7 @@ var MWBarcodeScanner = {
                     fullscreenButtons.flashState = -1;
                 }
 
-                fullscreenButtons.zoomReference = zoomControl = controller.zoomControl;
+                fullscreenButtons.zoomControlRef = zoomControl = controller.zoomControl;
                 if (zoomControl.supported)
                 {
                     console.log('Zoom is supported.');
@@ -1853,6 +1854,14 @@ var MWBarcodeScanner = {
                     if (!(fullscreenButtons.zoom_lvl_ini == 0 || fullscreenButtons.zoom_lvl_ini == 1 || fullscreenButtons.zoom_lvl_ini == 2))
                         fullscreenButtons.zoom_lvl_ini = 0;
 
+					// apply ini zoomLevel
+                    var zoomSettings = new Windows.Media.Devices.ZoomSettings();
+
+                    var zoomControlRef = fullscreenButtons.zoomControlRef;
+                    zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
+
+                    zoomSettings.mode = zoomControlRef.supportedModes.first();
+                    zoomControlRef.configure(zoomSettings);														  
                     //fullscreenButtons.zoomReference.getElementsByTagName("img")[0].src = fullscreenButtons.zoom0;
                 }
                 else
@@ -1928,8 +1937,12 @@ var MWBarcodeScanner = {
 
             Windows.Graphics.Display.DisplayInformation.getForCurrentView().removeEventListener("orientationchanged", updatePreviewForRotation, false);
             document.removeEventListener('backbutton', cancelPreview);
+			
             if (operatingSystem == 'WINDOWS')
-            document.removeEventListener('resize', resizeCanvas);
+            window.removeEventListener('resize', resizeCanvas, false);
+
+            else if (operatingSystem == 'WindowsPhone')
+            window.removeEventListener('resize', resizePartialScannerView, false);
 
             capturePreview.pause();
             capturePreview.src = null;
@@ -2190,12 +2203,12 @@ var MWBarcodeScanner = {
             else {
                 //torchLight.powerPercent = 100;
                 if (fullscreenButtons.flashState == 0) {
-                    fullscreenButtons.flashReference.enabled = true;
+                    fullscreenButtons.flashControlRef.enabled = true;
                     fullscreenButtons.flashState = 1;
                     fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
                 }
                 else {
-                    fullscreenButtons.flashReference.enabled = false;
+                    fullscreenButtons.flashControlRef.enabled = false;
                     fullscreenButtons.flashState = 0;
                     fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
                 }
@@ -2235,15 +2248,15 @@ var MWBarcodeScanner = {
 
             var zoomSettings = new Windows.Media.Devices.ZoomSettings();
 
-            var zoomControlRef = fullscreenButtons.zoomReference;
+            var zoomControlRef = fullscreenButtons.zoomControlRef;
             // toggle zoom levels 1 - 2 - 4
             /*if (zoomControlRef.value == zoomControlRef.min) zoomSettings.value = zoomControlRef.max / 2;
             else if (zoomControlRef.value == (zoomControlRef.max / 2)) zoomSettings.value = zoomControlRef.max;
             else if (zoomControlRef.value == zoomControlRef.max) zoomSettings.value = zoomControlRef.min;*/
 
             // new way to handle things because of setZoomLevels
-            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
             fullscreenButtons.zoom_lvl_ini = ((++fullscreenButtons.zoom_lvl_ini) % 3);
+            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
 
             zoomSettings.mode = zoomControlRef.supportedModes.first();
             zoomControlRef.configure(zoomSettings);
@@ -2278,13 +2291,62 @@ var MWBarcodeScanner = {
      */
     scanImage: function (success, fail, args) {
         var imageURI = ((typeof args[0]) == 'string') ? args[0] : '';
-        
+
         // clear needs to be done for every scan
         WindowsComponnent.ScannerPage.iniClear();
 
         if (debug_print) console.log('about to scan image: ' + imageURI);
 
-        // TO BE DECIDED
+        // KNOCK EM OUT
+        var canvasOverlay = document.createElement("canvas");
+
+        var pad = 20;
+
+        var imageOverlay = document.createElement("img");
+        imageOverlay.src = imageURI;
+
+        imageOverlay.onload = function () {
+            canvasOverlay.width = imageOverlay.width + (pad * 2);
+            canvasOverlay.height = imageOverlay.height + (pad * 2);
+
+            var ctx = canvasOverlay.getContext("2d");
+
+            // draw white background to pad image with white frame
+            ctx.fillStyle = "rgba(0, 255, 255, 1.0)";
+            ctx.fillRect(0, 0, canvasOverlay.width, canvasOverlay.height);
+
+            ctx.drawImage(imageOverlay, 0, 0, imageOverlay.width, imageOverlay.height,      // source rectangle
+                                        pad, pad, imageOverlay.width, imageOverlay.height);   // destination rectangle
+
+            var imgData = ctx.getImageData(0, 0, canvasOverlay.width, canvasOverlay.height);
+
+            var result = WindowsComponnent.ScannerPage.scanImage(imgData.data, imgData.width, imgData.height); // imgData.data is a byte array where each pixel is [RGBA]
+
+            if (debug_print) console.log(result);
+
+            /**
+               * result.code - string representation of barcode result
+               * result.type - type of barcode detected or 'Cancel' if scanning is canceled
+               * result.bytes - bytes array of raw barcode result
+               * result.isGS1 - (boolean) barcode is GS1 compliant
+               * result.location - contains rectangle points p1,p2,p3,p4 with the corresponding x,y
+               * result.imageWidth - Width of the scanned image
+               * result.imageHeight - Height of the scanned image
+               */
+            if (result != null)
+                success({
+                    code: result && result.text,
+                    type: result && WindowsComponnent.BarcodeHelper.getBarcodeName(result.type) /*BARCODE_FORMAT[result.barcodeFormat]*/,
+                    isGS1: result && result.isGS1,
+                    bytes: result && result.bytes,
+                    location: result && result.location,
+                    imageWidth: result && result.imageWidth,
+                    imageHeight: result && result.imageHeight,
+                    cancelled: !result
+                });
+            else
+                fail('No barcode found.'); // PROPER WAY ?
+        }
     },
 
     /**
