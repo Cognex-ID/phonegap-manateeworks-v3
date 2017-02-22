@@ -277,10 +277,33 @@ example : [{"method":"setActiveParser" : "value" : [cc.MWP_PARSER_MASK_GS1 | cc.
 
 ##Windows (UWP) specifics
 
-The license is not set during plugin add, instead, you can set it in Resources.resw, which is an xml file. 
+###Requirements
+
+ - Visual Studio with Universal Windows App Development Tools
+ - MWBarcodeLibUniversal SDK W10 extension
+(You can download it from https://manateeworks.com/files/download_latest/mobiScan-Windows, and then install 10.0\MWBCameraDemo\MWBarcodeLibUniversalSDK.vsix)
+
+###Post-build settings (required)
+ - In the solution explorer, set the project **CordovaApp.Windows10 (Universal Windows)** as startup project.
+ - In this project’s directory, open the file **package.windows10.appxmanifest** and in the capabilities tab check **Webcam** from the list.
+ - On some devices, there might be a problem with deployment and starting the scanner which can be fixed by
+removing the following line from the **index.html** file.
+```html
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+```
+
+###Adding a license
+
+The license is not set during plugin add, instead, you can set it in **Resources.resw**, which is an xml file. 
 This file is part of the WindowsComponnent project and is located in Strings\en-US. Once the solution is built, you can open it via Visual Studio. It contains one element named **MW_LICENSE_KEY**, where you can set your license in place of **YOUR_LICENSE_KEY** in the value section. This license won't be taken into account during registration if you set a key string in **MWBScanner.js** (which is not advised).
 
-The function **scanImage()** is currently not available.
+###Functionalities
+
+ - The function **scanImage()** requires image files to be placed in the www folder.
+ - The usage of flash/torch is currently not available.
+
+###Performance
+The camera capture and preview are implemented in JavaScript on the web side. Windows doesn't seem to support non-native implementation well, and this results in lower frame rate than hardware available. This can be improved by using a lower camera resolution (480p instead of the default 720p), which can be set with the method **MWBenableHiRes** and **false** as value.
 
 
 # IONIC 1 Implementation
