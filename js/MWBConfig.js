@@ -44,7 +44,7 @@ scannerConfig = function(){
       // {'method': 'MWBsetActiveCodes', 'value' : [cc.MWB_CODE_MASK_25]}
     ];
 
-    // mwbScanner.setKey('you can set a key here'); //set a key to use instead of the one in the manifest/plist files
+    // mwbScanner.setKey('you can set a key here'); //set a key to use instead of the one in the manifest/plist files 
 
     //load your settings
     return mwbScanner.loadSettings(settings).catch(function(reason){console.log(reason)});
