@@ -1052,7 +1052,7 @@ var Scanner = function(){
     var args = Array.prototype.slice.call(arguments)
         ,callback = this.dflt_clb
         ,that = this
-        ,imageURI = args[0];
+        ,imageUri = args[0];
 
 
       if(args.length == 2)

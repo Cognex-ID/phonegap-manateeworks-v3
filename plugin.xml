@@ -166,7 +166,7 @@ version="3.0.1">
         <merges target="" />
     </js-module>
 
-    <config-file target="package.appxmanifest" parent="/Package/Capabilities">
+    <config-file target="package.appxmanifest" parent="/Package/Capabilities" versions=">=8.1.0">
         <DeviceCapability Name="webcam" />
     </config-file>
     
