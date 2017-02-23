@@ -38,13 +38,13 @@ phonegap build ios    //if you are developing an ios app
 Add our plugin to the project with:
 
 ```ssh
-phonegap plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+phonegap plugin add manateeworks-barcodescanner-v3
 ```
 
 or   
 
 ```ssh
-phonegap plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+phonegap plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git
 ```
 or   
 
@@ -53,14 +53,23 @@ phonegap plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN (if you are adding from
 ```
  
  **Important**  
- MW_LICENSE_KEY variable is required but it can be left empty and added later in your .plist file or android manifest file. We also provide setting the key via a javaScript call.
+The MW_LICENSE_KEY variable can be added later in an xml file respectively for each platform
+
+ - For iOS you can add a row in your *.plist file, with the following format MW_LICENSE_KEY : THE_KEY_FROM_MWDN
+![ios-plist](https://cloud.githubusercontent.com/assets/5564013/23270653/da3fda0c-f9f4-11e6-9944-fd3bb246ce59.png)
+ - For Android you can use the AndroidManifest.xml file and the meta-data element named MW_LICENSE_KEY and place your key as value instead of KEY_FROM_MWDN
+![android-manifest](https://cloud.githubusercontent.com/assets/5564013/23270678/e9836010-f9f4-11e6-9e4e-c780b7af6d94.png)
+ - For Windows (UWP) you can use the Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
+![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
+
+We also provide setting the key via a JavaScript call.
     
 Perform initial build for each platform.   
 
 ```ssh
 phonegap build ios
 phonegap build android
-phonegap build wp8
+phonegap build windows
 ```
 
 ### Setting up your app
@@ -300,11 +309,10 @@ This file is part of the WindowsComponnent project and is located in Strings\en-
 ###Functionalities
 
  - The function **scanImage()** requires image files to be placed in the www folder.
- - The usage of flash/torch is currently not available.
+ - The usage of front camera is currently not available.
 
 ###Performance
-The camera capture and preview are implemented in JavaScript on the web side. Windows doesn't seem to support non-native implementation well, and this results in lower frame rate than hardware available. This can be improved by using a lower camera resolution (480p instead of the default 720p), which can be set with the method **MWBenableHiRes** and **false** as value.
-
+The camera capture and preview are implemented in JavaScript on the web side. Windows doesn't seem to support non-native implementation well, and this results in lower frame rate than hardware available. This can be improved by using a lower camera resolution (480p instead of the default 720p), which can be set with the method **MWBenableHiRes** and **false** as value. Some devices with slower processors could further improve their frame rate by reducing the number of cores the decoder uses (default is all), by using the method **MWBsetMaxThreads** with a value **lower than all CPU cores but not lower than 1**.
 
 # IONIC 1 Implementation
 
