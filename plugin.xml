@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
 id="manateeworks-barcodescanner-v3"
-version="3.0.1">
+version="3.0.10">
 <name>MWBarcodeScanner</name>
 <description>Manatee Works Barcode Scanner Plugin</description>
 <license>MIT</license>
@@ -13,15 +13,12 @@ version="3.0.1">
     <clobbers target="mwbScanner" />
 </js-module>
 <asset src="js/MWBConfig.js" target="js/MWBConfig.js" />
-<asset src="examples" target="examples" />
-
 
 <dependency id="cordova-plugin-dialogs" />
 <dependency id="cordova-plugin-device" />
 <dependency id="es6-promise-plugin" url="https://github.com/vstirbu/PromisesPlugin.git"> </dependency>
 <!-- android -->
 <platform name="android">
-<preference name="MW_LICENSE_KEY"/>
     
 <config-file target="res/xml/config.xml" parent="/*">
 <preference name="CrosswalkAnimatable" value="true" />
@@ -37,15 +34,9 @@ version="3.0.1">
  android:configChanges="orientation|keyboardHidden"
  android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
  </activity>
-    <meta-data
-      android:name="MW_LICENSE_KEY"
-      android:value="$MW_LICENSE_KEY" />        
- 
  </config-file>
  
  <config-file target="AndroidManifest.xml" parent="/manifest">
-
- 
  <uses-permission android:name="android.permission.CAMERA" />
  <uses-permission android:name="android.permission.INTERNET" />
 
@@ -78,7 +69,6 @@ version="3.0.1">
 
 <!-- ios -->
 <platform name="ios">
-    <preference name="MW_LICENSE_KEY"/>
  
     <!-- Camera Usage Description for iOS 10+ -->
     <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
@@ -107,11 +97,6 @@ version="3.0.1">
     <header-file src="src/ios/MWBarcodeScanner/MWResult.h" target-dir="MWBarcodeScanner"/>
     <source-file src="src/ios/MWBarcodeScanner/MWParser.h" target-dir="MWBarcodeScanner"/>
     <source-file src="src/ios/MWBarcodeScanner/MWScannerViewController.xib" target-dir="MWBarcodeScanner"/>
-
-    <config-file target="*-Info.plist" parent="MW_LICENSE_KEY">
-        <string>$MW_LICENSE_KEY</string>
-    </config-file>        
-    
     <resource-file src="src/ios/MWBarcodeScanner/close_button.png" target-dir="MWBarcodeScanner"/>
     <resource-file src="src/ios/MWBarcodeScanner/flashbuttonon.png" target-dir="MWBarcodeScanner"/>
     <resource-file src="src/ios/MWBarcodeScanner/flashbuttonoff.png" target-dir="MWBarcodeScanner"/>
