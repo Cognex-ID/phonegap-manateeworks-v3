@@ -62,7 +62,7 @@ The MW_LICENSE_KEY variable can be added later in an xml file respectively for e
  - For Windows (UWP) you can use the Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
 ![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
 
-We also provide setting the key via a JavaScript call.
+We also provide setting the key via a JavaScript call, more on that, in the **Setting up your app** section.
     
 Perform initial build for each platform.   
 
@@ -95,7 +95,7 @@ For phoneGap apps we include a **MWBConfig.js** where this can be handled. Obvio
 ```
  
 Here you can do a few things:    
-If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
+You can set your key with **setKey()**:
     
 ```javaScript
   return mwbScanner.setKey('input-your-key-here').then(function(response){
@@ -301,11 +301,6 @@ removing the following line from the **index.html** file.
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
 ```
 
-###Adding a license
-
-The license is not set during plugin add, instead, you can set it in **Resources.resw**, which is an xml file. 
-This file is part of the WindowsComponnent project and is located in Strings\en-US. Once the solution is built, you can open it via Visual Studio. It contains one element named **MW_LICENSE_KEY**, where you can set your license in place of **YOUR_LICENSE_KEY** in the value section. This license won't be taken into account during registration if you set a key string in **MWBScanner.js** (which is not advised).
-
 ###Functionalities
 
  - The function **scanImage()** requires image files to be placed in the www folder.
@@ -425,6 +420,13 @@ ionic build ios
 And run your app.
 
 Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
+
+
+#EXAMPLES
+
+We've added a minimum set of files to change per platform, to help you setup your app as soon as possible.
+
+[examples.zip](https://github.com/manateeworks/phonegap-manateeworks-v3/files/797274/examples.zip)
 
 #LICENSE
 
