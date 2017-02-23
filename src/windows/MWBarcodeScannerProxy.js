@@ -75,6 +75,10 @@ var Normal  = 2;
 var USE_CAMERA_RESOLUTION = supportedResolutions[HD];
 var HARDWARE_CAMERA_RESOLUTION = { width: 0, height: 0 }; //ini
 
+var USE_FPS = 30;
+
+var print_hw_available_camera_res = false;
+
 var _useFrontCamera = false;
 
 var numberOfSupporedCodes = 16;
@@ -88,6 +92,8 @@ var assetsPath = "assets/";
 
 var mwOverlayProperties = { mode: 1, pauseMode: 1, lineColor: "rgba(255, 0, 0, 1.0)", borderWidth: 2, linesWidth: 1, blinkingRate: 500, imageSrc: assetsPath + "overlay_mw.png" };
 var mwBlinkingLines = { v: null, h: null };
+
+var hideDuringUpdate = true;
 
 var partialView = { x: 5, y: 5, width: 90, height: 54.73, orientation: 0 };
 var _usePartialScanner = false;
@@ -584,6 +590,14 @@ var MWBarcodeScanner = {
 			
             if (debug_print) console.log('resizeCanvas | window size ' + window.innerWidth + ' ' + window.innerHeight);
 
+            // improve UIX during update | users don't need to see the underlying changes only the final result
+            if (hideDuringUpdate) {
+                capturePreview.style.display = "none";
+                //canvasOverlay.style.display = "none";
+                canvasBlinkingLineV.style.display = "none";
+                canvasBlinkingLineH.style.display = "none";
+            }
+
             // set viewfinder in pixels
             viewfinderOnScreen.x = window.innerWidth * (viewfinderUnionRect.x / 100);
             viewfinderOnScreen.y = window.innerHeight * (viewfinderUnionRect.y / 100);
@@ -650,6 +664,17 @@ var MWBarcodeScanner = {
                                                 0, 0, canvasOverlay.width, canvasOverlay.height);   // destination rectangle
                 }
             }
+
+            // reappear video preview
+            setTimeout(function () {
+                if (hideDuringUpdate) {
+                    capturePreview.style.display = "initial";
+                    //canvasOverlay.style.display = "initial";
+                    canvasBlinkingLineV.style.display = "initial";
+                    canvasBlinkingLineH.style.display = "initial";
+                }
+            }, 1000);
+            
         }
 
         // *** IMAGE BUTTONS ***
@@ -662,20 +687,6 @@ var MWBarcodeScanner = {
             if (debug_print) console.log('clicked flash');
 
             if (fullscreenButtons.flashState == -1) return;
-
-            if (WindowsComponnent.MWBarcodeScanner.isLampApiSupported)
-            {
-                if (fullscreenButtons.flashState == 0) {
-                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(true);
-                    fullscreenButtons.flashState = 1;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
-                }
-                else {
-                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
-                    fullscreenButtons.flashState = 0;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
-                }
-            }
             else
             {
                 //torchLight.powerPercent = 100;
@@ -779,9 +790,6 @@ var MWBarcodeScanner = {
             var divImage = document.createElement("img");
             divImage.id = "flash-image";
             divImage.src = fullscreenButtons.flash0;
-
-            // make this call to lamp here, by the time you're in startPreview it should be completed
-            WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
 
             // if not enabled hide the button as if it doesn't exist at all
             if (fullscreenButtons.hideFlash) fullscreenButtons.flashReference.style.display = "none";
@@ -945,14 +953,6 @@ var MWBarcodeScanner = {
                     console.log('Torch is supported.'); // torch / flash / light
                     //torchLight.powerPercent = 100;
                     //torchLight.enabled = true;
-
-                    if (!WindowsComponnent.MWBarcodeScanner.isLampApiSupported)
-                    {
-                        console.log('But Lamp API is not. This API is designed for Windows 10 devices only and you can only use it on devices which support the API. Currently supported devices are 950/950XL, 650, and 550. Older devices will not be updated to support this API.');
-                        fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash9;
-                        fullscreenButtons.flashState = -1;
-                    }
-                    else
                     fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
                 }
                 else {
@@ -1009,6 +1009,14 @@ var MWBarcodeScanner = {
 				// find a resolution as USE_CAMERA_RESOLUTION or the next lower available 
                 var resolutionListIndex = 0;
                 var resolutionListLength = deviceProps.length;
+
+                if (debug_print && print_hw_available_camera_res) {
+                    console.log('[available camera video properties]');
+                    for (; resolutionListIndex < resolutionListLength; resolutionListIndex++) {
+                        console.log(deviceProps[resolutionListIndex].width + ' ' + deviceProps[resolutionListIndex].height + ' ' + deviceProps[resolutionListIndex].frameRate.numerator + '/' + deviceProps[resolutionListIndex].frameRate.denominator);
+                    } resolutionListIndex = 0;
+                }
+
                 do {
                     if (deviceProps[resolutionListIndex].height < USE_CAMERA_RESOLUTION[heightIndex]) break;
                     else if (deviceProps[resolutionListIndex].height == USE_CAMERA_RESOLUTION[heightIndex]) break;
@@ -1016,6 +1024,16 @@ var MWBarcodeScanner = {
                 } while (resolutionListIndex < resolutionListLength);
 
                 var maxResProps = deviceProps[resolutionListIndex];
+
+                if (maxResProps.frameRate.numerator != USE_FPS)
+                do {
+                    if (deviceProps[resolutionListIndex].width == maxResProps.width && deviceProps[resolutionListIndex].height == maxResProps.height) {
+                        if (deviceProps[resolutionListIndex].frameRate.numerator == USE_FPS) { maxResProps = deviceProps[resolutionListIndex]; break; }
+                        resolutionListIndex++;
+                    }
+                    else break;
+                } while (resolutionListIndex < resolutionListLength);
+
                 HARDWARE_CAMERA_RESOLUTION.width = maxResProps.width;
                 HARDWARE_CAMERA_RESOLUTION.height = maxResProps.height;
 
@@ -1163,7 +1181,8 @@ var MWBarcodeScanner = {
             capture,
             reader; if (debug_print) console.log('startScannerView');
 
-        var capturePreviewFrame; // needed here because unlike fullscreen it's properties will be altered
+            var capturePreviewFrame; // needed here because unlike fullscreen it's properties will be altered
+            var proxyWrapCapturePreview;
 		
 		var canvasOverlay;
         var canvasBlinkingLineV, canvasBlinkingLineH;
@@ -1278,10 +1297,28 @@ var MWBarcodeScanner = {
             partialView.width = w1;
             partialView.height = h1;*/
 
+            // improve UIX during update | users don't need to see the underlying changes only the final result
+			if (hideDuringUpdate) {
+			    proxyWrapCapturePreview.style.visibility = "hidden";
+			    //canvasOverlay.style.display = "none";
+			    canvasBlinkingLineV.style.display = "none";
+			    canvasBlinkingLineH.style.display = "none";
+			}
+
             anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
             //anchorView_toOrientation(x1, y1, w1, h1, partialView.orientation, viewfinderOnScreenView.orientation);
             calcPreview(is_portrait);
             resizeCanvas();
+
+            // reappear video preview
+            setTimeout(function () {
+                if (hideDuringUpdate) {
+                    proxyWrapCapturePreview.style.visibility = "visible";
+                    //canvasOverlay.style.display = "initial";
+                    canvasBlinkingLineV.style.display = "initial";
+                    canvasBlinkingLineH.style.display = "initial";
+                }
+            }, 1000);
         }
 
         /**
@@ -1608,7 +1645,7 @@ var MWBarcodeScanner = {
             //anchorView_toOrientation(args[0], args[1], args[2], args[3], args[4], viewfinderOnScreenView.orientation); //TO BE REMOVED
             anchorView_toOrientation(partialView.x, partialView.y, partialView.width, partialView.height, partialView.orientation, viewfinderOnScreenView.orientation);
             
-            var proxyWrapCapturePreview = document.createElement('div');
+            proxyWrapCapturePreview = document.createElement('div');
             proxyWrapCapturePreview.className = "proxy-wrap-of-preview-inview";
             proxyWrapCapturePreview.style.cssText = "width: 100%; height: 100%;";
             
@@ -1643,9 +1680,6 @@ var MWBarcodeScanner = {
             // SOLUTION: instead of calling resize and draw set just the style (turns out you can use animation-play-state)
 			canvasBlinkingLineV.style.backgroundColor = canvasBlinkingLineH.style.backgroundColor = mwOverlayProperties.lineColor;
 			canvasBlinkingLineV.style.animation = canvasBlinkingLineH.style.animation = "fadeColor " + mwOverlayProperties.blinkingRate + "ms infinite";
-
-            // make this call to lamp here, by the time you're in startPreview it should be completed
-			WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
 			
 			// scanningRects need to be reset in the sdk
             WindowsComponnent.BarcodeHelper.initDecoder();
@@ -1817,13 +1851,7 @@ var MWBarcodeScanner = {
                     //torchLight.powerPercent = 100;
                     //torchLight.enabled = true;
 
-                    if (!WindowsComponnent.MWBarcodeScanner.isLampApiSupported) {
-                        console.log('But Lamp API is not. This API is designed for Windows 10 devices only and you can only use it on devices which support the API. Currently supported devices are 950/950XL, 650, and 550. Older devices will not be updated to support this API.');
-                        //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash9;
-                        fullscreenButtons.flashState = -1;
-                    }
-                    else
-                        /*fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0*/;
+                    //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0
                 }
                 else
                 {
@@ -2175,7 +2203,7 @@ var MWBarcodeScanner = {
      */
     turnFlashOn: function (success, fail, args) {
         var flashOn = ((typeof args[0]) == 'boolean') ? args[0] : false;
-        WindowsComponnent.MWBarcodeScanner.turnFlashOn(flashOn);
+        fullscreenButtons.flashControlRef.enabled = flashOn;
     },
 
     /**
@@ -2187,30 +2215,18 @@ var MWBarcodeScanner = {
             if (debug_print) console.log('clicked flash');
 
             if (fullscreenButtons.flashState == -1) return;
-
-            if (WindowsComponnent.MWBarcodeScanner.isLampApiSupported) {
-                if (fullscreenButtons.flashState == 0) {
-                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(true);
-                    fullscreenButtons.flashState = 1;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
-                }
-                else {
-                    WindowsComponnent.MWBarcodeScanner.turnFlashOn(false);
-                    fullscreenButtons.flashState = 0;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
-                }
-            }
-            else {
+            else
+            {
                 //torchLight.powerPercent = 100;
                 if (fullscreenButtons.flashState == 0) {
                     fullscreenButtons.flashControlRef.enabled = true;
                     fullscreenButtons.flashState = 1;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                    //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
                 }
                 else {
                     fullscreenButtons.flashControlRef.enabled = false;
                     fullscreenButtons.flashState = 0;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                    //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
                 }
             }
         }
@@ -2268,7 +2284,7 @@ var MWBarcodeScanner = {
      */
     setMaxThreads: function (success, fail, args) {
         var maxThreads = ((typeof args[0]) == 'number') ? args[0] : 4;
-        WindowsComponnent.MWBarcodeScanner.setMaxThreads(maxThreads);
+        WindowsComponnent.MWBarcodeScanner.setMaxThreads(maxThreads); console.log(maxThreads);
     },
 
     /**
@@ -2390,7 +2406,7 @@ var MWBarcodeScanner = {
      */
     useFrontCamera: function (success, fail, args) {
         _useFrontCamera = ((typeof args[0]) == 'boolean') ? args[0] : false;
-        // TO-DO
+        // TO-DO | Needs GUID ROTATION_KEY
     },
 
     /**
@@ -2406,7 +2422,7 @@ var MWBarcodeScanner = {
      */
     setActiveParser: function (success, fail, args) {
         var activeParser = ((typeof args[0]) == 'number') ? args[0] : 0;
-        WindowsComponnent.MWBarcodeScanner.setActiveParser(activeParser);
+        WindowsComponnent.MWBarcodeScanner.setActiveParser(activeParser); console.log(activeParser);
     },
 
     /**

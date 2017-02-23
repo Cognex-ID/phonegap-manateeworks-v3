@@ -147,35 +147,7 @@ namespace WindowsComponnent
         }
 
         /*custom cs functions*/
-
-        public static bool isLampApiSupported { get; set; }
-        public static async void turnFlashOn(bool flashOn)
-        {
-            if (flashOn)
-            {
-                Windows.Devices.Lights.Lamp lamp = await Windows.Devices.Lights.Lamp.GetDefaultAsync();
-
-                if (lamp == null)
-                {
-                    System.Diagnostics.Debug.WriteLine("The Lamp API is unsupported on this device.");
-                    //use the win8.1 method
-                    //doesn't work on js side either
-
-                    isLampApiSupported = false;
-
-                    return;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Light.");
-
-                    isLampApiSupported = true;
-                    lamp.IsEnabled = flashOn;
-                }
-                //https://msdn.microsoft.com/en-us/windows/uwp/audio-video-camera/camera-independent-flashlight
-                //needs a dispose method on navigation from, probably on result display or back/cancel
-            }
-        }
+		
         public static void setMaxThreads(int maxThreads)
         {
             int nThreads = ScannerPage.getHardwareThreads();
