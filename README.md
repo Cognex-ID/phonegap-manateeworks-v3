@@ -51,18 +51,6 @@ or
 ```ssh
 phonegap plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN (if you are adding from local folder)   
 ```
- 
- **Important**  
-The MW_LICENSE_KEY variable can be added later in an xml file respectively for each platform
-
- - For iOS you can add a row in your *.plist file, with the following format MW_LICENSE_KEY : THE_KEY_FROM_MWDN
-![ios-plist](https://cloud.githubusercontent.com/assets/5564013/23270653/da3fda0c-f9f4-11e6-9944-fd3bb246ce59.png)
- - For Android you can use the AndroidManifest.xml file and the meta-data element named MW_LICENSE_KEY and place your key as value instead of KEY_FROM_MWDN
-![android-manifest](https://cloud.githubusercontent.com/assets/5564013/23270678/e9836010-f9f4-11e6-9e4e-c780b7af6d94.png)
- - For Windows (UWP) you can use the Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
-![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
-
-We also provide setting the key via a JavaScript call.
     
 Perform initial build for each platform.   
 
@@ -71,6 +59,24 @@ phonegap build ios
 phonegap build android
 phonegap build windows
 ```
+
+### License
+
+Manateeworks Scanner requires a license to work properly. You can get one here:  
+[Manateeworks Evaluation License](https://manateeworks.com/lpr?type=evaluation)
+
+There are two ways to set it up:
+
+1.The MW_LICENSE_KEY variable can be added in an xml file respectively for each platform
+
+ - For iOS you can add a row in your *.plist file, with the following format MW_LICENSE_KEY : THE_KEY_FROM_MWDN
+![ios-plist](https://cloud.githubusercontent.com/assets/5564013/23270653/da3fda0c-f9f4-11e6-9944-fd3bb246ce59.png)
+ - For Android you can use the AndroidManifest.xml file and the meta-data element named MW_LICENSE_KEY and place your key as value instead of KEY_FROM_MWDN
+![android-manifest](https://cloud.githubusercontent.com/assets/5564013/23270678/e9836010-f9f4-11e6-9e4e-c780b7af6d94.png)
+ - For Windows (UWP) you can use the Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
+![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
+
+2.We also provide setting the key via a JavaScript call, more on that, in the **Setting up your app** section.
 
 ### Setting up your app
 
@@ -94,8 +100,7 @@ For phoneGap apps we include a **MWBConfig.js** where this can be handled. Obvio
   </script>
 ```
  
-Here you can do a few things:    
-If you skipped adding your license key when installing (and on windows platform), you can set your key with **setKey()**
+First thing we need to do is setup a valid license with: 
     
 ```javaScript
   return mwbScanner.setKey('input-your-key-here').then(function(response){
@@ -105,18 +110,19 @@ If you skipped adding your license key when installing (and on windows platform)
     
    This method returns a promise that resolves to a boolean value which is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
     
-  Configure your scanner with the desired settings - you should use **loadSettings()**.   
+Next we configure the scanner with the desired settings using **loadSettings()**.   
   
-  **Expects an array of key/value objects** used to set preferences for the scanner. The **key** is the name of the **method** and the **value** is the **parameters** (passed as an array) expected by that method.   
-
 ```javascript
 var cc =  mwbScanner.getConstants(),settings;
    settings = [{'method': 'MWBsetActiveCodes', 'value' : [cc.MWB_CODE_MASK_25 | cc.MWB_CODE_MASK_39 | cc.MWB_CODE_MASK_93 | cc.MWB_CODE_MASK_128 | cc.MWB_CODE_MASK_AZTEC | cc.MWB_CODE_MASK_DM | cc.MWB_CODE_MASK_EANUPC | cc.MWB_CODE_MASK_PDF | cc.MWB_CODE_MASK_QR | cc.MWB_CODE_MASK_CODABAR | cc.MWB_CODE_MASK_11 | cc.MWB_CODE_MASK_MSI | cc.MWB_CODE_MASK_RSS | cc.MWB_CODE_MASK_MAXICODE | cc.MWB_CODE_MASK_POSTAL]}];
 ```
-Load your settings with
+The function  **expects an array of key/value objects** used to set preferences for the scanner. The **key** is the name of the **method** and the **value** is the **parameters** (passed as an array) expected by that method.  
+
 ```javascript
-return mwbScanner.loadSettings(settings).catch(function(reason){
-			console.log(reason)
+return mwbScanner.loadSettings(settings).then(function(response){
+			console.log(response);
+		}).catch(function(reason){
+			console.log(reason);
 		});
 ```
 
@@ -301,11 +307,6 @@ removing the following line from the **index.html** file.
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
 ```
 
-###Adding a license
-
-The license is not set during plugin add, instead, you can set it in **Resources.resw**, which is an xml file. 
-This file is part of the WindowsComponnent project and is located in Strings\en-US. Once the solution is built, you can open it via Visual Studio. It contains one element named **MW_LICENSE_KEY**, where you can set your license in place of **YOUR_LICENSE_KEY** in the value section. This license won't be taken into account during registration if you set a key string in **MWBScanner.js** (which is not advised).
-
 ###Functionalities
 
  - The function **scanImage()** requires image files to be placed in the www folder.
@@ -425,6 +426,13 @@ ionic build ios
 And run your app.
 
 Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
+
+
+#EXAMPLES
+
+We've added a minimum set of files to change per platform, to help you setup your app as soon as possible.
+
+[examples.zip](https://github.com/manateeworks/phonegap-manateeworks-v3/files/797274/examples.zip)
 
 #LICENSE
 
