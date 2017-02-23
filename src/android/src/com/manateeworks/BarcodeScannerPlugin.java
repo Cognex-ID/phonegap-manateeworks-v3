@@ -372,13 +372,19 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
         } else if ("registerSDK".equals(action)) {
             String license_key = "";
-            ApplicationInfo appInfo = this.cordova.getActivity().getApplicationContext().getApplicationInfo();
 
-            license_key = appInfo.metaData.getString("MW_LICENSE_KEY");
-
-            if (args.getString(0) != null && args.getString(0).length()>5) {
+            if (args.getString(0) != null && args.getString(0).length() > 5) {
                 license_key = args.getString(0);
+            } else {
+                try {
+                    ApplicationInfo appInfo = this.cordova.getActivity().getPackageManager().getApplicationInfo(this.cordova.getActivity().getPackageName(), PackageManager.GET_META_DATA);
+                    if (appInfo.metaData != null && appInfo.metaData.containsKey("MW_LICENSE_KEY"))
+                        license_key = appInfo.metaData.getString("MW_LICENSE_KEY");
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
+
             int registrationResult = BarcodeScanner.MWBregisterSDK(license_key, cordova.getActivity());
             callbackContext.success(String.valueOf(registrationResult));
             return true;
