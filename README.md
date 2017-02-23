@@ -430,13 +430,9 @@ Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barc
 
 #EXAMPLES
 
-We've added a minimum set of files to change per platform, to help you setup your app as soon as possible.
+We've added a minimum set of files that you need to replace, to help you setup your app as soon as possible (FOR TESTING PURPOSES).
 
 [examples.zip](https://github.com/manateeworks/phonegap-manateeworks-v3/files/797274/examples.zip)
 
-#LICENSE
-
-Manateeworks Barcode Scanner required a license. For more information on how to obtain one, and how to use it visit:
-[manateeworks.com](https://manateeworks.com)
 
 
