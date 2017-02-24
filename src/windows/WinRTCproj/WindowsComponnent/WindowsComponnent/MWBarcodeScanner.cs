@@ -101,7 +101,7 @@ namespace WindowsComponnent
             return Scanner.MWBsetLevel(level);
         }
 
-        public int setDirection(uint direction)
+        public int static setDirection(uint direction)
         {
             return Scanner.MWBsetDirection(direction);
         }
