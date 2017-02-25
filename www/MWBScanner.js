@@ -1,9 +1,9 @@
 /*
-  
+
   Version 3.1
 
     Re-vamp of the whole plugin
-  - added promises to the function calls, we no longer expect callbacks except for the callback from the scanner result, because that one is convinient 
+  - added promises to the function calls, we no longer expect callbacks except for the callback from the scanner result, because that one is convinient
   - you can now set your license key wihout changing this file. It's not important if the key is for android,ios or anyother platform, it uses the same function
   - you can now attach a callback function for results setCallback
   - now able to attach a custom setup function (not a callback function but acts like one). It's called with the context of the BarcodeScanner object, so wherver it is defined it uses the this keyword so all setting calls such as mwbs['MWBuseAutoRect'](false); are changed to this['MWBuseAutoRect'](false); inside this function. This function can be used with initConfig(fn)
@@ -11,9 +11,9 @@
   - license keys can be set from info.plist and android manifest files
 
   TODO: ADD CHANGED METHOD OF ADDING SETTINGS
-    
+
  Version 2.1.0
-    
+
     - Pause mode
  - Resize option
  - Bug fixes
@@ -30,9 +30,9 @@
  - Improved performance of the PDF417 decoder
  - Improved performance of the Data Matrix decoder
  - Improved performance for Code 25 detection
-    
+
     Version 2.0.2
- 
+
  - Decoding library updated to 3.0
  - The registration functions have been revamped. License credentials issued prior to version 3.0 will no longer work with this and future releases.
  - UPC/EAN decoder options now support a flag to disable add-on scanning
@@ -43,46 +43,46 @@
  - Better recognition of Code 39 stop pattern
  - Other bugfixes and performance improvements
  Version 1.9
- 
+
  - Parsers
- 
+
  Version 1.8.8
- 
+
  - Added support for android API 23 app permissions
  - Bugfixes
- 
+
  Version 1.8.7
- 
+
  - Added option to set scanning rectangle for partial view scanning. To use it just add the following line to the scanner configuration:
- 
+
  mwbs['MWBuseAutoRect'](false);
- 
+
  - Added new feature that makes possible scanning in view:
- 
+
  scanner.startScanning(x, y, width, height);
  //all parameters represent percentages relative to the screen size
- 
+
  - Other methods for partial screen scanning control:
- 
+
  scanner.togglePauseResume() - toggle pause resume scanning
  scanner.closeScanner()       - stop and remove scanner view
  scanner.toggleFlash()       - toggle flash on/off
  scanner.toggleZoom()        - toggle zoom in/out
- 
- 
+
+
  Version 1.7
- 
+
  - Added scanImage(URI) which can be used for image scanning. Optionally, the method can be used with custom init and callback - scanImage(MWBSInitSpace.init,MWBSInitSpace.callback,URI);
- 
+
  URI                     - the path to the image
  MWBSInitSpace.init      - scanner initialisation
  MWBSInitSpace.callback  - result callback
- 
- 
+
+
  Version 1.6
- 
+
  - Added continuous scanning functionality:
- 
+
  - Added support for 64bit android devices.
  - Camera overlay bug fixes.
  Decoder updates:
@@ -92,88 +92,88 @@
  - DM - proper handling of FNC1 and ECI support added
  - Fixed non-symetric viewfinder (for all orientations) in ios/android native and phonegap
  - Fixed PDF trialing characters on all platforms for specific samples
- 
- 
+
+
  Version 1.5
- 
+
  - Added multi-threading support. By default decoder will use all available CPU cores on device. To limit the number
  of used threads, use new function:  MWBsetMaxThreads: function (maxThreads)
- 
+
  Version 1.4.1
- 
+
  - Structure of plugin reorganized to fit plugman specifications
- 
+
  Version 1.4
- 
+
  - Added support for custom init and callback functions. All init and callback function can still be declared here,
  but users can now use an outside Javascript file that they can maintain during updates, so that they don't lose
  their changes when they update.
  To use the custom script, they only need to include it in the index file like so:
  <script type="text/javascript" src="js/MWBConfig.js"></script>
  To call the scanner with the custom init and callback you use scanner.startScanning(MWBSInitSpace.init,MWBSInitSpace.callback);
- 
+
  - Added MWBsetCustomParam: function - allows user to put some custom key/value pair which can be used later from native code
- 
+
  - Added ITF-14 support
- 
+
  - Added Code 11 support
- 
+
  - Added MSI Plessey support
- 
+
  - Added GS1 support
- 
- 
+
+
  Version 1.3
  Copyright (c) 2014 Manatee Works. All rights reserved.
- 
+
  Changes in 1.3:
- 
+
  - Zoom feature added for iOS and Android. It's not supported on WP8 due to API limitation.
- 
+
  - Added function to turn Flash ON by default
- 
+
  - Fixed 'frameworks was not added to the references' on WP8
- 
+
  - Fixed freezing if missing org.apache.cordova.device plugin
- 
+
  - Added x86 lib for Android
- 
- 
- 
+
+
+
  Changes in 1.2:
- 
+
  - Registering calls moved from native code to MWBScanner.js
- 
+
  You can now enter your licensing info without changing the native code of plugin;
- 
+
  - Import package_name.R manually after adding Android plugin is not necessary anymore
- 
+
  - Decoding library updated to 2.9.31
- 
- 
- 
+
+
+
  Changes in 1.1:
- 
+
  - Advanced Overlay (MWBsetOverlayMode: function(overlayMode)
- 
+
  You can now choose between Simple Image Overlay and MW Dynamic Overlay, which shows the actual
  viewfinder, depending on selected barcode types and their respective scanning rectangles;
- 
+
  - Orientation parameter (MWBsetInterfaceOrientation: function(interfaceOrientation))
- 
+
  Now there's only a single function for supplying orientation parameters which makes tweaking the
  controller for changing scanner orientation no longer needed;
- 
+
  - Enable or disable high resolution scanning (MWBenableHiRes: function(enableHiRes))
- 
+
  Added option to choose between high or normal resolution scanning to better match user
  application requirements;
- 
+
  - Flash handling (MWBenableFlash: function(enableFlash))
- 
+
  Added option to enable or disable the flash toggle button;
- 
- 
+
+
  */
 
  var CONSTANTS = {
@@ -467,7 +467,7 @@
         MWP_PARSER_MASK_SCM  :               0x00000020,
         MWP_PARSER_MASK_AUTO :               0x0fffffff,
 
-        /** @} */     
+        /** @} */
 
 
         /**
@@ -490,7 +490,7 @@ var BarcodeScanner = {
   * Init decoder with default params.
   */
   MWBinitDecoder: function(callback) {
-    cordova.exec(callback, function(){}, "MWBarcodeScanner", "initDecoder", []); 
+    cordova.exec(callback, function(){}, "MWBarcodeScanner", "initDecoder", []);
   },
 
   /**
@@ -503,15 +503,9 @@ var BarcodeScanner = {
   * result.imageHeight - Height of the scanned image
   */
   MWBstartScanner: function(callback) {
-     var args = Array.prototype.slice.call(arguments);
-     if(args.length>1){
-       cordova.exec(callback, function(err) {callback('Error: ' + err); }, "MWBarcodeScanner", "startScannerView", [x,y,width,height]);
-     }
-     else{
-       cordova.exec(callback, function(err) {callback('Error: ' + err); }, "MWBarcodeScanner", "startScanner", []); 
-     }
+       cordova.exec(callback, function(err) {callback('Error: ' + err); }, "MWBarcodeScanner", "startScanner", []);
   },
-     
+
   /**
   * Registers licensing information for all SDK functionality.
   * It should be called once on app startup.
@@ -740,7 +734,7 @@ var BarcodeScanner = {
   */
   MWBsetCustomParam: function(key, value) {
     cordova.exec(function(){}, function(){}, "MWBarcodeScanner", "setCustomParam", [key, value]);
-  },             
+  },
   /**
   * Enable/disable continuous scanning. If 'shouldClose' is 'false', result callback will be performed and
   * scanner will be paused. The User can call 'resumeScanning' to continue scanning, or 'closeScanner'
@@ -863,19 +857,19 @@ var BarcodeScanner = {
   *  private
   *   @name startScanner
   *   @params callback
-  *   @description call the bridge function to the native side 
+  *   @description call the bridge function to the native side
   *
   **/
   var startScanner = function(callback) {
 
     var callback = (typeof callback === 'function') ? callback : this.dflt_clb;
-        
+
       return new window.Promise(function(resolve,reject){
         BarcodeScanner.MWBstartScanner(function(result){
             callback.call(null,result); //call the callback for backward compatability
-            resolve(result); //return a promise 
+            resolve(result); //return a promise
         });
-      });  
+      });
   }
 
   /**
@@ -883,7 +877,6 @@ var BarcodeScanner = {
   * TODO: maybe set the callback function to an empty anonymous function
   **/
   var defaults = {
-    key : '',
     init_decoder : false,
     valid_key : false,
     dflt_clb : function(result){
@@ -905,10 +898,10 @@ var BarcodeScanner = {
     }
   }
 
-/* 
-* @name 
+/*
+* @name
 *   Scanner
-* @description 
+* @description
 *   constructor of the scanner object
 * @params
 *   key   optional license key
@@ -916,7 +909,7 @@ var BarcodeScanner = {
 */
 var Scanner = function(){
 
-    var self = this; 
+    var self = this;
     //load defaults
     for (var key in defaults) {
         if (defaults.hasOwnProperty(key)) {
@@ -929,7 +922,7 @@ var Scanner = function(){
   /**
   *  @name initDecoder
   *  @description setups a default decoder
-  * 
+  *
   * @return promise
   */
   Scanner.prototype.initDecoder = function(){
@@ -937,25 +930,28 @@ var Scanner = function(){
     return new window.Promise(function(resolve,reject){
       if(!that.init_decoder)
         return BarcodeScanner.MWBinitDecoder(function(){resolve('FRESH_INIT'); that.init_decoder = true; });
-      else 
-        resolve('VETERAN_INIT'); 
+      else
+        resolve('VETERAN_INIT');
     });
   }
 
   /**
 
-  *   @name 
+  *   @name
   *     setKey
-  *   @description 
+  *   @description
   *     sets the license key to be used with our decoder
   *   @params
   *     key : the license key
   *   @return promise that resolves to a boolean value. True if key was valid; false in every other case
-  *     
-  *    
+  *
+  *
   */
   Scanner.prototype.setKey = function(key){
     var that = this;
+    if(typeof key === 'undefined' || !key)
+        key = '';
+
     if( this.valid_key ){
       return new window.Promise(function(resolve,reject){
         resolve(that.valid_key);
@@ -973,13 +969,13 @@ var Scanner = function(){
       });
     }
   }
- 
+
   /**
-  *   @name 
+  *   @name
   *     setCallback
-  *   @description 
+  *   @description
   *     set a custom callback function that's called once the scan is performed. Should be called in the configuration stage
-  *   @params 
+  *   @params
   *     callback - a callback function with result parameter
   *
   *
@@ -989,10 +985,10 @@ var Scanner = function(){
  }
 
   /**
-  * @name 
+  * @name
   *   loadSettings
-  * @params 
-  *   settings - an array of settings objects with the following structure, use this to loadSettings  
+  * @params
+  *   settings - an array of settings objects with the following structure, use this to loadSettings
   *     {"method" : "MWBmethod" , "value" : "array of params that the method expects"}
   *     example:
   *       [
@@ -1007,7 +1003,7 @@ var Scanner = function(){
   * @return
   *   promise that resolves with the loaded settings
   *
-  */ 
+  */
 
   Scanner.prototype.loadSettings =function(settings){
     var that = this;
@@ -1018,25 +1014,25 @@ var Scanner = function(){
             BarcodeScanner[expression.method].apply(null,expression.value);
           }
         }
-        resolve(settings);          
+        resolve(settings);
     });
   }
   /**
-  *  @name getConstants 
+  *  @name getConstants
   *  @description : exposes the contants of the scanner so we can use them when calling configuration functions
   **/
   Scanner.prototype.getConstants = function(){
     return CONSTANTS;
   }
- 
+
   /**
     @name scanImage
     @params
         imageUri *required
         callback *optional will get replaced by a default callback if it's missing
-      
+
     @description scan an image from an URI
-    
+
     @callback results
     * result.code - string representation of barcode result
     * result.type - type of barcode detected or 'Cancel' if scanning is canceled
@@ -1065,7 +1061,7 @@ var Scanner = function(){
 
   /**
   *   @name startScanning
-  *   @description proxy method for starting the scanner with different params (in view/ fullscreen). 
+  *   @description proxy method for starting the scanner with different params (in view/ fullscreen).
         This should be called from outside, usually from an UI element that triggers a click/tap event
   *
   */
@@ -1084,7 +1080,7 @@ var Scanner = function(){
 
       if(args.length == 1 || args.length == 2 || args.length == 3){
         if (typeof args[0] !== 'function')
-          callback = false;    
+          callback = false;
         else
           callback = args[0];
       }
@@ -1106,13 +1102,13 @@ var Scanner = function(){
         x = (typeof args[1] != 'undefined')?args[1]:CONSTANTS.XPOINT;
         y = (typeof args[2] != 'undefined')?args[2]:CONSTANTS.YPOINT;
         w = (typeof args[3] != 'undefined')?args[3]:CONSTANTS.WIDTH;
-        h = (typeof args[4] != 'undefined')?args[4]:CONSTANTS.HEIGHT;    
+        h = (typeof args[4] != 'undefined')?args[4]:CONSTANTS.HEIGHT;
 
-      }  
+      }
 
       if(args < 4){
         settings = [
-          {'method': 'MWBusePartialScanner', 'value' : [false]}, 
+          {'method': 'MWBusePartialScanner', 'value' : [false]},
           {'method': 'MWBresizePartialScanner', 'value' : [x,y,w,h]}
         ];
         return this.loadSettings(settings).then(function(response){
@@ -1124,7 +1120,7 @@ var Scanner = function(){
       else{
         settings = [
           {'method': 'MWBusePartialScanner', 'value' : [true]},
-          {'method': 'MWBresizePartialScanner', 'value' : [x,y,w,h]} 
+          {'method': 'MWBresizePartialScanner', 'value' : [x,y,w,h]}
         ];
         return this.loadSettings(settings).then(function(response){
            return startScanner.call(self,callback);
@@ -1134,75 +1130,73 @@ var Scanner = function(){
 
       }
   };
-  /* 
+  /*
   * @name closeScanner
   * @description exposes the closeScanner native function, when called it closes the scanner window
   **/
   Scanner.prototype.closeScanner = function(){
     BarcodeScanner.MWBcloseScanner();
   };
-  /* 
+  /*
   * @name togglePauseResume
   * @description exposes the togglePauseResume native function, when called it toggles pause/resume of scanning
-  **/  
+  **/
   Scanner.prototype.togglePauseResume =function(){
     BarcodeScanner.MWBtogglePauseResume();
   };
-  /* 
+  /*
   * @name toggleFlash
   * @description exposes the toggleFlash native function, when called it toggles the flash function of the camera
-  **/  
+  **/
   Scanner.prototype.toggleFlash = function(){
     BarcodeScanner.MWBtoggleFlash();
   };
-  /* 
+  /*
   * @name toggleZoom
   * @description exposes the toggleZoom native function, toggles the zoom
-  **/    
+  **/
   Scanner.prototype.toggleZoom = function(){
     BarcodeScanner.MWBtoggleZoom();
   };
-  /* 
+  /*
   * @name resumeScanning
   * @description exposes the resumeScanning native function, resumes scanning after it was paused
-  **/    
+  **/
   Scanner.prototype.resumeScanning = function(){
     BarcodeScanner.MWBresumeScanning();
   };
-  /* 
+  /*
   * @name setScannerOverlayMode
   * @description exposes the setScannerOverlayMode native function, see MWBsetOverlayMode for more
-  **/    
+  **/
   Scanner.prototype.setScannerOverlayMode = function(overlayMode){
     BarcodeScanner.MWBsetOverlayMode(overlayMode);
   };
-  /* 
+  /*
   * @name setBlinkingLineVisible
   * @description exposes the setBlinkingLineVisible native function
-  **/  
+  **/
   Scanner.prototype.setBlinkingLineVisible = function(visible){
     BarcodeScanner.MWBsetBlinkingLineVisible(visible);
   };
-  /* 
+  /*
   * @name resizePartialScanner
   * @description exposes the resizePartialScanner native function. It sets the size of the partial scanner
-  **/    
+  **/
   Scanner.prototype.resizePartialScanner = function(x,y,width,height){
     BarcodeScanner.MWBresizePartialScanner(x,y,width,height);
-  };  
+  };
 
   var scanner = new Scanner();
 
   document.addEventListener("deviceready", function(result){
-    
-    scanner.setKey(scanner.key);
-    //initialize decoder and get it ready for scanning
-    scanner.initDecoder().then(function(response){
-        //scanner object initialized
-        console.log('MWBScanner Ready!');
-    });    
-    
+
+        //initialize decoder and get it ready for scanning
+        scanner.initDecoder().then(function(response){
+            //scanner object initialized
+            console.log('MWBScanner Ready!');
+        });
+
   }, false);
 
   module.exports = scanner;
-  

@@ -7,20 +7,20 @@
 */
 scannerConfig = function(){
 
-    /* phonegap 3.* possible callback 
+    /* phonegap/cordova 3.* possible callback
     *  - here we have a straight forwards callback one that just alerts the value. When scannerConfig is called, it will set this callback as default and scanner.startScanner can be called without inline callbacks
     *    however users still have the option to not even user setCallback, and set a callback function directly passed as parameter to the scanner.startScanner()
     *
     */
     mwbScanner.setCallback(function(result){
       if(result && result.code){
-        alert('type: ' + result.type + 'result: ' + result.code);
+        navigator.notification.alert(result.code, function(){}, result.type + (result.isGS1?" (GS1)":""), 'Close');
       }
       else
         console.log('No Result');
     });
 
-    /* ionic 1 possible callback, 
+    /* ionic 1 possible callback,
     *   - here we have an angularJS controller with an input field to which an ng-model="barcoderesult" is attached
     *   - upon successful scan we update that model and the result is shown in the input field
     *
@@ -37,16 +37,68 @@ scannerConfig = function(){
     //     console.log('No Result');
     // });
 
-    var cc =  mwbScanner.getConstants(),settings;
 
-    settings = [
-      // {'method': 'MWBsetActiveCodes', 'value' : [cc.MWB_CODE_MASK_25 | cc.MWB_CODE_MASK_39 | cc.MWB_CODE_MASK_93 | cc.MWB_CODE_MASK_128 | cc.MWB_CODE_MASK_AZTEC | cc.MWB_CODE_MASK_DM | cc.MWB_CODE_MASK_EANUPC | cc.MWB_CODE_MASK_PDF | cc.MWB_CODE_MASK_QR | cc.MWB_CODE_MASK_CODABAR | cc.MWB_CODE_MASK_11 | cc.MWB_CODE_MASK_MSI | cc.MWB_CODE_MASK_RSS | cc.MWB_CODE_MASK_MAXICODE | cc.MWB_CODE_MASK_POSTAL] }
-      // {'method': 'MWBsetActiveCodes', 'value' : [cc.MWB_CODE_MASK_25]}
-    ];
+    // Some predefined settings, comment out the ones you don't want enabled; Scanner gets initialized with every symbology enabled
+    var mw_c =  mwbScanner.getConstants()
+        , settings = [
+            {'method': 'MWBsetActiveCodes', 'value' : [mw_c.MWB_CODE_MASK_DM | mw_c.MWB_CODE_MASK_39 | mw_c.MWB_CODE_MASK_93 | mw_c.MWB_CODE_MASK_QR | mw_c.MWB_CODE_MASK_128 | mw_c.MWB_CODE_MASK_PDF]},
+            {"method" : 'MWBenableZoom', "value" : [true]},
+            {"method" : 'MWBsetZoomLevels', "value" : [200, 400, 1]},
+            // {"method" : 'MWBsetInterfaceOrientation', "value" : [mw_c.OrientationLandscapeLeft]},
+            {"method" : 'MWBsetOverlayMode', "value" : [mw_c.OverlayModeImage]},
+            {"method" : 'MWBsetLevel', "value" : [3]}, //3 will try to scan harder than the default which is 2
+            {"method" : 'MWBenableHiRes','value' : [true]}, //possible setting
+            {"method" : 'MWBenableFlash','value' : [true]}, //possible setting
+            {"method" : 'MWBuse60fps','value' : [true]}, //possible
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_25, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_39, 20, 20, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_93, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_128, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_AZTEC, 20, 2, 60, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_DM, 20, 2, 60, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_EANUPC, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_PDF, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_QR, 20, 2, 60, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_RSS, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_CODABAR, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_DOTCODE, 30, 20, 40, 60]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_11, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_MSI, 2, 2, 96, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_MAXICODE, 20, 2, 60, 96]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_POSTAL, 2, 2, 96, 96]},
+            {"method" : "MWBsetMinLength", "value" : [mw_c.MWB_CODE_MASK_25, 5]},
+            {"method" : "MWBsetMinLength", "value" : [mw_c.MWB_CODE_MASK_MSI, 5]},
+            {"method" : "MWBsetMinLength", "value" : [mw_c.MWB_CODE_MASK_39, 5]},
+            {"method" : "MWBsetMinLength", "value" : [mw_c.MWB_CODE_MASK_CODABAR, 5]},
+            {"method" : "MWBsetMinLength", "value" : [mw_c.MWB_CODE_MASK_11, 5]},
+            {"method" : "MWBsetScanningRect", "value" : [mw_c.MWB_CODE_MASK_POSTAL, 2, 2, 96, 96]},
+            {"method" : 'MWBsetDirection', "value" : [mw_c.MWB_SCANDIRECTION_VERTICAL | mw_c.MWB_SCANDIRECTION_HORIZONTAL]}
+        ];
 
-    // mwbScanner.setKey('you can set a key here'); //set a key to use instead of the one in the manifest/plist files 
+        //multi-platform keys object
+        var keys = {
+            'Android'   : "VALID_ANDROID_KEY",
+            'iOS'       : "VALID_IOS_KEY",
+            'Win32NT'   : "VALID_WIN_KEY"
+        };
+        //resolve the key for this platform
+        var key = (keys[device.platform])?keys[device.platform]:'';
 
-    //load your settings
-    return mwbScanner.loadSettings(settings).catch(function(reason){console.log(reason)});
+        //sets your key and loads your settings
+        return mwbScanner.setKey(key).then(function(response){
+            if(response)
+                console.log('VALID KEY');
+            else
+                console.log('INVALID KEY');
+
+            return mwbScanner.loadSettings(settings)
+                        .then(function(response){
+                            //console.log(response); //the response is the settings array
+                        })
+                        .catch(function(reason){
+                            console.log(reason)
+                        });
+        });
+
 
 }
