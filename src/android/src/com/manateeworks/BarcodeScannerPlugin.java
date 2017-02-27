@@ -1217,7 +1217,9 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         ScannerActivity.state = State.PREVIEW;
         CameraManager.get().requestPreviewFrame(ScannerActivity.handler, ScannerActivity.MSG_DECODE);
         CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
-        scrollView.setVisibility(View.VISIBLE);
+        if (scrollView != null)
+             scrollView.setVisibility(View.VISIBLE);
+        
         pBar.setVisibility(View.GONE);
         // flashOn = false;
         // updateFlash();
