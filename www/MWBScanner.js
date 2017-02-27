@@ -1106,7 +1106,7 @@ var Scanner = function(){
 
       }
 
-      if(args < 4){
+      if(args.length < 4){
         settings = [
           {'method': 'MWBusePartialScanner', 'value' : [false]},
           {'method': 'MWBresizePartialScanner', 'value' : [x,y,w,h]}
