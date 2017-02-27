@@ -1,12 +1,12 @@
 ﻿/*
- * Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
- */
+    * Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+    *
+    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+    *
+    * http://www.apache.org/licenses/LICENSE-2.0
+    *
+    * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+    */
 
 var urlutil = require('cordova/urlutil');
 
@@ -17,11 +17,11 @@ var INITIAL_FOCUS_DELAY = 200; // milliseconds
 var CHECK_PLAYING_TIMEOUT = 100; // milliseconds
 
 /**
- * List of supported barcode formats from ManateeWorks Barcode library. Used to return format
- *   name instead of number code as per plugin spec.
- *
- * @enum {String}
- */
+    * List of supported barcode formats from ManateeWorks Barcode library. Used to return format
+    *   name instead of number code as per plugin spec.
+    *
+    * @enum {String}
+    */
 /*var BARCODE_FORMAT = {
     1: 'AZTEC',
     2: 'CODABAR',
@@ -46,27 +46,27 @@ var CHECK_PLAYING_TIMEOUT = 100; // milliseconds
 };*/
 
 /**
- * Detects the first appropriate camera located at the back panel of device. If
- *   there is no back cameras, returns the first available.
- *
- * @returns {Promise<String>} Camera id
- */
+    * Detects the first appropriate camera located at the back panel of device. If
+    *   there is no back cameras, returns the first available.
+    *
+    * @returns {Promise<String>} Camera id
+    */
 
 var fps = 0;
 
 var widthIndex = 0;
 var heightIndex = 1;
 var supportedResolutions = [
-  [1920, 1080],
-  [1280, 720],
-  [640, 480]
+    [1920, 1080],
+    [1280, 720],
+    [640, 480]
 ];
 
 var Full_HD = 0;
 var HD      = 1;
 var Normal  = 2;
 
-   /* Set the scanning resolution of the camera, aspect ratio may vary
+/* Set the scanning resolution of the camera, aspect ratio may vary
     * available options:
     *   Full_HD 1920x1080
     *   HD      1280x720
@@ -87,6 +87,25 @@ var codeMasksArray = [];
 var codeMasksArrayInitialized = false;
 var untouchedScanningRectsArray = [];
 var untouchedScanningRectsUnion;
+
+var jsSettingsScanningRects = [];
+jsSettingsScanningRects[0x00000001] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000002] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000004] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000008] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000010] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000020] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000040] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000080] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000100] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000200] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000400] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00000800] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00001000] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00002000] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00004000] = { x: 0, y: 0, width: 100, height: 100, set: false };
+jsSettingsScanningRects[0x00008000] = { x: 0, y: 0, width: 100, height: 100, set: false };
+var jsSettingsScanningRectsAltered = false;
 
 var assetsPath = "assets/";
 
@@ -122,7 +141,7 @@ var fullscreenButtons = {
 var anyReader = null;
 var anyScannerStarted = false;
 
-var debug_print = false;
+var debug_print = true;
 
 cordova.commandProxy.add("MWBarcodeScanner", {
     initDecoder: function (successCallback, errorCallback, args) {
@@ -484,8 +503,25 @@ var MWBarcodeScanner = {
         // clear needs to be done for every scan
         WindowsComponnent.ScannerPage.iniClear();
 
-        // and for all scanningRects in the sdk
-        WindowsComponnent.BarcodeHelper.initDecoder();
+        // and for all scanningRects in the sdk //hereX
+        WindowsComponnent.BarcodeHelper.resetScanningRects();
+
+        if (jsSettingsScanningRectsAltered) {
+            var _codeMask;
+            for (var _i = 0; _i < numberOfSupporedCodes; _i++) {
+                _codeMask = Math.pow(2, _i);
+                if (jsSettingsScanningRects[_codeMask].set) {
+                    WindowsComponnent.BarcodeHelper.mwBsetScanningRect(
+                    Math.pow(2, _i),
+                    WindowsComponnent.BarcodeHelper.createRect(
+                        jsSettingsScanningRects[_codeMask].x,
+                        jsSettingsScanningRects[_codeMask].y,
+                        jsSettingsScanningRects[_codeMask].width,
+                        jsSettingsScanningRects[_codeMask].height
+                    ));
+                }
+            }
+        }
 
         var torchLight;
         var zoomControl;
@@ -960,6 +996,7 @@ var MWBarcodeScanner = {
                     //torchLight.powerPercent = 0;
                     //torchLight.enabled = false;
                     fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash9;
+                    fullscreenButtons.flashReference.style.display = "none";
                     fullscreenButtons.flashState = -1;
                 }
 
@@ -993,7 +1030,8 @@ var MWBarcodeScanner = {
                 }
                 else {
                     console.log('Zoom is NOT supported.');
-                    fullscreenButtons.zoomReference.getElementsByTagName("img")[0].src = fullscreenButtons.zoom9;
+                    //fullscreenButtons.zoomReference.getElementsByTagName("img")[0].src = fullscreenButtons.zoom9;
+                    fullscreenButtons.zoomReference.style.display = "none";
                     fullscreenButtons.zoomState = -1;
                 }
 
@@ -1592,6 +1630,13 @@ var MWBarcodeScanner = {
             canvasOverlay.width = capturePreviewFrame.offsetWidth; // capturePreviewFrame is a <div> element so it doesn't have width and height properties
             canvasOverlay.height = capturePreviewFrame.offsetHeight;
 
+            // linking image buttons to position
+            fullscreenButtons.flashReference.style.top = (canvasOverlay.offsetTop + 2) + "px";
+            fullscreenButtons.flashReference.style.left = canvasOverlay.offsetLeft + "px";            
+
+            fullscreenButtons.zoomReference.style.top = (canvasOverlay.offsetTop + 2) + "px";
+            fullscreenButtons.zoomReference.style.left = ((canvasOverlay.offsetWidth + canvasOverlay.offsetLeft) - fullscreenButtons.zoomReference.offsetWidth) + "px";
+
             // set viewfinder in pixels
             viewfinderOnScreenView.x = canvasOverlay.width * (viewfinderUnionRect.x / 100);
             viewfinderOnScreenView.y = canvasOverlay.height * (viewfinderUnionRect.y / 100);
@@ -1620,6 +1665,55 @@ var MWBarcodeScanner = {
                             viewfinderOnScreenView.width,
                             viewfinderOnScreenView.height,
                             mwOverlayProperties.linesWidth);
+        }
+
+        // *** IMAGE BUTTONS ***
+
+        /**
+         * Handles the click event of the flash button.
+         */
+        function clickedFlash() {
+            //flash
+            if (debug_print) console.log('clicked flash');
+
+            if (fullscreenButtons.flashState == -1) return;
+            else {
+                //torchLight.powerPercent = 100;
+                if (fullscreenButtons.flashState == 0) {
+                    torchLight.enabled = true;
+                    fullscreenButtons.flashState = 1;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                }
+                else {
+                    torchLight.enabled = false;
+                    fullscreenButtons.flashState = 0;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                }
+            }
+        }
+
+        /**
+         * Handles the click event of the zoom button.
+         */
+        function clickedZoom() {
+            //zoom
+            if (debug_print) console.log('clicked zoom');
+
+            if (fullscreenButtons.zoomState == -1) return;
+
+            var zoomSettings = new Windows.Media.Devices.ZoomSettings();
+
+            // toggle zoom levels 1 - 2 - 4
+            /*if (zoomControl.value == zoomControl.min) zoomSettings.value = zoomControl.max / 2;
+            else if (zoomControl.value == (zoomControl.max / 2)) zoomSettings.value = zoomControl.max;
+            else if (zoomControl.value == zoomControl.max) zoomSettings.value = zoomControl.min;*/
+
+            // new way to handle things courtesy of setZoomLevels
+            fullscreenButtons.zoom_lvl_ini = ((++fullscreenButtons.zoom_lvl_ini) % 3);
+            zoomSettings.value = fullscreenButtons.zoomLevels[fullscreenButtons.zoom_lvl_ini];
+
+            zoomSettings.mode = zoomControl.supportedModes.first();
+            zoomControl.configure(zoomSettings);
         }
 
         /**
@@ -1681,10 +1775,67 @@ var MWBarcodeScanner = {
 			canvasBlinkingLineV.style.backgroundColor = canvasBlinkingLineH.style.backgroundColor = mwOverlayProperties.lineColor;
 			canvasBlinkingLineV.style.animation = canvasBlinkingLineH.style.animation = "fadeColor " + mwOverlayProperties.blinkingRate + "ms infinite";
 			
-			// scanningRects need to be reset in the sdk
-            WindowsComponnent.BarcodeHelper.initDecoder();
+			// scanningRects need to be reset in the sdk //hereX
+			WindowsComponnent.BarcodeHelper.resetScanningRects();
+
+			if (jsSettingsScanningRectsAltered)
+			{
+			    var _codeMask;
+			    for (var _i = 0; _i < numberOfSupporedCodes; _i++)
+			    {
+			        _codeMask = Math.pow(2, _i);
+			        if (jsSettingsScanningRects[_codeMask].set)
+			        {
+			            WindowsComponnent.BarcodeHelper.mwBsetScanningRect(
+                        Math.pow(2, _i),
+                        WindowsComponnent.BarcodeHelper.createRect(
+                            jsSettingsScanningRects[_codeMask].x,
+                            jsSettingsScanningRects[_codeMask].y,
+                            jsSettingsScanningRects[_codeMask].width,
+                            jsSettingsScanningRects[_codeMask].height
+                        ));
+			        }
+			    }
+			}
 			
             initCodeMasksArray_and_untouchedScanningRectsArray_and_untouchedScanningRectsUnion(numberOfSupporedCodes);
+
+            // PartialView FLash and Zoom Images
+            // create image buttons for flash
+            fullscreenButtons.flashReference = document.createElement("div");
+            fullscreenButtons.flashReference.id = "flash-button";
+
+            var divImage = document.createElement("img");
+            divImage.id = "flash-image";
+            divImage.src = fullscreenButtons.flash0;
+
+            // if not enabled hide the button as if it doesn't exist at all
+            if (fullscreenButtons.hideFlash) fullscreenButtons.flashReference.style.display = "none";
+
+            fullscreenButtons.flashReference.appendChild(divImage);
+
+            // and zoom
+            fullscreenButtons.zoomReference = document.createElement("div");
+            fullscreenButtons.zoomReference.id = "zoom-button";
+
+            var divImage2 = document.createElement("img");
+            divImage2.id = "zoom-image";
+            divImage2.src = fullscreenButtons.zoom0;
+
+            // if not enabled hide the button as if it doesn't exist at all
+            if (fullscreenButtons.hideZoom) fullscreenButtons.zoomReference.style.display = "none";
+
+            fullscreenButtons.zoomReference.appendChild(divImage2);
+
+            fullscreenButtons.flashReference.addEventListener('click', clickedFlash, false);
+            fullscreenButtons.zoomReference.addEventListener('click', clickedZoom, false);
+
+            // **style for position needs to be linked to canvasOverlay's position
+            fullscreenButtons.flashReference.style.position = "absolute";
+            fullscreenButtons.flashReference.style.cssFloat = "none";
+
+            fullscreenButtons.zoomReference.style.position = "absolute";
+            fullscreenButtons.zoomReference.style.cssFloat = "none";
 
             // register an event listener to be notified and execute resizeCanvas upon window resize for desktop only
             if (operatingSystem == 'WINDOWS')
@@ -1859,6 +2010,7 @@ var MWBarcodeScanner = {
                     //torchLight.powerPercent = 0;
                     //torchLight.enabled = false;
                     //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash9;
+                    fullscreenButtons.flashReference.style.display = "none";
                     fullscreenButtons.flashState = -1;
                 }
 
@@ -1896,6 +2048,7 @@ var MWBarcodeScanner = {
                 {
                     console.log('Zoom is NOT supported.');
                     //fullscreenButtons.zoomReference.getElementsByTagName("img")[0].src = fullscreenButtons.zoom9;
+                    fullscreenButtons.zoomReference.style.display = "none";
                     fullscreenButtons.zoomState = -1;
                 }
 
@@ -1941,6 +2094,8 @@ var MWBarcodeScanner = {
                 document.body.appendChild(canvasOverlay);
                 document.body.appendChild(canvasBlinkingLineV);
                 document.body.appendChild(canvasBlinkingLineH);
+                document.body.appendChild(fullscreenButtons.flashReference);
+                document.body.appendChild(fullscreenButtons.zoomReference);
 
                 DOM_complete = true;
 				
@@ -1980,6 +2135,8 @@ var MWBarcodeScanner = {
                 document.body.removeChild(canvasOverlay);
                 document.body.removeChild(canvasBlinkingLineV);
                 document.body.removeChild(canvasBlinkingLineH);
+                document.body.removeChild(fullscreenButtons.flashReference);
+                document.body.removeChild(fullscreenButtons.zoomReference);
             }
 
             reader && reader.stop();
@@ -2136,6 +2293,13 @@ var MWBarcodeScanner = {
         var width       = ((typeof args[3]) == 'number') ? args[3] : 100;
         var height      = ((typeof args[4]) == 'number') ? args[4] : 100;
 
+        jsSettingsScanningRects[codeMask].x = left;
+        jsSettingsScanningRects[codeMask].y = top;
+        jsSettingsScanningRects[codeMask].width = width;
+        jsSettingsScanningRects[codeMask].height = height;
+        jsSettingsScanningRects[codeMask].set = true;
+        jsSettingsScanningRectsAltered = true;
+
         if (codeMask != 0)
         WindowsComponnent.MWBarcodeScanner.setScanningRect(codeMask, left, top, width, height);
     },
@@ -2221,12 +2385,12 @@ var MWBarcodeScanner = {
                 if (fullscreenButtons.flashState == 0) {
                     fullscreenButtons.flashControlRef.enabled = true;
                     fullscreenButtons.flashState = 1;
-                    //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
                 }
                 else {
                     fullscreenButtons.flashControlRef.enabled = false;
                     fullscreenButtons.flashState = 0;
-                    //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
                 }
             }
         }

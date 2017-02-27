@@ -231,7 +231,7 @@ namespace WindowsComponnent
             RECT_PORTRAIT_2D = new Windows.Foundation.Rect(2, 2, 96, 96);
             RECT_FULL_1D = new Windows.Foundation.Rect(2, 2, 96, 96); //2, 2, 96, 96
             RECT_FULL_2D = new Windows.Foundation.Rect(2, 2, 96, 96); //20, 5, 60, 90
-            RECT_DOTCODE = new Windows.Foundation.Rect(30, 20, 40, 60);
+            RECT_DOTCODE = new Windows.Foundation.Rect(2, 2, 96, 96); //30, 20, 40, 60
 
             // register your copy of the mobiScan SDK with the given key
             /*int registerResult = Scanner.MWBregisterSDK("key");
@@ -291,7 +291,8 @@ namespace WindowsComponnent
                                           Scanner.MWB_CODE_MASK_AZTEC |
                                           Scanner.MWB_CODE_MASK_DM |
                                           Scanner.MWB_CODE_MASK_EANUPC |
-                                          Scanner.MWB_CODE_MASK_PDF |
+                                          Scanner.MWB_CODE_MASK_PDF | 
+                                          //Scanner.MWB_CODE_MASK_DOTCODE |
                                           Scanner.MWB_CODE_MASK_QR |
                                           Scanner.MWB_CODE_MASK_CODABAR |
                                           Scanner.MWB_CODE_MASK_11 |
@@ -392,11 +393,31 @@ namespace WindowsComponnent
 
         }
 
+        public static void resetScanningRects()
+        {
+            // set the scanning rectangle based on scan direction(format in pct: x, y, width, height)
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_25, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_39, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_93, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_128, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_AZTEC, RECT_FULL_2D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_DM, RECT_FULL_2D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_EANUPC, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_PDF, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_QR, RECT_FULL_2D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_RSS, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_CODABAR, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_DOTCODE, RECT_DOTCODE);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_11, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_MSI, RECT_FULL_1D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_MAXICODE, RECT_FULL_2D);
+            MWBsetScanningRect(Scanner.MWB_CODE_MASK_POSTAL, RECT_FULL_1D);
+        }
+
         public static void MWBsetScanningRect(int codeMask, Windows.Foundation.Rect rect)
         {
-            if (codeMask == Scanner.MWB_CODE_MASK_POSTAL) Debug.WriteLine("managed_rect: " + rect);
-            Scanner.MWBsetScanningRect(codeMask, (float)rect.Left, (float)rect.Top, (float)rect.Width, (float)rect.Height);
-            
+            if (codeMask == Scanner.MWB_CODE_MASK_DOTCODE) Debug.WriteLine("managed_rect: " + rect);
+            Scanner.MWBsetScanningRect(codeMask, (float)rect.Left, (float)rect.Top, (float)rect.Width, (float)rect.Height);            
         }
 
         public static Windows.Foundation.Rect MWBgetScanningRect(int codeMask)
