@@ -306,14 +306,14 @@ Default value is PM_PAUSE
 example : [{"method" : "MWBsetPauseMode" : "value" : [mw_c.PM_STOP_BLINKING]}]
 
 @name "MWBenableHiRes"
-Enable or disable high resolution scanning. It's recommended to enable it when target barcodes
-are of high density or small footprint. If device doesn't support high resolution param will be ignored
+Enable or disable high resolution scanning. It is recommended to enable it when target barcodes
+are of high density or small footprint. If device does not support high resolution param will be ignored
 Default value is true (enabled)
 @param[in]	enableHiRes
 example : [{"method" : "MWBenableHiRes" : "value" : [true]}]
 
 @name "MWBenableFlash"
-Enable or disable flash toggle button on scanning screen. If device doesn't support flash mode
+Enable or disable flash toggle button on scanning screen. If device does not support flash mode
 button will be hidden regardles of param
 Default value is true (enabled)
 @param[in]	enableFlash
@@ -330,9 +330,9 @@ Toggle on/off flash state
 example : [{"method" : "MWBtoggleFlash" : "value" : []}]
 
 @name "MWBenableZoom"
-Enable or disable zoom button on scanning screen. If device doesn't support zoom,
+Enable or disable zoom button on scanning screen. If device does not support zoom,
 button will be hidden regardles of param. Zoom is not supported on Windows Phone 8
-as there's no zooming api available!
+as there is no zooming api available!
 Default value is true (enabled)
 @param[in]	enableZoom
 example : [{"method" : "MWBenableZoom" : "value" : [true]}]
@@ -341,7 +341,7 @@ example : [{"method" : "MWBenableZoom" : "value" : [true]}]
 Set two desired zoom levels in percentage and initial level. Set first two params to zero for default
 levels. On iOS, first zoom level is set to maximum non-interpolated level available on device, and
 second is double of first level. On Android, default first zoom is 150% and second is 300%. Zoom is
-not supported on Windows Phone 8 as there's no zooming api available! On Windows 10 UWP phone devices,
+not supported on Windows Phone 8 as there is no zooming api available! On Windows 10 UWP phone devices,
 default values are half the maximum device supported zoom level for the first zoom and maxinum device
 supported zoom level for the second zoom. Zoom levels are scalars, so values are expected to be in 
 the [1, max] range, for example 1.0 (no zoom) and 4.0 (400% zoom).
