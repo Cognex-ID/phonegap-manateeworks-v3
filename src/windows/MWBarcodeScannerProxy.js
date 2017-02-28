@@ -141,7 +141,7 @@ var fullscreenButtons = {
 var anyReader = null;
 var anyScannerStarted = false;
 
-var debug_print = true;
+var debug_print = false;
 
 cordova.commandProxy.add("MWBarcodeScanner", {
     initDecoder: function (successCallback, errorCallback, args) {
