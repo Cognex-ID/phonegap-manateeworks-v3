@@ -78,7 +78,8 @@ scannerConfig = function(){
         var keys = {
             'Android'   : "VALID_ANDROID_KEY",
             'iOS'       : "VALID_IOS_KEY",
-            'Win32NT'   : "VALID_WIN_KEY"
+            'Win32NT'   : "VALID_WIN_WP8_KEY",
+            'windows'   : "VALID_WIN_10_UWP_KEY"
         };
         //resolve the key for this platform
         var key = (keys[device.platform])?keys[device.platform]:'';
