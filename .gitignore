@@ -1,3 +1,5 @@
 .svn
 .DS_Store
 examples
+src/wp8
+src/windows/assets/overlay.png
