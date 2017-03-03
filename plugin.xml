@@ -164,7 +164,6 @@ version="3.0.14">
     <asset src="src/windows/assets/zoom.png" target="assets/zoom.png" />
     <asset src="src/windows/assets/zoomnotsupported.png" target="assets/zoomnotsupported.png" />
     <asset src="src/windows/assets/overlay_mw.png" target="assets/overlay_mw.png" />
-    <asset src="src/windows/assets/overlay.png" target="assets/overlay.png" />
     
 </platform>
 
