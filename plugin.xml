@@ -106,44 +106,6 @@ version="3.0.14">
     
 </platform>
 
-    <!-- wp8 -->
-<platform name="wp8">
-    
-    <config-file target="config.xml" parent="/*">
-        <feature name="MWBarcodeScanner">
-            <param name="wp-package" value="MWBarcodeScanner"/>
-        </feature>
-    </config-file>
-    
-    <config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
-        <Capability Name="ID_CAP_ISV_CAMERA" />
-    </config-file>
-    
-    
-    <source-file src="src/wp8/MWBarcodeScanner/MWBarcodeScanner.cs"/>
-    <source-file src="src/wp8/MWBarcodeScanner/BarcodeHelper.cs"/>
-    <source-file src="src/wp8/MWBarcodeScanner/ScannerPage.xaml.cs" />
-    <source-file src="src/wp8/MWBarcodeScanner/ScannerPage.xaml"/>
-<source-file src="src/wp8/MWBarcodeScanner/MWOverlay.cs"/>
-    <source-file src="src/wp8/MWBarcodeScanner/overlay_mw.png"/>
-<source-file src="src/wp8/MWBarcodeScanner/flashbuttonon.png"/>
-<source-file src="src/wp8/MWBarcodeScanner/flashbuttonoff.png"/>
-<source-file src="src/wp8/MWBarcodeScanner/zoom.png"/>
-
-    
-    <source-file src="src/wp8/BarcodeLib.winmd" framework="true"/>
-    <source-file src="src/wp8/BarcodeLib.dll"/>
-  <framework src ="src/wp8/BarcodeLib.winmd"/>
-<source-file src="src/wp8/WBEx/WriteableBitmapExWinPhone.dll" framework="true"/>
-  <framework src ="src/wp8/WBEx/WriteableBitmapExWinPhone.dll"/>
-<source-file src="src/wp8/WBEx/WriteableBitmapExWinPhoneXnaDependant.dll" framework="true"/>
-<source-file src="src/wp8/WBEx/WriteableBitmapExWinPhone.pdb"/>
-<source-file src="src/wp8/WBEx/WriteableBitmapExWinPhoneXnaDependant.pdb"/>
-<source-file src="src/wp8/WBEx/WriteableBitmapExWinPhone.XML"/>
-<source-file src="src/wp8/WBEx/WriteableBitmapExWinPhoneXnaDependant.XML"/>
-
-    
-</platform>
 <!-- windows uwp -->
 <platform name="windows">
     
