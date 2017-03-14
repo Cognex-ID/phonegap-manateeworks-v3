@@ -558,7 +558,7 @@ ionic build ios
     
 And run your app.
 
-Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
+Demo app with a more proper ionic solution is NOW available [HERE.](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter) In this solution we wrap the cordova plugin in an ionic provider.
 
 
 #EXAMPLES
