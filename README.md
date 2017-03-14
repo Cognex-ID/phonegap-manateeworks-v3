@@ -7,8 +7,8 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
 
 ##Install using CLI interface (Phonegap >6.0 and above).          
 
-*First make sure you have the latest software required to run phoneGap apps. This means nodejs and git should be on your system.*
-*For more information about that, visit: [phonegap's getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/) *
+*First make sure you have the latest software required to run phoneGap apps. This means nodejs and git should be on your system.
+For more information about that, visit: [phonegap's getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
 
 Install PhoneGap:
 
