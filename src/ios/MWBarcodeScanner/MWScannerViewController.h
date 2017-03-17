@@ -69,7 +69,7 @@ typedef enum eMainScreenState {
 @property (nonatomic, retain) id <ScanningFinishedDelegate> delegate;
 @property (nonatomic, retain) UIButton *flashButton;
 @property (nonatomic, retain) UIButton *zoomButton;
-@property (nonatomic, retain) NSMutableDictionary *customParams;
+@property (nonatomic, weak) NSMutableDictionary *customParams;
 
 
 - (IBAction)doClose:(id)sender;
@@ -79,6 +79,7 @@ typedef enum eMainScreenState {
 + (void) initDecoder;
 - (AVCaptureVideoPreviewLayer *)generateLayerWithRect:(CGPoint)bottomRightPoint;
 
+- (void) unload;
 + (void) setInterfaceOrientation: (UIInterfaceOrientationMask) interfaceOrientation;
 + (void) enableHiRes: (BOOL) hiRes;
 + (void) enableFlash: (BOOL) flash;
@@ -96,7 +97,7 @@ typedef enum eMainScreenState {
 + (void) setUseFrontCamera: (BOOL) use;
 
 - (void)refreshOverlay;
-    
+
 - (void)revertToNormal;
 - (void)decodeResultNotification: (NSNotification *)notification;
 - (void)initCapture;

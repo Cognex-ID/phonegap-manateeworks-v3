@@ -25,10 +25,13 @@ MWScannerViewController *scannerViewController;
 
 - (void)initDecoder:(CDVInvokedUrlCommand*)command
 {
-    [MWScannerViewController initDecoder];
-    
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [MWScannerViewController initDecoder];
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
     
 }
 float leftP = 0;
@@ -58,12 +61,14 @@ NSMutableDictionary *recgtVals;
     if (![self.viewController.view viewWithTag:9158436]) {
         recgtVals = nil;
         [MWOverlay setPaused:NO];
-
+        
         dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
             UIView *view = [[UIView alloc] init];
             [view setTag:9158436];
             
-            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
+            //                if (!scannerViewController) {
+            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil] ;
+            //                }
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 currentOrientation = [[UIApplication sharedApplication]statusBarOrientation];
@@ -93,7 +98,7 @@ NSMutableDictionary *recgtVals;
             });
         });
     }else{
-//        [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
+        //        [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
         [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
     }
     
@@ -118,13 +123,15 @@ NSMutableDictionary *recgtVals;
         UIView *view = [self.viewController.view viewWithTag:9158436];
         [view setFrame:CGRectMake(x,y,width,height)];
         
-        if (!scannerPreviewLayer) {
-            scannerPreviewLayer = [scannerViewController generateLayerWithRect:CGPointMake(width, height)];
-            [view.layer addSublayer:scannerPreviewLayer];
-        }else{
-            [scannerPreviewLayer setFrame:CGRectMake(0, 0, width, height)];
+        @autoreleasepool {
+            if (!scannerPreviewLayer) {
+                scannerPreviewLayer = [scannerViewController generateLayerWithRect:CGPointMake(width, height)];
+                [view.layer addSublayer:scannerPreviewLayer];
+            }else{
+                [scannerPreviewLayer setFrame:CGRectMake(0, 0, width, height)];
+            }
         }
-                
+        
         
         if (leftP == 0 && topP == 0 && widthP == 1 && heightP == 1) {
             [view setHidden:YES];
@@ -216,11 +223,18 @@ NSMutableDictionary *recgtVals;
 - (void)stopScanner:(CDVInvokedUrlCommand*)command
 {
     if ([self.viewController.view viewWithTag:9158436]) {
-        [[self.viewController.view viewWithTag:9158436]removeFromSuperview];
+        MWB_cleanupLib();
         [scannerViewController stopScanning];
-        scannerPreviewLayer = nil;
+        [scannerViewController removeFromParentViewController];
+        [[self.viewController.view viewWithTag:9158436]removeFromSuperview];
+        if (scannerPreviewLayer && scannerPreviewLayer.superlayer) {
+            [scannerPreviewLayer removeFromSuperlayer];
+            scannerPreviewLayer = nil;
+        }
         [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+        
+        [scannerViewController unload];
         scannerViewController = nil;
     }
 }
@@ -288,7 +302,7 @@ NSMutableDictionary *recgtVals;
                 [self stopScanner:nil];
             }
             
-                [self scanningFinished:obj.result.text withType: obj.result.typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
+            [self scanningFinished:obj.result.text withType: obj.result.typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
         }
     }
 }
@@ -373,7 +387,7 @@ NSMutableDictionary *recgtVals;
 
 
 - (void) didRotate:(NSNotification *)notification{
-
+    
     if ([self.viewController.view viewWithTag:9158436] && currentOrientation != [[UIApplication sharedApplication]statusBarOrientation] &&[[UIDevice currentDevice]orientation]<=4 && (int)[[UIDevice currentDevice]orientation] == (int)[UIApplication sharedApplication].statusBarOrientation
         ) {
         currentOrientation =[[UIApplication sharedApplication]statusBarOrientation];
@@ -409,7 +423,7 @@ NSMutableDictionary *recgtVals;
         if ([MWScannerViewController isFlashEnabled] && scannerViewController.flashButton) {
             scannerViewController.flashButton.frame = CGRectMake(scannerView.frame.size.width-10-35, 10, 35, 35);
         }
-
+        
         
     }
     
@@ -420,7 +434,7 @@ NSMutableDictionary *recgtVals;
 {
     NSString *license_key = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MW_LICENSE_KEY"];
     const char * key = (char *) [[command.arguments objectAtIndex:0] UTF8String];
-   
+    
     int registrationResult;
     
     if(key != '\0' && strlen(key) > 5){
@@ -428,16 +442,16 @@ NSMutableDictionary *recgtVals;
     }
     else{
         key=[license_key UTF8String];
-        registrationResult = MWB_registerSDK(key);        
+        registrationResult = MWB_registerSDK(key);
     }
     
-//    NSLog(@"Value of license_key = %@", key);
-
-
+    //    NSLog(@"Value of license_key = %@", key);
+    
+    
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat:@"%d",registrationResult]];
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
+    
 }
 
 
@@ -537,7 +551,7 @@ NSMutableDictionary *recgtVals;
         [MWScannerViewController setOverlayMode:overlayModeTmp];
         if ([self.viewController.view viewWithTag:9158436]) {
             [MWOverlay removeFromPreviewLayer];
-
+            
             if([MWScannerViewController getOverlayMode] == 1){
                 [MWOverlay addToPreviewLayer:scannerPreviewLayer];
             }
@@ -590,7 +604,7 @@ NSMutableDictionary *recgtVals;
 }
 - (void)toggleFlash:(CDVInvokedUrlCommand*)command
 {
-       [scannerViewController toggleTorch];
+    [scannerViewController toggleTorch];
 }
 - (void)toggleZoom:(CDVInvokedUrlCommand*)command
 {
@@ -638,13 +652,18 @@ NSMutableDictionary *recgtVals;
 - (void)closeScanner:(CDVInvokedUrlCommand*)command
 {
     if ([self.viewController.view viewWithTag:9158436]) {
-        [[self.viewController.view viewWithTag:9158436] removeFromSuperview];
         dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
             [scannerViewController stopScanning];
             [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
             [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
             dispatch_async(dispatch_get_main_queue(), ^{
-                scannerPreviewLayer = nil;
+                [[self.viewController.view viewWithTag:9158436] removeFromSuperview];
+                if (scannerPreviewLayer && scannerPreviewLayer.superlayer) {
+                    [scannerPreviewLayer removeFromSuperlayer];
+                    scannerPreviewLayer = nil;
+                }
+                
+                [scannerViewController unload];
                 scannerViewController = nil;
             });
         });
@@ -652,14 +671,17 @@ NSMutableDictionary *recgtVals;
         
     }
     if (scannerViewController) {
-        [scannerViewController dismissViewControllerAnimated:YES completion:nil];
+        [scannerViewController dismissViewControllerAnimated:YES completion:^{
+            [scannerViewController unload];
+            scannerViewController = nil;
+        }];
     }
 }
 - (void)togglePauseResume:(CDVInvokedUrlCommand*)command
 {
     if (scannerViewController.state != NORMAL) {
         scannerViewController.state = NORMAL;
-
+        
         if ([MWScannerViewController getOverlayMode] == 1) {
             [MWOverlay setPaused:YES];
         }
@@ -675,16 +697,16 @@ NSMutableDictionary *recgtVals;
     int pauseMode = [[command.arguments objectAtIndex:0] intValue];
     switch (pauseMode) {
         case 0:
-        [MWOverlay setPauseMode:PM_NONE];
-        break;
+            [MWOverlay setPauseMode:PM_NONE];
+            break;
         case 1:
-        [MWOverlay setPauseMode:PM_PAUSE];
-        break;
+            [MWOverlay setPauseMode:PM_PAUSE];
+            break;
         case 2:
-        [MWOverlay setPauseMode:PM_STOP_BLINKING];
-        break;
+            [MWOverlay setPauseMode:PM_STOP_BLINKING];
+            break;
         default:
-        break;
+            break;
     }
 }
 - (void)scanImage:(CDVInvokedUrlCommand*)command
@@ -695,7 +717,7 @@ NSMutableDictionary *recgtVals;
     
     NSString *filePath = [command.arguments objectAtIndex:0];
     
-
+    
     if ([filePath hasPrefix:prefixToRemove])
         
         filePath = [filePath substringFromIndex:[prefixToRemove length]];

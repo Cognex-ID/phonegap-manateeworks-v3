@@ -124,7 +124,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     MWB_setScanningRect(MWB_CODE_MASK_MSI,    RECT_FULL_1D);
     MWB_setScanningRect(MWB_CODE_MASK_MAXICODE,RECT_FULL_2D);
     MWB_setScanningRect(MWB_CODE_MASK_POSTAL, RECT_FULL_1D);
-
+    
     // set decoder effort level (1 - 5)
     // for live scanning scenarios, a setting between 1 to 3 will suffice
     // levels 4 and 5 are typically reserved for batch scanning
@@ -191,7 +191,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 + (int) getOverlayMode
 {
     
-   return param_OverlayMode;
+    return param_OverlayMode;
     
 }
 
@@ -237,28 +237,28 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 {
     useFrontCamera = use;
 }
-    
-    -(void)refreshOverlay
-    {
-        dispatch_async(dispatch_get_main_queue(), ^(void) {
+
+-(void)refreshOverlay
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        [MWOverlay removeFromPreviewLayer];
+        
+        if(param_OverlayMode == 1){
+            [MWOverlay addToPreviewLayer:self.prevLayer];
+        }
+        
+        if (cameraOverlay) {
             
-            [MWOverlay removeFromPreviewLayer];
-            
-            if(param_OverlayMode == 1){
-                [MWOverlay addToPreviewLayer:self.prevLayer];
+            if([MWScannerViewController getOverlayMode] == 2){
+                [cameraOverlay setHidden:NO];
+            }else{
+                [cameraOverlay setHidden:YES];
             }
-            
-            if (cameraOverlay) {
-                
-                if([MWScannerViewController getOverlayMode] == 2){
-                    [cameraOverlay setHidden:NO];
-                }else{
-                    [cameraOverlay setHidden:YES];
-                }
-            }
-            
-        });
-    }
+        }
+        
+    });
+}
 
 + (void) setZoomLevels: (int) zoomLevel1 zoomLevel2: (int) zoomLevel2 initialZoomLevel: (int) initialZoomLevel {
     
@@ -336,7 +336,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     self.prevLayer = nil;
     [[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(decodeResultNotification:) name: DecoderResultNotification object: nil];
     
-
+    
     
 }
 
@@ -390,7 +390,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
             }
             
             if([self.device isFocusModeSupported: AVCaptureFocusModeContinuousAutoFocus])
-            self.device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+                self.device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
             
             [self.device unlockForConfiguration];
         } else {
@@ -407,17 +407,17 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
         
         switch (zoomLevel) {
             case 0:
-            [self.device setVideoZoomFactor:1 /*rampToVideoZoomFactor:1 withRate:4*/];
-            break;
+                [self.device setVideoZoomFactor:1 /*rampToVideoZoomFactor:1 withRate:4*/];
+                break;
             case 1:
-            [self.device setVideoZoomFactor:firstZoom /*rampToVideoZoomFactor:firstZooom withRate:4*/];
-            break;
+                [self.device setVideoZoomFactor:firstZoom /*rampToVideoZoomFactor:firstZooom withRate:4*/];
+                break;
             case 2:
-            [self.device setVideoZoomFactor:secondZoom /*rampToVideoZoomFactor:secondZoom withRate:4*/];
-            break;
-            
+                [self.device setVideoZoomFactor:secondZoom /*rampToVideoZoomFactor:secondZoom withRate:4*/];
+                break;
+                
             default:
-            break;
+                break;
         }
         [self.device unlockForConfiguration];
         
@@ -670,9 +670,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     self.focusTimer = [NSTimer scheduledTimerWithTimeInterval:2.5 target:self selector:@selector(reFocus) userInfo:nil repeats:YES];
     
     activeThreads = 0;
-    
 }
-
 
 - (AVCaptureVideoPreviewLayer *)generateLayerWithRect:(CGPoint)bottomRightPoint
 {
@@ -732,12 +730,12 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
         resY = 720;
         self.captureSession.sessionPreset = AVCaptureSessionPreset1280x720;
     } else
-    //set to 640x480 if 1280x720 not supported on device
-    if ([self.captureSession canSetSessionPreset:AVCaptureSessionPreset640x480])
-    {
-        NSLog(@"Set preview port to 640X480");
-        self.captureSession.sessionPreset = AVCaptureSessionPreset640x480;
-    }
+        //set to 640x480 if 1280x720 not supported on device
+        if ([self.captureSession canSetSessionPreset:AVCaptureSessionPreset640x480])
+        {
+            NSLog(@"Set preview port to 640X480");
+            self.captureSession.sessionPreset = AVCaptureSessionPreset640x480;
+        }
     
     // Limit camera FPS to 15 for single core devices (iPhone 4 and older) so more CPU power is available for decoder
     host_basic_info_data_t hostInfo;
@@ -789,7 +787,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     
     /*We add the preview layer*/
     AVCaptureVideoPreviewLayer *theLayer = [AVCaptureVideoPreviewLayer layerWithSession: self.captureSession];
-
+    
     if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft){
         theLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
     }
@@ -868,7 +866,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 - (void) onVideoStart: (NSNotification*) note
 {
     if(running)
-    return;
+        return;
     running = YES;
     
     // lock device and set focus mode
@@ -876,14 +874,14 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     if([self.device lockForConfiguration: &error])
     {
         if([self.device isFocusModeSupported: AVCaptureFocusModeContinuousAutoFocus])
-        self.device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+            self.device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
     }
 }
 
 - (void) onVideoStop: (NSNotification*) note
 {
     if(!running)
-    return;
+        return;
     [self.device unlockForConfiguration];
     running = NO;
 }
@@ -909,167 +907,171 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         self.state = CAMERA_DECODING;
     }
     
-    activeThreads++;
-    
-    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    //Lock the image buffer
-    CVPixelBufferLockBaseAddress(imageBuffer,0);
-    //Get information about the image
-    baseAddress = (uint8_t *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer,0);
-    int pixelFormat = CVPixelBufferGetPixelFormatType(imageBuffer);
-    switch (pixelFormat) {
-        case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        //NSLog(@"Capture pixel format=NV12");
-        bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer,0);
-        width = bytesPerRow;//CVPixelBufferGetWidthOfPlane(imageBuffer,0);
-        height = CVPixelBufferGetHeightOfPlane(imageBuffer,0);
-        break;
-        case kCVPixelFormatType_422YpCbCr8:
-        //NSLog(@"Capture pixel format=UYUY422");
-        bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer,0);
-        width = CVPixelBufferGetWidth(imageBuffer);
-        height = CVPixelBufferGetHeight(imageBuffer);
-        int len = width*height;
-        int dstpos=1;
-        for (int i=0;i<len;i++){
-            baseAddress[i]=baseAddress[dstpos];
-            dstpos+=2;
-        }
+    @autoreleasepool {
+        activeThreads++;
         
-        break;
-        default:
-        //	NSLog(@"Capture pixel format=RGB32");
-        break;
-    }
-    
-    unsigned char *frameBuffer = malloc(width * height);
-    memcpy(frameBuffer, baseAddress, width * height);
-    CVPixelBufferUnlockBaseAddress(imageBuffer,0);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        unsigned char *pResult=NULL;
-        
-        int resLength = MWB_scanGrayscaleImage(frameBuffer,width,height, &pResult);
-        free(frameBuffer);
-//        NSLog(@"Frame decoded. Active threads: %d", activeThreads);
-        MWResults *mwResults = nil;
-        MWResult *mwResult = nil;
-        if (resLength > 0){
-            
-            if (self.state == NORMAL){
-                resLength = 0;
-                free(pResult);
-                
-            } else {
-                mwResults = [[MWResults alloc] initWithBuffer:pResult];
-                if (mwResults && mwResults.count > 0){
-                    mwResult = [mwResults resultAtIntex:0];
+        CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        //Lock the image buffer
+        CVPixelBufferLockBaseAddress(imageBuffer,0);
+        //Get information about the image
+        baseAddress = (uint8_t *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer,0);
+        int pixelFormat = CVPixelBufferGetPixelFormatType(imageBuffer);
+        switch (pixelFormat) {
+            case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+                //NSLog(@"Capture pixel format=NV12");
+                bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer,0);
+                width = bytesPerRow;//CVPixelBufferGetWidthOfPlane(imageBuffer,0);
+                height = CVPixelBufferGetHeightOfPlane(imageBuffer,0);
+                break;
+            case kCVPixelFormatType_422YpCbCr8:
+                //NSLog(@"Capture pixel format=UYUY422");
+                bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer,0);
+                width = CVPixelBufferGetWidth(imageBuffer);
+                height = CVPixelBufferGetHeight(imageBuffer);
+                int len = width*height;
+                int dstpos=1;
+                for (int i=0;i<len;i++){
+                    baseAddress[i]=baseAddress[dstpos];
+                    dstpos+=2;
                 }
                 
-                free(pResult);
-            }
+                break;
+            default:
+                //	NSLog(@"Capture pixel format=RGB32");
+                break;
         }
         
-        if (mwResult)
-        {
-            MWB_setDuplicate(mwResult.bytes, mwResult.bytesLength);
-
-            self.state = NORMAL;
-            [MWOverlay setPaused:YES];
-            
         
-            if(param_activeParser != MWP_PARSER_MASK_NONE && !(param_activeParser == MWP_PARSER_MASK_GS1 && !mwResult.isGS1)){
+        
+        unsigned char *frameBuffer = malloc(width * height);
+        memcpy(frameBuffer, baseAddress, width * height);
+        CVPixelBufferUnlockBaseAddress(imageBuffer,0);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            unsigned char *pResult=NULL;
+            
+            int resLength = MWB_scanGrayscaleImage(frameBuffer,width,height, &pResult);
+            free(frameBuffer);
+            //        NSLog(@"Frame decoded. Active threads: %d", activeThreads);
+            MWResults *mwResults = nil;
+            MWResult *mwResult = nil;
+            if (resLength > 0){
                 
-                
-                unsigned char * parserResult = NULL;
-                double parserRes = -1;
-                NSString *parserMask;
-                
-                
-                
-                //USE THIS CODE FOR JSONFORMATTED RESULT
-                
-                parserRes = MWP_getJSON(param_activeParser, mwResult.encryptedResult, mwResult.bytesLength, &parserResult);
-                
-                
-                //use jsonString to get the JSON formatted result
-                if (parserRes >= 0){
-                    mwResult.text = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
-                }
-                
-                //
-                
-                /*
-                 //USE THIS CODE FOR TEXT FORMATTED RESULT
-                 
-                 parserRes = MWP_getFormattedText(MWPARSER_MASK, obj.result.encryptedResult, obj.result.bytesLength, &parserResult);
-                 if (parserRes >= 0){
-                 decodeResult = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
-                 }
-                 */
-                //
-                
-                
-                
-                NSLog(@"%f",parserRes);
-                if (parserRes >= 0){
+                if (self.state == NORMAL){
+                    resLength = 0;
+                    free(pResult);
                     
-                    switch (param_activeParser) {
-                        case MWP_PARSER_MASK_GS1:
-                            parserMask = @"GS1";
-                            break;
-                        case MWP_PARSER_MASK_IUID:
-                            parserMask = @"IUID";
-                            break;
-                        case MWP_PARSER_MASK_ISBT:
-                            parserMask = @"ISBT";
-                            break;
-                        case MWP_PARSER_MASK_AAMVA:
-                            parserMask = @"AAMVA";
-                            break;
-                        case MWP_PARSER_MASK_HIBC:
-                            parserMask = @"HIBC";
-                            break;
-                        case MWP_PARSER_MASK_SCM:
-                            parserMask = @"SCM";
-                            break;
-                        default:
-                            parserMask = @"Unknown";
-                            break;
+                } else {
+                    mwResults = [[MWResults alloc] initWithBuffer:pResult];
+                    if (mwResults && mwResults.count > 0){
+                        mwResult = [mwResults resultAtIntex:0];
                     }
                     
-                    mwResult.typeName = [NSString stringWithFormat:@"%@ (%@)", mwResult.typeName, parserMask];
-                    
+                    free(pResult);
                 }
             }
-        
             
-            NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-            DecoderResult *notificationResult = [DecoderResult createSuccess:mwResult];
-            
-            dispatch_async(dispatch_get_main_queue(), ^(void) {
+            if (mwResult)
+            {
+                MWB_setDuplicate(mwResult.bytes, mwResult.bytesLength);
                 
-                if (param_closeOnSuccess) {
-                    [self.captureSession stopRunning];
+                self.state = NORMAL;
+                [MWOverlay setPaused:YES];
+                
+                
+                if(param_activeParser != MWP_PARSER_MASK_NONE && !(param_activeParser == MWP_PARSER_MASK_GS1 && !mwResult.isGS1)){
+                    
+                    
+                    unsigned char * parserResult = NULL;
+                    double parserRes = -1;
+                    NSString *parserMask;
+                    
+                    
+                    
+                    //USE THIS CODE FOR JSONFORMATTED RESULT
+                    
+                    parserRes = MWP_getJSON(param_activeParser, mwResult.encryptedResult, mwResult.bytesLength, &parserResult);
+                    
+                    
+                    //use jsonString to get the JSON formatted result
+                    if (parserRes >= 0){
+                        mwResult.text = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
+                    }
+                    
+                    //
+                    
+                    /*
+                     //USE THIS CODE FOR TEXT FORMATTED RESULT
+                     
+                     parserRes = MWP_getFormattedText(MWPARSER_MASK, obj.result.encryptedResult, obj.result.bytesLength, &parserResult);
+                     if (parserRes >= 0){
+                     decodeResult = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
+                     }
+                     */
+                    //
+                    
+                    
+                    
+                    NSLog(@"%f",parserRes);
+                    if (parserRes >= 0){
+                        
+                        switch (param_activeParser) {
+                            case MWP_PARSER_MASK_GS1:
+                                parserMask = @"GS1";
+                                break;
+                            case MWP_PARSER_MASK_IUID:
+                                parserMask = @"IUID";
+                                break;
+                            case MWP_PARSER_MASK_ISBT:
+                                parserMask = @"ISBT";
+                                break;
+                            case MWP_PARSER_MASK_AAMVA:
+                                parserMask = @"AAMVA";
+                                break;
+                            case MWP_PARSER_MASK_HIBC:
+                                parserMask = @"HIBC";
+                                break;
+                            case MWP_PARSER_MASK_SCM:
+                                parserMask = @"SCM";
+                                break;
+                            default:
+                                parserMask = @"Unknown";
+                                break;
+                        }
+                        
+                        mwResult.typeName = [NSString stringWithFormat:@"%@ (%@)", mwResult.typeName, parserMask];
+                        
+                    }
                 }
-                if (mwResult.locationPoints) {
-                    [MWOverlay showLocation:mwResult.locationPoints.points imageWidth:mwResult.imageWidth imageHeight:mwResult.imageHeight];
-                }
                 
-                [center postNotificationName:DecoderResultNotification object: notificationResult];
-                NSLog(@"SCANNED RESULT: %@",mwResult.text);
                 
-            });
-            
-        }
-        else if (self.state!=NORMAL)
-        {
-            
-            self.state = CAMERA;
-            [MWOverlay setPaused:NO];
-        }
-        activeThreads --;
-    });
+                NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+                DecoderResult *notificationResult = [DecoderResult createSuccess:mwResult];
+                
+                dispatch_async(dispatch_get_main_queue(), ^(void) {
+                    
+                    if (param_closeOnSuccess) {
+                        [self.captureSession stopRunning];
+                    }
+                    if (mwResult.locationPoints) {
+                        [MWOverlay showLocation:mwResult.locationPoints.points imageWidth:mwResult.imageWidth imageHeight:mwResult.imageHeight];
+                    }
+                    
+                    [center postNotificationName:DecoderResultNotification object: notificationResult];
+                    NSLog(@"SCANNED RESULT: %@",mwResult.text);
+                    
+                });
+                
+            }
+            else if (self.state!=NORMAL)
+            {
+                
+                self.state = CAMERA;
+                [MWOverlay setPaused:NO];
+            }
+            activeThreads --;
+        });
+    }
 }
 
 
@@ -1098,10 +1100,41 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 #pragma mark -
 #pragma mark Memory management
 
+-(void) unload {
+    if ([closeButton superview]) {
+        [closeButton removeFromSuperview];
+    }
+    if ([flashButton superview]) {
+        [flashButton removeFromSuperview];
+    }
+    if ([zoomButton superview]) {
+        [zoomButton removeFromSuperview];
+    }
+    closeButton = nil;
+    flashButton = nil;
+    zoomButton = nil;
+    
+    _captureSession = nil;
+    _prevLayer = nil;
+    _device = nil;
+    @try {
+        [focusTimer invalidate];
+    } @catch (NSException *exception) {
+        
+    } @finally {
+    }
+    focusTimer = nil;
+    _delegate = nil;
+    customParams = nil;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)viewDidUnload
 {
     [self stopScanning];
     
+    self.delegate = nil;
     self.prevLayer = nil;
     [super viewDidUnload];
 }
@@ -1148,7 +1181,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             if (param_closeOnSuccess) {
                 [self dismissViewControllerAnimated:YES completion:^{}];
             }
-    
+            
             [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
             
         }
@@ -1177,11 +1210,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-
+    
     if (param_OverlayMode == OM_MW) {
         [MWOverlay addToPreviewLayer:self.prevLayer];
     }
-
+    
     
 }
 
