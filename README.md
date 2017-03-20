@@ -65,7 +65,7 @@ phonegap build windows
 Manateeworks Scanner requires a license to work properly. You can get one here:  
 [Manateeworks Evaluation License](https://manateeworks.com/lpr?type=evaluation)
 
-There are two ways to set it up:
+There are two ways to set this up:
 
 1.The MW_LICENSE_KEY variable can be added in an xml file respectively for each platform
 
