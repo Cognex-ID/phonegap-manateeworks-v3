@@ -423,15 +423,15 @@ example : [{"method" : "MWBuseFrontCamera" : "value" : [false]}]
 
 ```
 
-##Windows (UWP) specifics
+## Windows (UWP) specifics
 
-###Requirements
+### Requirements
 
  - Visual Studio with Universal Windows App Development Tools
  - MWBarcodeLibUniversal SDK W10 extension
 (You can download it from https://manateeworks.com/files/download_latest/mobiScan-Windows, and then install 10.0\MWBCameraDemo\MWBarcodeLibUniversalSDK.vsix)
 
-###Post-build settings (required)
+### Post-build settings (required)
  - In the solution explorer, set the project **CordovaApp.Windows10 (Universal Windows)** as startup project.
  - In this project’s directory, open the file **package.windows10.appxmanifest** and in the capabilities tab check **Webcam** from the list.
  - On some devices, there might be a problem with deployment and starting the scanner which can be fixed by
@@ -440,12 +440,12 @@ removing the following line from the **index.html** file.
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
 ```
 
-###Functionalities
+### Functionalities
 
  - The function **scanImage()** requires image files to be placed in the www folder.
  - The usage of front camera is currently not available.
 
-###Performance
+### Performance
 The camera capture and preview are implemented in JavaScript on the web side. Windows doesn't seem to support non-native implementation well, and this results in lower frame rate than hardware available. This can be improved by using a lower camera resolution (480p instead of the default 720p), which can be set with the method **MWBenableHiRes** and **false** as value. Some devices with slower processors could further improve their frame rate by reducing the number of cores the decoder uses (default is all), by using the method **MWBsetMaxThreads** with a value **lower than all CPU cores but not lower than 1**.
 
 # IONIC 1 Implementation
