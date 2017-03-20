@@ -5,7 +5,7 @@ Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to you
 
 **For more info, visit our website at [www.manateeworks.com/phonegap-plugin](https://manateeworks.com/phonegap-plugin)**
 
-##Install using CLI interface (Phonegap >6.0 and above).          
+## Install using CLI interface (Phonegap >6.0 and above).          
 
 *First make sure you have the latest software required to run phoneGap apps. This means nodejs and git should be on your system.
 For more information about that, visit: [phonegap's getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
@@ -561,7 +561,7 @@ And run your app.
 Demo app with a more proper ionic solution is NOW available [HERE.](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter) In this solution we wrap the cordova plugin in an ionic provider.
 
 
-#EXAMPLES
+# EXAMPLES
 
 We've added a minimum set of files that you need to replace, to help you setup your app as soon as possible (FOR TESTING PURPOSES).
 
