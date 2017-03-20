@@ -86,10 +86,10 @@ There are two ways to set this up:
 <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
 ```
 
-The scanner is initialized with default settings.   You can change these settings with the **loadSettings()** method.
+The scanner is initialized with default settings. You can change these settings with the **loadSettings()** method.
 
 
-For phoneGap apps we include a **MWBConfig.js** where this can be handled. Obviously for your use case you don't need to use this file, and you can provide your own, and you probably will handle it differently, but for the needs of this document let's include it in our **index.html**. It needs to be included with a script tag like:
+For PhoneGap apps we include a ** MWBConfig.js ** where this can be handled. Obviously for your use-case you don't need to use this file, and you can provide your own, and you probably will handle it differently, but for the needs of this document let's include it in our **index.html**. It needs to be included with a script tag like:
     
 ```html
   <script type="text/javascript" src="cordova.js"></script>
