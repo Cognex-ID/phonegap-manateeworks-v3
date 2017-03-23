@@ -455,6 +455,7 @@ extern int MWB_registerSDK(const char * key);
  */
 extern int MWB_setActiveCodes(const uint32_t codeMask);
     
+   
     
 /**
  * Get active decoder types
@@ -462,6 +463,35 @@ extern int MWB_setActiveCodes(const uint32_t codeMask);
  * @retval          Active decoder types
  */
 extern int MWB_getActiveCodes(void);
+    
+    
+/**
+ * Enable decoder type
+ * Upon library load, all decoder types are inactive by default. User must call this function
+ * at least once to choose active decoder.
+ *
+ * @param[in]       codeMask                Bit flags (MWB_CODE_MASK_...) of decoder type
+ *                                          to be activated.
+ *
+ * @retval          MWB_RT_OK               Requested decoder type supported and activated.
+ * @retval          MWB_RT_NOT_SUPPORTED    Requested decoder type is not supported in this library release
+ */
+extern int MWB_enableCode(const uint32_t codeMask);
+
+
+/**
+ * Disable decoder type
+ * Remove barcode type from set of enabled types
+ *
+ * @param[in]       codeMask                Bit flags (MWB_CODE_MASK_...) of decoder type
+ *                                          to be deactivated.
+ *
+ * @retval          MWB_RT_OK               Requested decoder type supported and deactivated.
+ * @retval          MWB_RT_NOT_SUPPORTED    Requested decoder type is not supported in this library release
+ */
+extern int MWB_disableCode(const uint32_t codeMask);
+
+    
     
 
 /**
@@ -476,6 +506,45 @@ extern int MWB_getActiveCodes(void);
  * @retval          MWB_RT_NOT_SUPPORTED    Decoder group or subtype not supported
  */
 extern int MWB_setActiveSubcodes(const uint32_t codeMask, const uint32_t subMask);
+    
+/**
+ * Get active subcodes for given code group flag.
+  *
+ * @param[in]       codeMask                Single decoder type/group (MWB_CODE_MASK_...)
+ *
+ * @retval          >= 0                    Acctive subtypes for given code mask
+ * @retval          MWB_RT_BAD_PARAM        No decoder group selected
+ * @retval          MWB_RT_NOT_SUPPORTED    Decoder group or subtype not supported
+ */
+extern int MWB_getActiveSubcodes(const uint32_t codeMask);
+
+
+/**
+ * enable subcode for given code group flag.
+ * Subcodes under some decoder type are all activated by default.
+ *
+ * @param[in]       codeMask                Single decoder type/group (MWB_CODE_MASK_...)
+ * @param[in]       subMask                 Flag of requested decoder subtype (MWB_SUBC_MASK_)
+ *
+ * @retval          MWB_RT_OK               Activation successful
+ * @retval          MWB_RT_BAD_PARAM        No decoder group selected
+ * @retval          MWB_RT_NOT_SUPPORTED    Decoder group or subtype not supported
+ */
+extern int MWB_enableSubcode(const uint32_t codeMask, const uint32_t subMask);
+    
+/**
+ * Disable subcode for given code group flag.
+ *
+ * @param[in]       codeMask                Single decoder type/group (MWB_CODE_MASK_...)
+ * @param[in]       subMask                 Flag of requested decoder subtype (MWB_SUBC_MASK_)
+ *
+ * @retval          MWB_RT_OK               Deactivation successful
+ * @retval          MWB_RT_BAD_PARAM        No decoder group selected
+ * @retval          MWB_RT_NOT_SUPPORTED    Decoder group or subtype not supported
+ */
+extern int MWB_disableSubcode(const uint32_t codeMask, const uint32_t subMask);
+
+
 
 /**
  * @brief       Sets code priority level for selected decoder group or groups.
@@ -485,7 +554,6 @@ extern int MWB_setActiveSubcodes(const uint32_t codeMask, const uint32_t subMask
  *              control order by which decoders will be called.
  *
  * @param[in]   codeMask                Single decoder type/group (MWB_CODE_MASK_...)
- * @param[in]   priority                0 to 254 priority value (0 is the highest priority)
  *
  * @retval      MWB_RT_OK               Success
  * @retval      MWB_RT_NOT_SUPPORTED    Decoder group not supported
@@ -559,6 +627,48 @@ extern int MWB_scanGrayscaleImage(uint8_t*  pp_image,  int lenX,  int lenY, uint
  * @retval      MWB_RT_NOT_SUPPORTED    Flag values not supported for selected decoder
  */
 extern int MWB_setFlags(const uint32_t codeMask, const uint32_t flags);
+    
+/**
+ * @brief       Enable option for single barcode type (or global one).
+ * @details     MWB_enableFlag configures option (if any) for decoder type specified in \a codeMask.
+ *              Available options depend on selected decoder type.
+ * @param[in]   codeMask                Single decoder type (MWB_CODE_MASK_...)
+ * @param[in]   flag                    Selected decoder type option (MWB_FLAG_...)
+ * @n                                   <b>RSS decoder</b> - no configuration options
+ * @n                                   <b>Code39 decoder</b>
+ * @n                                   - MWB_CFG_CODE39_REQ_CHKSUM - Checksum check mandatory
+ *
+ * @retval      MWB_RT_OK               Success
+ * @retval      MWB_RT_BAD_PARAM        Flag value out of range
+ * @retval      MWB_RT_NOT_SUPPORTED    Flag value not supported for selected decoder
+ */
+extern int MWB_enableFlag(const uint32_t codeMask, const uint32_t flag);
+    
+    
+/**
+ * @brief       Disable option for single barcode type (or global one).
+ * @details     MWB_disableFlag disable option (if any) for decoder type specified in \a codeMask.
+ *              Available options depend on selected decoder type.
+ * @param[in]   codeMask                Single decoder type (MWB_CODE_MASK_...)
+ * @param[in]   flag                    Selected decoder type option (MWB_FLAG_...)
+ * @n                                   <b>RSS decoder</b> - no configuration options
+ * @n                                   <b>Code39 decoder</b>
+ * @n                                   - MWB_CFG_CODE39_REQ_CHKSUM - Checksum check mandatory
+ *
+ * @retval      MWB_RT_OK               Success
+ * @retval      MWB_RT_BAD_PARAM        Flag value out of range
+ * @retval      MWB_RT_NOT_SUPPORTED    Flag value not supported for selected decoder
+ */
+extern int MWB_disableFlag(const uint32_t codeMask, const uint32_t flag);
+    
+/**
+ * @brief       Get active flags for single barcode type.
+ * @details     Get active flags for single barcode type.
+ * @param[in]   codeMask                Single decoder type (MWB_CODE_MASK_...) or 0 for global flags
+  *
+ * @retval      MWB_RT_OK               Success
+ */
+extern int MWB_getFlags(const uint32_t codeMask);
 
 /**
  * @brief       Configure global library effort level
@@ -626,6 +736,20 @@ extern int MWB_setMinLength(const uint32_t codeMask, const uint32_t minLength);
  * @retval      MWB_RT_NOT_SUPPORTED    Function not supported for specified codeMask
  */
 extern int MWB_setParam(const uint32_t codeMask, const uint32_t paramId, const uint32_t paramValue);
+    
+    
+/**
+ * @brief       Get specified decoder param.
+ * @details     MWB_setParam gets specified decoder param id/value pair for decoder type specified in \a codeMask.
+ * @param[in]   codeMask                Single decoder type (MWB_CODE_MASK_...)
+ * @param[in]   paramId                 ID of param
+ * @param[in]   paramValue              Integer value of param
+ *
+ * @retval      >= 0                    Param value
+ * @retval      MWB_RT_BAD_PARAM        Invalid parameter specified
+ * @retval      MWB_RT_NOT_SUPPORTED    Function not supported for specified codeMask
+ */
+extern int MWB_getParam(const uint32_t codeMask, const uint32_t paramId);
     
 /**
  * Get active scanning direction
