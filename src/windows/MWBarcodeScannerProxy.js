@@ -141,6 +141,8 @@ var fullscreenButtons = {
 var anyReader = null;
 var anyScannerStarted = false;
 
+var cancelPartial = null;
+
 var debug_print = false;
 
 cordova.commandProxy.add("MWBarcodeScanner", {
@@ -713,6 +715,18 @@ var MWBarcodeScanner = {
             
         }
 
+        function onResume() {
+            // Handle the resume event
+        }
+
+        function onPause() {
+            // Handle the pause event
+            reader && reader.stop();
+
+            anyScannerStarted = false;
+            anyReader = null;
+        }
+
         // *** IMAGE BUTTONS ***
 
         /**
@@ -860,6 +874,8 @@ var MWBarcodeScanner = {
 
             closeButton.addEventListener("click", cancelPreview, false);*/
             document.addEventListener('backbutton', cancelPreview, false);
+            document.addEventListener("pause", onPause, false);
+            document.addEventListener("resume", onResume, false);
 
             [capturePreview, capturePreviewAlignmentMark/*, navigationButtonsDiv*/].forEach(function (element) {
                 capturePreviewFrame.appendChild(element);
@@ -1118,6 +1134,8 @@ var MWBarcodeScanner = {
             document.removeEventListener('backbutton', cancelPreview);
 
             window.removeEventListener('resize', resizeCanvas, false);
+            window.removeEventListener("pause", onPause, false);
+            window.removeEventListener("resume", onResume, false);
 
             fullscreenButtons.flashReference.removeEventListener('click', clickedFlash, false);
             fullscreenButtons.zoomReference.removeEventListener('click', clickedZoom, false);
@@ -1151,7 +1169,18 @@ var MWBarcodeScanner = {
 			anyScannerStarted = false;
 			anyReader = null;
 			//document.getElementById("b1").disabled = false;
-			//document.getElementById("b2").disabled = false;
+            //document.getElementById("b2").disabled = false;
+
+			success({
+			    code: "",
+			    type: "Cancel" /*BARCODE_FORMAT[result.barcodeFormat]*/,
+			    isGS1: null,
+			    bytes: "",
+			    location: null,
+			    imageWidth: null,
+			    imageHeight: null,
+			    cancelled: true
+			});
         }
 
         WinJS.Promise.wrap(createPreview())
@@ -1357,6 +1386,18 @@ var MWBarcodeScanner = {
                     canvasBlinkingLineH.style.display = "initial";
                 }
             }, 1000);
+        }
+
+        function onResume() {
+            // Handle the resume event
+        }
+
+        function onPause() {
+            // Handle the pause event
+            reader && reader.stop();
+
+            anyScannerStarted = false;
+            anyReader = null;
         }
 
         /**
@@ -1861,7 +1902,9 @@ var MWBarcodeScanner = {
             navigationButtonsDiv.appendChild(closeButton);
 
             closeButton.addEventListener("click", cancelPreview, false);*/
-            document.addEventListener('backbutton', cancelPreview, false);
+            document.addEventListener('backbutton', cancelPartial, false);
+            document.addEventListener("pause", onPause, false);
+            document.addEventListener("resume", onResume, false);
 
             [proxyWrapCapturePreview, capturePreviewAlignmentMark/*, navigationButtonsDiv*/].forEach(function (element) {
                 capturePreviewFrame.appendChild(element);
@@ -2119,13 +2162,16 @@ var MWBarcodeScanner = {
         function destroyPreview() {
 
             Windows.Graphics.Display.DisplayInformation.getForCurrentView().removeEventListener("orientationchanged", updatePreviewForRotation, false);
-            document.removeEventListener('backbutton', cancelPreview);
+            document.removeEventListener('backbutton', cancelPartial); cancelPartial = null;
 			
             if (operatingSystem == 'WINDOWS')
             window.removeEventListener('resize', resizeCanvas, false);
 
             else if (operatingSystem == 'WindowsPhone')
             window.removeEventListener('resize', resizePartialScannerView, false);
+
+            window.removeEventListener("pause", onPause, false);
+            window.removeEventListener("resume", onResume, false);
 
             capturePreview.pause();
             capturePreview.src = null;
@@ -2150,13 +2196,24 @@ var MWBarcodeScanner = {
          * Stops preview and then call success callback with cancelled=true
          * See https://github.com/phonegap-build/BarcodeScanner#using-the-plugin
          */
-        function cancelPreview() {
+        cancelPartial = function cancelPreview() {
             reader && reader.stop();
 			
 			anyScannerStarted = false;
 			anyReader = null;
 			//document.getElementById("b1").disabled = false;
-			//document.getElementById("b2").disabled = false;
+            //document.getElementById("b2").disabled = false;
+
+			success({
+			    code: "",
+			    type: "Cancel" /*BARCODE_FORMAT[result.barcodeFormat]*/,
+			    isGS1: null,
+			    bytes: "",
+			    location: null,
+			    imageWidth: null,
+			    imageHeight: null,
+			    cancelled: true
+			});
         }
 
         WinJS.Promise.wrap(createPreview())
@@ -2464,6 +2521,8 @@ var MWBarcodeScanner = {
             //document.getElementById("b1").disabled = false;
             //document.getElementById("b2").disabled = false;
         } // nice, finaly ref is useful
+
+        cancelPartial();
     },
 
     /**
