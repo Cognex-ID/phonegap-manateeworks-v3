@@ -1902,7 +1902,7 @@ var MWBarcodeScanner = {
             navigationButtonsDiv.appendChild(closeButton);
 
             closeButton.addEventListener("click", cancelPreview, false);*/
-            document.addEventListener('backbutton', cancelPartial, false);
+            //document.addEventListener('backbutton', cancelPartial, false);
             document.addEventListener("pause", onPause, false);
             document.addEventListener("resume", onResume, false);
 
@@ -2162,7 +2162,8 @@ var MWBarcodeScanner = {
         function destroyPreview() {
 
             Windows.Graphics.Display.DisplayInformation.getForCurrentView().removeEventListener("orientationchanged", updatePreviewForRotation, false);
-            document.removeEventListener('backbutton', cancelPartial); cancelPartial = null;
+            //document.removeEventListener('backbutton', cancelPartial); 
+			cancelPartial = null;
 			
             if (operatingSystem == 'WINDOWS')
             window.removeEventListener('resize', resizeCanvas, false);
