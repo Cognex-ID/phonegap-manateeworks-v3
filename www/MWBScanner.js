@@ -7,10 +7,9 @@
   - you can now set your license key wihout changing this file. It's not important if the key is for android,ios or anyother platform, it uses the same function
   - you can now attach a callback function for results setCallback
   - now able to attach a custom setup function (not a callback function but acts like one). It's called with the context of the BarcodeScanner object, so wherver it is defined it uses the this keyword so all setting calls such as mwbs['MWBuseAutoRect'](false); are changed to this['MWBuseAutoRect'](false); inside this function. This function can be used with initConfig(fn)
-  - decoder is initialize with initDecoder (no longer needed to pass the init anonymous function everytime we want to use the scanner)
+  - decoder is initialized with initDecoder (no longer needed to pass the init anonymous function everytime we want to use the scanner)
   - license keys can be set from info.plist and android manifest files
 
-  TODO: ADD CHANGED METHOD OF ADDING SETTINGS
 
  Version 2.1.0
 

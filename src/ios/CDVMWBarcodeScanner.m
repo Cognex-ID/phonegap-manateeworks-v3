@@ -192,6 +192,41 @@ NSMutableDictionary *recgtVals;
 
 - (void)startScanner:(CDVInvokedUrlCommand*)command
 {
+    dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+        if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self loadStartScanner:command];
+            });
+        }else{
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if (granted) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self loadStartScanner:command];
+                    });
+                }else{
+                    dispatch_async(dispatch_get_main_queue(), ^{
+#if !__has_feature(objc_arc)
+                        callbackId= [command.callbackId retain];
+#else
+                        callbackId= command.callbackId;
+#endif
+                        [self noPermissionErrorCallback];
+                    });
+                }
+            }];
+        }
+    });
+}
+
+-(void)noPermissionErrorCallback {
+    [self closeScanner:nil];
+    
+    [self scanningFinished:@"No Camera Permission" withType:@"Error" isGS1:NO andRawResult:[[NSData alloc] init] locationPoints:nil imageWidth:0 imageHeight:0];
+//    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User declined Camera Permission"] callbackId:callbackId];
+}
+
+-(void) loadStartScanner:(CDVInvokedUrlCommand*)command
+{
     if (scanInView) {
         [self startScannerView:command];
     }else{
@@ -215,6 +250,7 @@ NSMutableDictionary *recgtVals;
         });
     }
 }
+
 -(void)setUseAutorect:(CDVInvokedUrlCommand*)command
 {
     useAutoRect = [[command.arguments objectAtIndex:0]boolValue];

@@ -1218,8 +1218,8 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         CameraManager.get().requestPreviewFrame(ScannerActivity.handler, ScannerActivity.MSG_DECODE);
         CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
         if (scrollView != null)
-             scrollView.setVisibility(View.VISIBLE);
-        
+            scrollView.setVisibility(View.VISIBLE);
+
         pBar.setVisibility(View.GONE);
         // flashOn = false;
         // updateFlash();
@@ -1340,6 +1340,31 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         }
     }
 
+    private void noPermissionErrorCallback() {
+        ScannerActivity.flashOn = false;
+        updateFlash();
+        JSONObject jsonResult = new JSONObject();
+        try {
+            jsonResult.put("code", "No Camera Permission");
+            jsonResult.put("type", "Error");
+            jsonResult.put("bytes", "");
+
+        } catch (JSONException ignored) {
+        }
+
+        cbc.success(jsonResult);
+
+        if (rlFullScreen != null) {
+            // updateFlash();
+            CameraManager.get().stopPreview();
+            ScannerActivity.handler = null;
+
+            CameraManager.get().closeDriver();
+            ScannerActivity.state = State.STOPPED;
+            stopScanner();
+        }
+    }
+
     private void toggleFlash() {
         ScannerActivity.flashOn = !ScannerActivity.flashOn;
         updateFlash();
@@ -1353,6 +1378,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 if (ScannerActivity.activity != null) {
                     ScannerActivity.activity.finish();
                 }
+                noPermissionErrorCallback();
                 return;
             }
             if (r == PackageManager.PERMISSION_GRANTED) {
