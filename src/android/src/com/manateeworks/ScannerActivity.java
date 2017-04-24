@@ -192,7 +192,14 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
             SurfaceHolder surfaceHolder = surfaceView.getHolder();
 
             if ((param_OverlayMode & OM_MW) > 0) {
-                MWOverlay.addOverlay(this, surfaceView);
+                MWOverlay.removeOverlay();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        MWOverlay.addOverlay(ScannerActivity.this, surfaceView);
+                    }
+                }, 1);
             }
 
             if ((param_OverlayMode & OM_IMAGE) > 0) {
