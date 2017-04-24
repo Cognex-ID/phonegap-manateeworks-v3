@@ -1,14 +1,13 @@
-# PhoneGap implementation (see below for Ionic and Ionic2)
+# Manatee Works Barcode Scanner SDK PhoneGap Plugin
 
 
-Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to your project(s)
+Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to your project(s).
 
-**For more info, visit our website at [www.manateeworks.com/phonegap-plugin](https://manateeworks.com/phonegap)**
+NOTE: Now supporting Ionic!
+
+*First, make sure you have the latest software required to build PhoneGap apps. For more information, visit: [PhoneGap getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
 
 ## Install using CLI interface (Phonegap >6.0 and above).          
-
-*First, make sure you have the latest software required to run phoneGap apps. This means Node.js and git should be on your system.
-For more information about that, visit: [PhoneGap getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
 
 Install PhoneGap:
 
@@ -22,20 +21,20 @@ Create your app by using the CLI interface:
 phonegap create my-mw-app 
 ```
 
-or use bundle identifiers, we bind our license with the bundle identifier:
+or use bundle identifiers (the MW SDK license is bound to the bundle identifier):
 
 ```ssh
 phonegap create my-mw-app --id "org.mwscanner.sampleapp" --name "mwbScanner"
 ```
 	
-Previous steps will create a folder named *my-mw-app*; now navigate to your newly created folder and add the platforms you want to support:
+The previous step will create a folder named *my-mw-app*; navigate to the newly created folder and add the platforms to support:
 	
 ```ssh
 cd my-mw-app
 phonegap build android 	//if you are developing an android app
 phonegap build ios    //if you are developing an ios app
 ```
-Add our plugin to the project with:
+Add the Manatee Works plugin to the project:
 
 ```ssh
 phonegap plugin add manateeworks-barcodescanner-v3
@@ -62,10 +61,12 @@ phonegap build windows
 
 ### License
 
-The Manatee Works Barcode Scanner SDK requires a license to work properly. You can get one here:  
+The Manatee Works Barcode Scanner SDK requires a license to work properly. A free 30-day evaluation license may be obtained here:  
 [Manatee Works Barcode Scanner SDK Evaluation License](https://manateeworks.com/lpr?type=evaluation)
 
-There are two ways to set this up:
+Be sure to select each [platform](https://manateeworks.com/platforms), [symbology](https://manateeworks.com/symbologies), and [parser](https://manateeworks.com/parsers) your app will support.
+
+Ater obtaining your license key(s), there are two ways to configure them within your app:
 
 1.The MW_LICENSE_KEY variable can be added in an xml file respectively for each platform
 
@@ -76,11 +77,11 @@ There are two ways to set this up:
  - For Windows (UWP) under the WindowsComponnent project you can use the Strings\en-US\Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
 ![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
 
-2.We also provide setting the key via a JavaScript call, more on that, in the **Setting up your app** section.
+2. Set the key dynamically via JavaScript (more on that in **Setting up your app**).
 
 ### Setting up your app
 
-  Add a button to index.html that will handle the call to the scanning function
+  Add a button to index.html that will handle the call to the scanning function:
 
 ```html
 <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
@@ -89,7 +90,7 @@ There are two ways to set this up:
 The scanner is initialized with default settings. You can change these settings with the **loadSettings()** method.
 
 
-For PhoneGap apps, we include a ** MWBConfig.js ** where this can be handled. Include it (or your own) in the **index.html**. It needs to be included with a script tag:
+For PhoneGap apps, we include a ** MWBConfig.js ** and inlcude it in the **index.html**. It needs to be included with a script tag:
     
 ```html
   <script type="text/javascript" src="cordova.js"></script>
@@ -108,15 +109,17 @@ Setup a valid license with:
   });
 ```
     
-This method returns a promise that resolves to a boolean value that is true if the key was valid, and false in all other cases (invalid appname, invalid key etc).
+where we replace the variables VALID_ANDROID_KEY, VALID_IOS_KEY, VALID_WIN_10_UWP_KEY with their respective values from the MWDN license section.
+
+This method returns a promise that resolves to a boolean value that is true if the key were valid, and false in all other cases (invalid appname, invalid key etc).
     
-Next we configure the scanner with the desired settings using **loadSettings()**.   
+Notice that after we set the key with **setKey**, we call another function that returns a promise, **loadSettings**, with a parmeter, **settings**, which is an array of activation calls. An example of this array is shown below:   
   
 ```javascript
 var mw_c =  mwbScanner.getConstants(),settings;
    settings = [{'method': 'MWBsetActiveCodes', 'value' : [mw_c.MWB_CODE_MASK_25 | mw_c.MWB_CODE_MASK_39 | mw_c.MWB_CODE_MASK_93 | mw_c.MWB_CODE_MASK_128 | mw_c.MWB_CODE_MASK_AZTEC | mw_c.MWB_CODE_MASK_DM | mw_c.MWB_CODE_MASK_EANUPC | mw_c.MWB_CODE_MASK_PDF | mw_c.MWB_CODE_MASK_QR | mw_c.MWB_CODE_MASK_CODABAR | mw_c.MWB_CODE_MASK_11 | mw_c.MWB_CODE_MASK_MSI | mw_c.MWB_CODE_MASK_RSS | mw_c.MWB_CODE_MASK_MAXICODE | mw_c.MWB_CODE_MASK_POSTAL]}];
 ```
-The function  **expects an array of key/value objects** used to set preferences for the scanner. The **key** is the name of the **method** and the **value** is the **parameters** (passed as an array) expected by that method.  
+This is an array of **key/value objects** used to set preferences for the scanner. The **key** is the name of the **method** and the **value** are the **parameters** (passed as an array) expected by that method.
 
 ```javascript
 return mwbScanner.loadSettings(settings).then(function(response){
@@ -429,7 +432,7 @@ example : [{"method" : "MWBuseFrontCamera" : "value" : [false]}]
 
  - Visual Studio with Universal Windows App Development Tools
  - MWBarcodeLibUniversal SDK W10 extension
-(You can download it from https://manateeworks.com/files/download_latest/mobiScan-Windows, and then install 10.0\MWBCameraDemo\MWBarcodeLibUniversalSDK.vsix)
+(Downloadable from https://manateeworks.com/files/download_latest/mobiScan-Windows; install 10.0\MWBCameraDemo\MWBarcodeLibUniversalSDK.vsix)
 
 ### Post-build settings (required)
  - In the solution explorer, set the project **CordovaApp.Windows10 (Universal Windows)** as startup project.
