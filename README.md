@@ -1,11 +1,26 @@
 # Manatee Works Barcode Scanner SDK PhoneGap Plugin
 
 
-Guide on how to add the Manatee Works Barcode Scanner SDK PhoneGap plugin to your project(s).
+Guide on how to integrate the Manatee Works Barcode Scanner SDK PhoneGap plugin into your project(s).
 
 NOTE: Now supporting Ionic!
 
-*First, make sure you have the latest software required to build PhoneGap apps. For more information, visit: [PhoneGap getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
+Manatee Works provides an Adobe PhoneGap plugin for its [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk), to provide cross-platform, mobile development framework applications with the best barcode scanning experience.
+
+Apache Cordova is a open source platform to build Native Mobile Applicatons using HTML, CSS and JavaScript. PhoneGap is Adobe's productised implementation of Cordova. Other distributions include [Ionic](https://ionicframework.com/), [Meteor](https://www.meteor.com/), and [Telerik](http://www.telerik.com/), and are also supported by Manatee Works and its broad support for development [frameworks](https://manateeworks.com/frameworks). 
+
+Manatee Works provides the PhoneGap plugin via NPM, but also as a Git repository, so both paths are viable for integration.
+
+### Requirements ###
+*Make sure you have the latest software required to build PhoneGap apps. For more information, visit: [PhoneGap getting started.](http://docs.phonegap.com/getting-started/1-install-phonegap/cli/)*
+
+The system should have installed:
+
+[Node.js](https://nodejs.org/)
+[Git](https://git-scm.com/)
+[npm](https://www.npmjs.com/)
+[Cordova](https://cordova.apache.org/) ([PhoneGap](http://phonegap.com/) too!)
+
 
 ## Install using CLI interface (Phonegap >6.0 and above).          
 
@@ -59,7 +74,7 @@ phonegap build android
 phonegap build windows
 ```
 
-### License
+## License
 
 The Manatee Works Barcode Scanner SDK requires a license to work properly. A free 30-day evaluation license may be obtained here:  
 [Manatee Works Barcode Scanner SDK Evaluation License](https://manateeworks.com/lpr?type=evaluation)
@@ -79,7 +94,7 @@ Ater obtaining your license key(s), there are two ways to configure them within 
 
 2. Set the key dynamically via JavaScript (more on that in **Setting up your app**).
 
-### Setting up your app
+## App Configuration
 
   Add a button to index.html that will handle the call to the scanning function:
 
@@ -129,7 +144,7 @@ return mwbScanner.loadSettings(settings).then(function(response){
 		});
 ```
 
-#### How to scan an image
+#### Scan an Image
 
 Instead of mwbScanner.startScanning() use:
 
@@ -151,7 +166,7 @@ URI                     - the path to the image
 callback                - custom callback function
 ```        
         
-#### How to scan in partial screen view
+#### Scan in partial screen view
 
 Instead of mwbScanner.startScanning() use:
 
@@ -188,7 +203,7 @@ Example:
      Zoom             -  mwbScanner.toggleZoom()
 
 
-## Configuration parameters
+## Configure Parameters
     
 
 ```javascript
@@ -503,7 +518,7 @@ there are example files named exactly like the files you need to change to get t
 
 Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barcodescanner-starter)
     
-# Ionic 2
+# Ionic 2 Implementation
 
 Step 1 is the same as ionic, so:
 
