@@ -3,7 +3,7 @@
 
 Guide on how to integrate the Manatee Works Barcode Scanner SDK PhoneGap plugin into your project(s).
 
-NOTE: Now supporting Ionic!
+**NOTE: Now supporting Ionic!**
 
 Manatee Works provides an Adobe PhoneGap plugin for its [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk), to provide cross-platform, mobile development framework applications with the best barcode scanning experience.
 
@@ -22,7 +22,7 @@ The system should have installed:
 [Cordova](https://cordova.apache.org/) ([PhoneGap](http://phonegap.com/) too!)
 
 
-## Install using CLI interface (Phonegap >6.0 and above).          
+## Install     
 
 Install PhoneGap:
 
@@ -76,10 +76,7 @@ phonegap build windows
 
 ## License
 
-The Manatee Works Barcode Scanner SDK requires a license to work properly. A free 30-day evaluation license may be obtained here:  
-[Manatee Works Barcode Scanner SDK Evaluation License](https://manateeworks.com/lpr?type=evaluation)
-
-Be sure to select each [platform](https://manateeworks.com/platforms), [symbology](https://manateeworks.com/symbologies), and [parser](https://manateeworks.com/parsers) your app will support.
+The Manatee Works Barcode Scanner SDK requires a license to work properly. A [Manatee Works Barcode Scanner SDK Evaluation License](https://manateeworks.com/lpr?type=evaluation) is available for a free 30-day trial. Be sure to select each [platform](https://manateeworks.com/platforms), [symbology](https://manateeworks.com/symbologies), and [parser](https://manateeworks.com/parsers) your app will support.
 
 Ater obtaining your license key(s), there are two ways to configure them within your app:
 
@@ -92,11 +89,11 @@ Ater obtaining your license key(s), there are two ways to configure them within 
  - For Windows (UWP) under the WindowsComponnent project you can use the Strings\en-US\Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
 ![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
 
-2. Set the key dynamically via JavaScript (more on that in **Setting up your app**).
+2. Set the key dynamically via JavaScript (more on that next...).
 
 ## App Configuration
 
-  Add a button to index.html that will handle the call to the scanning function:
+Add a button to index.html that will handle the call to the scanning function:
 
 ```html
 <button onClick="mwbScanner.startScanning();" style="width:80%;margin:15%;height:180px">scan</button>
@@ -105,7 +102,7 @@ Ater obtaining your license key(s), there are two ways to configure them within 
 The scanner is initialized with default settings. You can change these settings with the **loadSettings()** method.
 
 
-For PhoneGap apps, we include a ** MWBConfig.js ** and inlcude it in the **index.html**. It needs to be included with a script tag:
+For PhoneGap apps, we include a ** MWBConfig.js ** and include it in the **index.html**. It needs to be included with a script tag:
     
 ```html
   <script type="text/javascript" src="cordova.js"></script>
@@ -144,7 +141,7 @@ return mwbScanner.loadSettings(settings).then(function(response){
 		});
 ```
 
-#### Scan an Image
+## Scan an Image
 
 Instead of mwbScanner.startScanning() use:
 
@@ -166,7 +163,7 @@ URI                     - the path to the image
 callback                - custom callback function
 ```        
         
-#### Scan in partial screen view
+## Scan in partial screen view
 
 Instead of mwbScanner.startScanning() use:
 
@@ -469,9 +466,9 @@ The camera capture and preview are implemented in JavaScript on the web side. Wi
 # IONIC 1 Implementation
 
 
-The Manatee Works Barcode Scanner SDK can be loaded as an Ionic plugin, which uses Cordova, so every PhoneGap plugin could run as an Ionic plugin with little or no changes. Most of the changes are in the configuration files, due to how the projects are organized in Ionic (or even Ionic2)
+The Manatee Works Barcode Scanner SDK can be loaded as an Ionic plugin, which uses Cordova, so every PhoneGap plugin could run as an Ionic plugin with few changes. Most of the changes are in the configuration files.
 
-First, ensure we have Node.js installed and latest the Ionic and Cordova see (http://ionicframework.com/getting-started/) for more:
+To begin, ensure we have Node.js installed along with the latest Ionic and Cordova software. See [Ionic Getting Started](http://ionicframework.com/getting-started/):
 
 ```ssh
 npm install -g cordova ionic
@@ -487,8 +484,7 @@ or
 sudo npm update -g cordova ionic
 ```
 
-Then we create an ionic app (similar to the phonegap process, where we *created* an app, here we *start* one). 
-Currently ionic is using v2, and ionic v1 may be completely retired, but for the purpose of clarity we provide these steps to getting an ionic v1 app running.
+Then we "start" an Ionic app (similar to the PhoneGap process, where we *created* an app, here we *start* one). 
 
 ```ssh
 ionic start -a "Manateeworks Barcode Scanner Ionic App" mwbScanner blank -i com.ionic.manateeworks --v1
@@ -508,33 +504,26 @@ ionic plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --
 ionic plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY (if you are adding from local folder)  
 ```
 
-In the platforms www folder (url is an example if you are developing for ios)  
+In the platforms' www folder there are example files named exactly like the files needed to get the app started. 
     
 ```ssh
-$PATH_TO_FOLDER/mMwApp/platforms/ios/platforms/ios/www/examples/ionic
+$PATH_TO_FOLDER/mMwApp/platforms/[platform]/www/examples/ionic
 ```
-there are example files named exactly like the files you need to change to get the app started. 
 *app.js* should be replaced with the one in *js/app.js* and *index.html* should be replaced with the *index.html* of your app.
 
 Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barcodescanner-starter)
     
 # Ionic 2 Implementation
 
-Step 1 is the same as ionic, so:
+Step 1 is the same as above to create an Ionic 2 blank app. This will create a slightly different project structure than PhoneGap or Ionic 1:
 
 ```ssh
 ionic start myMwApp blank --v2
 cd myMwApp
 ionic plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
 ```
-which will create an ionic 2 blank app. This will create a slightly different project structure than phonegap or ionic 1.
 
-App development in ionic2 is a little different, due to the fact that angularJS2 is used, so project structure is quite different than regular phonegap, or even ionic 1.
-
-If you are building for ionic 2 this is not news to you so we will presume that you are familiarized with the structure of your app.
-To build for ionic 2 you need to modify the files in your **src** folder. Ionic 2 pushes typescript usage, so whatever you code needs to be compiled to be used as normal javaScript. 
-
-You should have:
+To build for Ionic 2 you need to modify the files in your **src** folder. Ionic 2 pushes TypeScript usage:
 
 ```ssh
 /src/pages/home folder 
@@ -574,14 +563,18 @@ ionic build ios
     
 And run your app.
 
-An evaluation Ionic 2 solution is NOW available [HERE.](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter).
-
 
 # EXAMPLES
 
-We have added a minimum set of files to replace, to help configure your evaluation app quickly.
+We have added a minimum set of files to replace, to help configure your evaluation app quickly:
 
 [examples.zip](https://github.com/manateeworks/phonegap-manateeworks-v3/files/797274/examples.zip)
+
+Below are demo apps for the Ionic platform:
+
+[Ionic 1 Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-starter)
+
+[Ionic 2 Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
 
 
 
