@@ -1,7 +1,7 @@
 # Manatee Works Barcode Scanner SDK PhoneGap Plugin
 
 
-Guide on how to integrate the Manatee Works [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk){:target="_blank"} PhoneGap plugin into your project(s).
+Guide on how to integrate the Manatee Works <a href="https://manateeworks.com/barcode-scanner-sdk" target="_blank">Barcode Scanner SDK</a> PhoneGap plugin into your project(s).
 
 **NOTE: Now supporting Ionic!**
 
