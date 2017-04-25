@@ -1,11 +1,11 @@
 # Manatee Works Barcode Scanner SDK PhoneGap Plugin
 
 
-Guide on how to integrate the Manatee Works Barcode Scanner SDK PhoneGap plugin into your project(s).
+Guide on how to integrate the Manatee Works [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk){:target="_blank"} PhoneGap plugin into your project(s).
 
 **NOTE: Now supporting Ionic!**
 
-Manatee Works provides an Adobe PhoneGap plugin for its [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk), to provide cross-platform, mobile development framework applications with the best barcode scanning experience.
+Manatee Works provides an Adobe PhoneGap plugin for its Barcode Scanner SDK, to provide cross-platform, mobile development framework applications with the best barcode scanning experience.
 
 Apache Cordova is a open source platform to build Native Mobile Applicatons using HTML, CSS and JavaScript. PhoneGap is Adobe's productised implementation of Cordova. Other distributions include [Ionic](https://ionicframework.com/), [Meteor](https://www.meteor.com/), and [Telerik](http://www.telerik.com/), and are also supported by Manatee Works and its broad support for development [frameworks](https://manateeworks.com/frameworks). 
 
