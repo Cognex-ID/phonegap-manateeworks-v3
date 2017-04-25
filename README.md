@@ -83,13 +83,14 @@ Ater obtaining your license key(s), there are two ways to configure them within 
 1.The MW_LICENSE_KEY variable can be added in an xml file respectively for each platform
 
  - For iOS you can add a row in your *.plist file, with the following format MW_LICENSE_KEY : THE_KEY_FROM_MWDN
-![ios-plist](https://cloud.githubusercontent.com/assets/5564013/23270653/da3fda0c-f9f4-11e6-9944-fd3bb246ce59.png)
+![01](https://cloud.githubusercontent.com/assets/5564013/25389148/1f79a8f4-29d0-11e7-988a-6105ea16dcce.png)
  - For Android you can use the AndroidManifest.xml file and the meta-data element named MW_LICENSE_KEY and place your key as value instead of KEY_FROM_MWDN
-![android-manifest](https://cloud.githubusercontent.com/assets/5564013/23270678/e9836010-f9f4-11e6-9e4e-c780b7af6d94.png)
+![02](https://cloud.githubusercontent.com/assets/5564013/25389149/1f92e9f4-29d0-11e7-9fa3-ff7e2817fa72.png)
  - For Windows (UWP) under the WindowsComponnent project you can use the Strings\en-US\Resources.resw file and the element named MW_LICENSE_KEY, where you can set your license in place of YOUR_LICENSE_KEY in the value section
-![windows_resw](https://cloud.githubusercontent.com/assets/5564013/23270749/33a2168c-f9f5-11e6-947a-25041ecf5376.png)
+![03](https://cloud.githubusercontent.com/assets/5564013/25389150/1fb1d8a0-29d0-11e7-8287-231284b56e80.png)
 
-2. Set the key dynamically via JavaScript (more on that next...).
+
+2. Set the key dynamically via JavaScript (more on that next in App Configuration...).
 
 ## App Configuration
 
