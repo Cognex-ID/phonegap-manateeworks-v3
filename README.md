@@ -16,10 +16,10 @@ Manatee Works provides the PhoneGap plugin via NPM, but also as a Git repository
 
 The system should have installed:
 
-[Node.js](https://nodejs.org/)
-[Git](https://git-scm.com/)
-[npm](https://www.npmjs.com/)
-[Cordova](https://cordova.apache.org/) ([PhoneGap](http://phonegap.com/) too!)
+* [Node.js](https://nodejs.org/)
+* [Git](https://git-scm.com/)
+* [npm](https://www.npmjs.com/)
+* [Cordova](https://cordova.apache.org/) ([PhoneGap](http://phonegap.com/) too!)
 
 
 ## Install     
