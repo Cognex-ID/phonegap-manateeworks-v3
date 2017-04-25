@@ -1,13 +1,13 @@
 # Manatee Works Barcode Scanner SDK PhoneGap Plugin
 
 
-Guide on how to integrate the Manatee Works <a href="https://manateeworks.com/barcode-scanner-sdk" target="_blank">Barcode Scanner SDK</a> PhoneGap plugin into your project(s).
+Guide on how to integrate the Manatee Works [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk) PhoneGap plugin into your project(s).
 
 **NOTE: Now supporting Ionic!**
 
 Manatee Works provides an Adobe PhoneGap plugin for its Barcode Scanner SDK, to provide cross-platform, mobile development framework applications with the best barcode scanning experience.
 
-Apache Cordova is a open source platform to build Native Mobile Applicatons using HTML, CSS and JavaScript. PhoneGap is Adobe's productised implementation of Cordova. Other distributions include [Ionic](https://ionicframework.com/), [Meteor](https://www.meteor.com/), and [Telerik](http://www.telerik.com/), and are also supported by Manatee Works and its broad support for development [frameworks](https://manateeworks.com/frameworks). 
+Apache Cordova is a open source platform to build Native Mobile Applicatons using HTML, CSS and JavaScript. PhoneGap is Adobe's productised implementation of Cordova. Other distributions include [Ionic](https://ionicframework.com/), [Meteor](https://www.meteor.com/), and [Telerik](http://www.telerik.com/), and are also supported by Manatee Works and its broad barcode scanner support for development [frameworks](https://manateeworks.com/frameworks). 
 
 Manatee Works provides the PhoneGap plugin via NPM, but also as a Git repository, so both paths are viable for integration.
 
@@ -103,7 +103,7 @@ Add a button to index.html that will handle the call to the scanning function:
 The scanner is initialized with default settings. You can change these settings with the **loadSettings()** method.
 
 
-For PhoneGap apps, we include a ** MWBConfig.js ** and include it in the **index.html**. It needs to be included with a script tag:
+For PhoneGap apps, we include a **MWBConfig.js** and include it in the **index.html**. It needs to be included with a script tag:
     
 ```html
   <script type="text/javascript" src="cordova.js"></script>
@@ -445,12 +445,12 @@ example : [{"method" : "MWBuseFrontCamera" : "value" : [false]}]
 
  - Visual Studio with Universal Windows App Development Tools
  - MWBarcodeLibUniversal SDK W10 extension
-(Downloadable from https://manateeworks.com/files/download_latest/mobiScan-Windows; install 10.0\MWBCameraDemo\MWBarcodeLibUniversalSDK.vsix)
+(Downloadable from the [MWDN](https://manateeworks.com/files/download_latest/mobiScan-Windows); install 10.0\MWBCameraDemo\MWBarcodeLibUniversalSDK.vsix)
 
 ### Post-build settings (required)
- - In the solution explorer, set the project **CordovaApp.Windows10 (Universal Windows)** as startup project.
+ - In the Solution Explorer, set the project **CordovaApp.Windows10 (Universal Windows)** as startup project.
  - In this project’s directory, open the file **package.windows10.appxmanifest** and in the capabilities tab check **Webcam** from the list.
- - On some devices, there might be a problem with deployment and starting the scanner which can be fixed by
+ - On some devices, there might be a problem with deployment and starting the scanner that can be fixed by
 removing the following line from the **index.html** file.
 ```html
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
