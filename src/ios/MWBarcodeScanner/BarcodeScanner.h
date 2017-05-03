@@ -85,7 +85,9 @@ typedef unsigned char uint8_t;
   */
 #define  MWB_CFG_GLOBAL_USE_CENTRIC_SCANNING            0x40
     
-    
+/** @brief  Global decoder flags value: disable some image pre=processing, suitable for devices with weak CPU
+  */
+#define  MWB_CFG_GLOBAL_DISABLE_PREPROCESSING             0x80
     
 
 /** @brief  Code39 decoder flags value: require checksum check
@@ -435,6 +437,17 @@ extern int MWB_getScanningRect(const uint32_t codeMask, float *left, float *top,
  * @retval      < 0                     Error code - see MWB_RTREG values
  */
 extern int MWB_registerSDK(const char * key);
+    
+    
+/**
+ * Get device ID
+ * It should be called after registering call, and works only on iOS and Android
+ *
+ *
+ * @retval      non NULL                ID of device
+ * @retval      NULL                    ID can't be retrieved
+ */
+extern char* MWB_getDeviceID(void);
 
 
 
