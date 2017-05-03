@@ -258,7 +258,10 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
             callbackContext.success();
             return true;
 
-        } else if ("usePartialScanner".equals(action)) {
+        } else if ("getDeviceID".equals(action)) {
+            callbackContext.success(BarcodeScanner.MWBgetDeviceID());
+            return true;
+        }else if ("usePartialScanner".equals(action)) {
 
             scanInView = args.getBoolean(0);
             return true;

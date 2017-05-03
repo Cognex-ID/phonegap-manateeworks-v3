@@ -104,6 +104,12 @@ NSMutableDictionary *recgtVals;
     
 }
 
+- (void)getDeviceID:(CDVInvokedUrlCommand*)command
+{
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat:@"%s", MWB_getDeviceID()]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)resizePartialScanner:(CDVInvokedUrlCommand*)command
 {
     if (command != nil) {

@@ -26,6 +26,7 @@
 - (void)setLevel:(CDVInvokedUrlCommand*)command;
 - (void)registerCode:(CDVInvokedUrlCommand*)command;
 - (int)getLastType:(CDVInvokedUrlCommand*)command;
+- (void)getDeviceID:(CDVInvokedUrlCommand*)command;
 
 - (void)setInterfaceOrientation:(CDVInvokedUrlCommand*)command;
 - (void)setOverlayMode:(CDVInvokedUrlCommand*)command;

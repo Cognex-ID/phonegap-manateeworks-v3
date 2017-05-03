@@ -1,4 +1,13 @@
+
 /*
+  Version 3.1.1
+
+  - Added getDeviceID : returns a promise that contains the deviceID
+  usage:
+    mwbScanner.getDeviceID()
+        .then(function(deviceID){
+            console.log("Device ID is: "+deviceID);
+        });
 
   Version 3.1
 
@@ -518,6 +527,18 @@ var BarcodeScanner = {
   },
 
   /**
+  *
+  *
+  *
+  */
+
+  MWBgetDeviceID : function(callback){
+
+    cordova.exec(callback, function(){}, "MWBarcodeScanner", "getDeviceID", []);
+
+  },
+
+  /**
   * Sets active or inactive status of decoder types
   *
   * @param[in]       activeCodes             ORed bit flags (MWB_CODE_MASK_...) of decoder types
@@ -1022,6 +1043,20 @@ var Scanner = function(){
   **/
   Scanner.prototype.getConstants = function(){
     return CONSTANTS;
+  }
+
+  /**
+  *  @name getDeviceID
+  *  @description get the DeviceID that was generated for this device
+  *
+  **/
+  Scanner.prototype.getDeviceID = function(){
+      return new window.Promise(function(resolve,reject){
+            BarcodeScanner.MWBgetDeviceID(function(result){
+                // console.log(result);
+                resolve(result);
+            });
+      });
   }
 
   /**
