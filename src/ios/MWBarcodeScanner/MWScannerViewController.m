@@ -1101,33 +1101,44 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 #pragma mark Memory management
 
 -(void) unload {
-    if ([closeButton superview]) {
-        [closeButton removeFromSuperview];
-    }
-    if ([flashButton superview]) {
-        [flashButton removeFromSuperview];
-    }
-    if ([zoomButton superview]) {
-        [zoomButton removeFromSuperview];
-    }
-    closeButton = nil;
-    flashButton = nil;
-    zoomButton = nil;
-    
-    _captureSession = nil;
-    _prevLayer = nil;
-    _device = nil;
-    @try {
-        [focusTimer invalidate];
-    } @catch (NSException *exception) {
+    dispatch_block_t block = ^{
         
-    } @finally {
-    }
-    focusTimer = nil;
-    _delegate = nil;
-    customParams = nil;
+        if ([closeButton superview]) {
+            [closeButton removeFromSuperview];
+        }
+        if ([flashButton superview]) {
+            [flashButton removeFromSuperview];
+        }
+        if ([zoomButton superview]) {
+            [zoomButton removeFromSuperview];
+        }
+        closeButton = nil;
+        flashButton = nil;
+        zoomButton = nil;
+        
+        _captureSession = nil;
+        _prevLayer = nil;
+        _device = nil;
+        @try {
+            [focusTimer invalidate];
+        } @catch (NSException *exception) {
+            
+        } @finally {
+        }
+        focusTimer = nil;
+        _delegate = nil;
+        customParams = nil;
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        
+    };
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }else{
+        block();
+    }
 }
 
 - (void)viewDidUnload

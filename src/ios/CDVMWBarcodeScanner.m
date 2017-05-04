@@ -22,6 +22,7 @@
 NSString *callbackId;
 NSMutableDictionary *customParams = nil;
 MWScannerViewController *scannerViewController;
+BOOL hasCameraPermission = NO;
 
 - (void)initDecoder:(CDVInvokedUrlCommand*)command
 {
@@ -198,30 +199,37 @@ NSMutableDictionary *recgtVals;
 
 - (void)startScanner:(CDVInvokedUrlCommand*)command
 {
-    dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
-        if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self loadStartScanner:command];
-            });
-        }else{
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if (granted) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self loadStartScanner:command];
-                    });
-                }else{
-                    dispatch_async(dispatch_get_main_queue(), ^{
+    if (hasCameraPermission) {
+        [self loadStartScanner:command];
+    }else{
+        dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+            if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    hasCameraPermission = YES;
+                    [self loadStartScanner:command];
+                });
+            }else{
+                [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                    if (granted) {
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            hasCameraPermission = YES;
+                            [self loadStartScanner:command];
+                        });
+                    }else{
+                        dispatch_async(dispatch_get_main_queue(), ^{
 #if !__has_feature(objc_arc)
-                        callbackId= [command.callbackId retain];
+                            callbackId= [command.callbackId retain];
 #else
-                        callbackId= command.callbackId;
+                            callbackId= command.callbackId;
 #endif
-                        [self noPermissionErrorCallback];
-                    });
-                }
-            }];
-        }
-    });
+                            [self noPermissionErrorCallback];
+                            hasCameraPermission = NO;
+                        });
+                    }
+                }];
+            }
+        });
+    }
 }
 
 -(void)noPermissionErrorCallback {
@@ -236,23 +244,29 @@ NSMutableDictionary *recgtVals;
     if (scanInView) {
         [self startScannerView:command];
     }else{
-        [self stopScanner:command];
-        
-        dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
-            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self stopScanner:command];
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                scannerViewController.delegate = self;
-                [MWScannerViewController setUseFrontCamera:useFCamera];
-                scannerViewController.customParams = customParams;
+            dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+
+                scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
                 
-                [self.viewController presentViewController:scannerViewController animated:YES completion:^{}];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    scannerViewController.delegate = self;
+                    [MWScannerViewController setUseFrontCamera:useFCamera];
+                    scannerViewController.customParams = customParams;
+                    
+                    [self.viewController presentViewController:scannerViewController animated:YES completion:^{
+                        scannerViewController.state = CAMERA;
+                    }];
 #if !__has_feature(objc_arc)
-                callbackId= [command.callbackId retain];
+                    callbackId= [command.callbackId retain];
 #else
-                callbackId= command.callbackId;
+                    callbackId= command.callbackId;
 #endif
+                });
             });
+            
         });
     }
 }
@@ -264,11 +278,15 @@ NSMutableDictionary *recgtVals;
 
 - (void)stopScanner:(CDVInvokedUrlCommand*)command
 {
+    if (scannerViewController) {
+        scannerViewController.state = NORMAL;
+    }
+    
     if ([self.viewController.view viewWithTag:9158436]) {
-        MWB_cleanupLib();
         [scannerViewController stopScanning];
         [scannerViewController removeFromParentViewController];
         [[self.viewController.view viewWithTag:9158436]removeFromSuperview];
+        
         if (scannerPreviewLayer && scannerPreviewLayer.superlayer) {
             [scannerPreviewLayer removeFromSuperlayer];
             scannerPreviewLayer = nil;
@@ -280,6 +298,7 @@ NSMutableDictionary *recgtVals;
         scannerViewController = nil;
     }
 }
+
 - (void)duplicateCodeDelay:(CDVInvokedUrlCommand*)command
 {
     MWB_setDuplicatesTimeout([[command.arguments objectAtIndex:0] intValue]);
@@ -712,7 +731,7 @@ NSMutableDictionary *recgtVals;
         
         
     }
-    if (scannerViewController) {
+    else if (scannerViewController) {
         [scannerViewController dismissViewControllerAnimated:YES completion:^{
             [scannerViewController unload];
             scannerViewController = nil;
