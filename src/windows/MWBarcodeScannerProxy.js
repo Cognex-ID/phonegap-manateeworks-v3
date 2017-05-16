@@ -109,7 +109,7 @@ var jsSettingsScanningRectsAltered = false;
 
 var assetsPath = "assets/";
 
-var mwOverlayProperties = { mode: 1, pauseMode: 1, lineColor: "rgba(255, 0, 0, 1.0)", borderWidth: 2, linesWidth: 1, blinkingRate: 500, imageSrc: assetsPath + "overlay_mw.png" };
+var mwOverlayProperties = { mode: 1, pauseMode: 1, lineColor: "rgba(255, 0, 0, 1.0)", locationColor: "rgba(0, 255, 0, 1.0)", borderWidth: 2, linesWidth: 1, blinkingRate: 500, locationShowTime: 200, locationAllPointsDraw: true, imageSrc: assetsPath + "overlay_mw.png" };
 var mwBlinkingLines = { v: null, h: null };
 
 var hideDuringUpdate = true;
@@ -1199,6 +1199,128 @@ var MWBarcodeScanner = {
                 return reader.readCode();
             });
         })
+        .then(function (result) {
+            {
+                capturePreview.pause();
+                //MWOverlay location points green box draw
+                var ctx = canvasOverlay.getContext("2d");
+
+                if (debug_print) console.log("loc_points:");
+                if (debug_print) console.log(result);
+
+                ctx.lineWidth = mwOverlayProperties.borderWidth * 2;
+                ctx.strokeStyle = mwOverlayProperties.locationColor;
+
+                var scale_x = window.innerWidth / result.imageWidth;
+                var scale_y = window.innerHeight / result.imageHeight;
+
+                var navigationBarHeight = (window.innerWidth * (16 / 9)) - window.innerHeight;
+                //debug_print = true;
+                if (debug_print) console.log('navigationBarHeight:' + navigationBarHeight); 
+
+                if (viewfinderOnScreen.orientation == 1) //swap scales operands to account for the rotation
+                {
+                    scale_x = window.innerWidth / result.imageHeight;
+                    scale_y = window.innerHeight / result.imageWidth;
+                }
+
+                //viewfinderOnScreen.orientation 1 port 2 flipped land
+                var coordSysOrigin_x_Axis_toCenter = 0;
+                var coordSysOrigin_y_Axis_toCenter = 0;
+
+                if (viewfinderOnScreen.orientation != 0) //if not landscape, do some transformations to match the position on the current orientation
+                {
+                    coordSysOrigin_x_Axis_toCenter = canvasOverlay.width / 2;
+                    coordSysOrigin_y_Axis_toCenter = canvasOverlay.height / 2;
+
+                    ctx.translate(coordSysOrigin_x_Axis_toCenter, coordSysOrigin_y_Axis_toCenter);
+                    ctx.rotate(viewfinderOnScreen.orientation * 90 * Math.PI / 180);
+                }
+
+                if (viewfinderOnScreen.orientation == 1) ctx.translate(-navigationBarHeight / 2, +navigationBarHeight / 2);
+
+                if (!mwOverlayProperties.locationAllPointsDraw) //draw box from p1 and p3
+                {
+                    var x = result.locationPoints.p1.x;
+                    var y = result.locationPoints.p1.y;
+
+                    var w = result.locationPoints.p3.x - x;
+                    var h = result.locationPoints.p3.y - y;
+
+                    x *= scale_x;
+                    y *= scale_y;
+                    w *= scale_x;
+                    h *= scale_y;
+
+                    //draw green location border polygon | swap translation back operands to account for the different width and height for portrait, otherwise just normal translation back
+                    if (viewfinderOnScreen.orientation == 1)
+                    {
+                        ctx.strokeRect(x - coordSysOrigin_y_Axis_toCenter, y - coordSysOrigin_x_Axis_toCenter, w, h);
+                    }
+                    else ctx.strokeRect(x - coordSysOrigin_x_Axis_toCenter, y - coordSysOrigin_y_Axis_toCenter, w, h);
+                }
+                else
+                {
+                    var x1 = result.locationPoints.p1.x;
+                    var y1 = result.locationPoints.p1.y;
+                    var x2 = result.locationPoints.p2.x;
+                    var y2 = result.locationPoints.p2.y;
+                    var x3 = result.locationPoints.p3.x;
+                    var y3 = result.locationPoints.p3.y;
+                    var x4 = result.locationPoints.p4.x;
+                    var y4 = result.locationPoints.p4.y;
+
+                    x1 *= scale_x;
+                    y1 *= scale_y;
+                    x2 *= scale_x;
+                    y2 *= scale_y;
+                    x3 *= scale_x;
+                    y3 *= scale_y;
+                    x4 *= scale_x;
+                    y4 *= scale_y;
+
+                    if (debug_print) ctx.strokeStyle = "rgba(255, 225, 0, 1.0)";
+
+                    //draw green location border lines | swap translation back operands to account for the different width and height for portrait, otherwise just normal translation back
+                    if (viewfinderOnScreen.orientation == 1)
+                    {
+                        ctx.beginPath();
+                        ctx.moveTo(x1 - coordSysOrigin_y_Axis_toCenter, y1 - coordSysOrigin_x_Axis_toCenter);
+                        ctx.lineTo(x2 - coordSysOrigin_y_Axis_toCenter, y2 - coordSysOrigin_x_Axis_toCenter);
+                        ctx.lineTo(x3 - coordSysOrigin_y_Axis_toCenter, y3 - coordSysOrigin_x_Axis_toCenter);
+                        ctx.lineTo(x4 - coordSysOrigin_y_Axis_toCenter, y4 - coordSysOrigin_x_Axis_toCenter);
+                        ctx.lineTo(x1 - coordSysOrigin_y_Axis_toCenter, y1 - coordSysOrigin_x_Axis_toCenter);
+
+                        ctx.stroke();
+                    }
+                    else
+                    {
+                        ctx.beginPath();
+                        ctx.moveTo(x1 - coordSysOrigin_x_Axis_toCenter, y1 - coordSysOrigin_y_Axis_toCenter);
+                        ctx.lineTo(x2 - coordSysOrigin_x_Axis_toCenter, y2 - coordSysOrigin_y_Axis_toCenter);
+                        ctx.lineTo(x3 - coordSysOrigin_x_Axis_toCenter, y3 - coordSysOrigin_y_Axis_toCenter);
+                        ctx.lineTo(x4 - coordSysOrigin_x_Axis_toCenter, y4 - coordSysOrigin_y_Axis_toCenter);
+                        ctx.lineTo(x1 - coordSysOrigin_x_Axis_toCenter, y1 - coordSysOrigin_y_Axis_toCenter);
+
+                        ctx.stroke();
+                    }
+                    
+                    //ctx.beginPath();
+                    //ctx.moveTo(x1, y1);
+                    //ctx.lineTo(x2, y2);
+                    //ctx.lineTo(x3, y3);
+                    //ctx.lineTo(x4, y4);
+                    //ctx.lineTo(x1, y1);
+
+                    //ctx.stroke();
+                }
+            }
+
+            return WinJS.Promise.timeout(mwOverlayProperties.locationShowTime) //mwOverlay showtime
+            .then(function () {
+                return result;
+            });
+        })								 
         .done(function (result) {
             destroyPreview();
 			
