@@ -166,7 +166,7 @@ namespace WindowsComponnent
                         {
                             locations[l] = BitConverter.ToSingle(buffer, contentPos + l * 4);
                         }
-                        result.locationPoints = new MWLocation(locations);
+                        result.locationPoints = new MWLocation(locations); //uncommented
                     }
                     else
                         if (fieldType == Scanner.MWB_RESULT_FT_TEXT)
