@@ -1200,6 +1200,7 @@ var MWBarcodeScanner = {
             });
         })
         .then(function (result) {
+			if (result.locationPoints != null)
             {
                 capturePreview.pause();
                 //MWOverlay location points green box draw
