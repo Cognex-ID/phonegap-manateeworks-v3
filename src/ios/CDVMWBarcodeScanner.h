@@ -40,5 +40,6 @@
 - (void)scanImage:(CDVInvokedUrlCommand*)command;
 - (void)setParam:(CDVInvokedUrlCommand*)command;
 - (void)setActiveParser:(CDVInvokedUrlCommand*)command;
+- (void)setCloseDelay:(CDVInvokedUrlCommand*)command;
 @end
 

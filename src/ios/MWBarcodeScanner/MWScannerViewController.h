@@ -93,6 +93,9 @@ typedef enum eMainScreenState {
 + (void) closeScannerOnDecode: (BOOL) close;
 + (BOOL) getCloseScannerOnDecode;
 
++(void) setCloseDelay:(float) closeDelay;
++(float) getCloseDelay;
+
 + (void) use60fps: (BOOL) use;
 + (void) setUseFrontCamera: (BOOL) use;
 

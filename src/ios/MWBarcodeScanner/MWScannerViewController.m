@@ -28,7 +28,7 @@ BOOL param_EnableFlash = YES;
 BOOL param_EnableZoom = YES;
 BOOL param_closeOnSuccess = YES;
 
-
+float param_closeDelay = 0.2;
 static BOOL param_use60fps = NO;
 
 BOOL param_defaultFlashOn = NO;
@@ -147,6 +147,14 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     int v3 = (ver & 0xff);
     NSString *libVersion = [NSString stringWithFormat:@"%d.%d.%d", v1, v2, v3];
     NSLog(@"Lib version: %@", libVersion);
+}
+
++(void) setCloseDelay:(float) closeDelay {
+    param_closeDelay = closeDelay;
+}
+
++(float) getCloseDelay{
+    return param_closeDelay;
 }
 
 + (void) setInterfaceOrientation: (UIInterfaceOrientationMask) interfaceOrientation {
@@ -308,7 +316,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     
     [self updateTorch];
     
-    
+    [self startScanning];
 }
 
 - (void)viewWillDisappear:(BOOL) animated {
@@ -326,7 +334,7 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self startScanning];
+    
 }
 
 - (void)viewDidLoad {
@@ -976,7 +984,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 MWB_setDuplicate(mwResult.bytes, mwResult.bytesLength);
                 
                 self.state = NORMAL;
-                [MWOverlay setPaused:YES];
+                [MWOverlay setPaused:NO];
                 
                 
                 if(param_activeParser != MWP_PARSER_MASK_NONE && !(param_activeParser == MWP_PARSER_MASK_GS1 && !mwResult.isGS1)){
@@ -1190,10 +1198,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             NSString *typeName = obj.result.typeName;
             
             if (param_closeOnSuccess) {
-                [self dismissViewControllerAnimated:YES completion:^{}];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(param_closeDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self dismissViewControllerAnimated:YES completion:^{
+                        [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
+
+                    }];
+                });
+            }else{
+                [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
             }
             
-            [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
             
         }
     }

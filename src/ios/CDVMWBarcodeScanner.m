@@ -33,8 +33,8 @@ BOOL hasCameraPermission = NO;
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
-    
 }
+
 float leftP = 0;
 float topP = 0;
 float widthP = 10;
@@ -339,7 +339,6 @@ NSMutableDictionary *recgtVals;
                                                               forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
         }
         
-        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
         
         if(![MWScannerViewController getCloseScannerOnDecode]){
@@ -360,7 +359,8 @@ NSMutableDictionary *recgtVals;
         if (obj.succeeded)
         {
             if ([MWScannerViewController getCloseScannerOnDecode]) {
-                [self stopScanner:nil];
+                [self performSelector:@selector(stopScanner:) withObject:nil afterDelay:[MWScannerViewController getCloseDelay]];
+//                [self stopScanner:nil];
             }
             
             [self scanningFinished:obj.result.text withType: obj.result.typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
@@ -631,6 +631,17 @@ NSMutableDictionary *recgtVals;
         
     }
     
+}
+
+- (void)setCloseDelay:(CDVInvokedUrlCommand*)command
+{
+    @try {
+        float delay = [[command.arguments objectAtIndex:0] floatValue];
+        [MWScannerViewController setCloseDelay:delay];
+    } @catch (NSException *exception) {
+        
+    } @finally {
+    }
 }
 
 - (void)enableHiRes:(CDVInvokedUrlCommand*)command
