@@ -1212,17 +1212,35 @@ var MWBarcodeScanner = {
                 ctx.lineWidth = mwOverlayProperties.borderWidth * 2;
                 ctx.strokeStyle = mwOverlayProperties.locationColor;
 
-                var scale_x = window.innerWidth / result.imageWidth;
-                var scale_y = window.innerHeight / result.imageHeight;
+                var navigationBarHeight = (window.innerWidth > window.innerHeight) ? ((window.innerHeight * (16 / 9)) - window.innerWidth) : ((window.innerWidth * (16 / 9)) - window.innerHeight);
 
-                var navigationBarHeight = (window.innerWidth * (16 / 9)) - window.innerHeight;
                 //debug_print = true;
-                if (debug_print) console.log('navigationBarHeight:' + navigationBarHeight); 
+                if (debug_print) console.log('navigationBarHeight:' + navigationBarHeight);
+
+                var window_actualWidth = window.innerWidth;
+                var window_actualHeight = window.innerHeight;
+
+			    //when the navigation bar is present, the image is pushed/translated by the size of the navigation bar
+                if (viewfinderOnScreen.orientation == 0 || viewfinderOnScreen.orientation == 2) //landscape or flipped landscape
+                {
+                    window_actualWidth += navigationBarHeight;
+                }
+                else //portrait
+                {
+                    window_actualHeight += navigationBarHeight;
+                }
+
+                var scale_x = window_actualWidth / result.imageWidth;
+                var scale_y = window_actualHeight / result.imageHeight;
+
+                if (debug_print) console.log('screen w h : ' + window.innerWidth + ' ' + window.innerHeight + ' image w h : ' + result.imageWidth + ' ' + result.imageHeight + ' scales x y : ' + scale_x + ' ' + scale_y);
+
+
 
                 if (viewfinderOnScreen.orientation == 1) //swap scales operands to account for the rotation
                 {
-                    scale_x = window.innerWidth / result.imageHeight;
-                    scale_y = window.innerHeight / result.imageWidth;
+                    scale_x = window_actualWidth / result.imageHeight;
+                    scale_y = window_actualHeight / result.imageWidth;
                 }
 
                 //viewfinderOnScreen.orientation 1 port 2 flipped land
@@ -1231,14 +1249,14 @@ var MWBarcodeScanner = {
 
                 if (viewfinderOnScreen.orientation != 0) //if not landscape, do some transformations to match the position on the current orientation
                 {
-                    coordSysOrigin_x_Axis_toCenter = canvasOverlay.width / 2;
+                    coordSysOrigin_x_Axis_toCenter = canvasOverlay.width / 2; //this /2 is correct
                     coordSysOrigin_y_Axis_toCenter = canvasOverlay.height / 2;
 
                     ctx.translate(coordSysOrigin_x_Axis_toCenter, coordSysOrigin_y_Axis_toCenter);
                     ctx.rotate(viewfinderOnScreen.orientation * 90 * Math.PI / 180);
                 }
 
-                if (viewfinderOnScreen.orientation == 1) ctx.translate(-navigationBarHeight / 2, +navigationBarHeight / 2);
+                ctx.translate(-navigationBarHeight * scale_x, 0); //this /2 needs to be *scale which is /2 most often - try with different resolutions
 
                 if (!mwOverlayProperties.locationAllPointsDraw) //draw box from p1 and p3
                 {
