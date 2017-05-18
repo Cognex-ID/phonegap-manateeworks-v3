@@ -1256,7 +1256,7 @@ var MWBarcodeScanner = {
                     ctx.rotate(viewfinderOnScreen.orientation * 90 * Math.PI / 180);
                 }
 
-                ctx.translate(-navigationBarHeight * scale_x, 0); //this /2 needs to be *scale which is /2 most often - try with different resolutions
+                ctx.translate(-navigationBarHeight / 2, 0); //this needs to be /2 no matter what the scale_x value is
 
                 if (!mwOverlayProperties.locationAllPointsDraw) //draw box from p1 and p3
                 {
