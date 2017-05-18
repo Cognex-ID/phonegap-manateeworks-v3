@@ -65,21 +65,23 @@
 }*/
 
 #flash-button {
-    position: relative;
+    position: fixed;
     top: 2px;
     width: 48px;
     height: 48px;
-	float: left;
+	/*float: left;*/
+    left: 2px;
 
     z-index: 999999999;
 }
 	
 #zoom-button {
-    position: relative;
+    position: fixed;
     top: 2px;
     width: 48px;
     height: 48px;
-	float: right;
+	/*float: right;*/
+    right: 2px;
 
     z-index: 999999999;
 }
@@ -94,6 +96,8 @@
 
 #canvas-overlay {
     position: fixed;
+    left: 0px;
+    top: 0px;
     z-index: 99999999;
 }
 
