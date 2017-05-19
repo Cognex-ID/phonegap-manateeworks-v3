@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.CountDownTimer;								 
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -82,6 +83,9 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static int MAX_THREADS = Runtime.getRuntime().availableProcessors();
     public static Activity activity = null;
 
+	private static int frames = 0;
+    private static long startScanningTime = 0;
+    private static long timeFromStartScanningToFirstFrame = 0;							  
     public enum State {
         STOPPED, PREVIEW, DECODING
     }
@@ -95,6 +99,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         super.onCreate(savedInstanceState);
         mContext = this;
 
+		timeFromStartScanningToFirstFrame = 0;
         if (param_Orientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
             setRequestedOrientation(param_Orientation);
             int currentOrientation = getResources().getConfiguration().orientation;
@@ -118,6 +123,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
             overlayImage = (ImageView) findViewById(resources.getIdentifier("overlayImage", "id", package_name));
 
+			surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));																									 
             buttonFlash = (ImageButton) findViewById(resources.getIdentifier("flashButton", "id", package_name));
             if (buttonFlash != null) {
                 buttonFlash.setOnClickListener(new OnClickListener() {
@@ -180,69 +186,85 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
     }
 
+	private int runOnResume() {
+        if (surfaceView == null) {
+			 
+            surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
+        }
+        if (surfaceView == null) {
+            return -1;
+        }
+        SurfaceHolder surfaceHolder = surfaceView.getHolder();
+			 
+
+        if ((param_OverlayMode & OM_MW) > 0) {
+            MWOverlay.removeOverlay();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MWOverlay.addOverlay(ScannerActivity.this, surfaceView);
+                }
+            }, 1);
+        }
+
+        if ((param_OverlayMode & OM_IMAGE) > 0) {
+            if (overlayImage != null) {
+                overlayImage.setVisibility(View.VISIBLE);
+				 
+            }
+										  
+        } else {
+            if (overlayImage != null) {
+                overlayImage.setVisibility(View.GONE);
+																			   
+            }
+        }
+
+        if (hasSurface) {
+            // The activity was paused but not stopped, so the surface still
+            // exists. Therefore
+            // surfaceCreated() won't be called, so init the camera here.
+            initCamera(surfaceHolder);
+        } else {
+            // Install the callback and wait for surfaceCreated() to init the
+            // camera.
+            surfaceHolder.addCallback(this);
+            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        }
+
+        int ver = BarcodeScanner.MWBgetLibVersion();
+        int v1 = (ver >> 16);
+        int v2 = (ver >> 8) & 0xff;
+        int v3 = (ver & 0xff);
+        String libVersion = "Lib version: " + String.valueOf(v1) + "." + String.valueOf(v2) + "." + String.valueOf(v3);
+        // Toast.makeText(this, libVersion, Toast.LENGTH_LONG).show();
+        Log.i("Lib version", libVersion);
+
+        if (param_DefaultFlashOn) {
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    flashOn = true;
+                    updateFlash();
+                }
+            }, 1000);
+        }
+        return 0;
+    }
+
     @Override
     protected void onResume() {
+        //Log.d("NULL_REF", "entered onResume()");
         super.onResume();
         if (!requestingOrientation) {
-
-            if (buttonZoom != null) {
-                buttonZoom.setVisibility(View.GONE);
+            if (this.buttonZoom != null) {
+                this.buttonZoom.setVisibility(View.GONE);
             }
-            surfaceView = (SurfaceView) findViewById(resources.getIdentifier("preview_view", "id", package_name));
-            SurfaceHolder surfaceHolder = surfaceView.getHolder();
-
-            if ((param_OverlayMode & OM_MW) > 0) {
-                MWOverlay.removeOverlay();
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        MWOverlay.addOverlay(ScannerActivity.this, surfaceView);
-                    }
-                }, 1);
-            }
-
-            if ((param_OverlayMode & OM_IMAGE) > 0) {
-                if (overlayImage != null) {
-                    overlayImage.setVisibility(View.VISIBLE);
-                }
-
-            } else {
-                if (overlayImage != null) {
-                    overlayImage.setVisibility(View.GONE);
-                }
-            }
-
-            if (hasSurface) {
-                // The activity was paused but not stopped, so the surface still
-                // exists. Therefore
-                // surfaceCreated() won't be called, so init the camera here.
-                initCamera(surfaceHolder);
-            } else {
-                // Install the callback and wait for surfaceCreated() to init the
-                // camera.
-                surfaceHolder.addCallback(this);
-                surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            }
-
-            int ver = BarcodeScanner.MWBgetLibVersion();
-            int v1 = (ver >> 16);
-            int v2 = (ver >> 8) & 0xff;
-            int v3 = (ver & 0xff);
-            String libVersion = "Lib version: " + String.valueOf(v1) + "." + String.valueOf(v2) + "." + String.valueOf(v3);
-            // Toast.makeText(this, libVersion, Toast.LENGTH_LONG).show();
-            Log.i("Lib version", libVersion);
-
-            if (param_DefaultFlashOn) {
-
-                new Handler().postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        flashOn = true;
-                        updateFlash();
-                    }
-                }, 1000);
+            if (runOnResume() == -1) {
+                Log.d("NULL_REF", "surfaceView is null");
             }
         }
     }
@@ -265,7 +287,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
             state = State.STOPPED;
         }
 
-        surfaceView = null;
+        //surfaceView = null;
         overlayImage = null;
         mContext = null;
 
@@ -472,10 +494,37 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static void startScanning() {
         CameraManager.get().startPreview();
         state = State.PREVIEW;
+		startScanningTime = System.currentTimeMillis(); isRunning();															
         CameraManager.get().requestPreviewFrame(handler, MSG_DECODE);
         CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
     }
 
+	private static final long firstFrameTimeout = 2000; //ms
+
+    static void isRunning()
+    {
+        //Log.d("NULL_REF", "LAST SESSION time from to " + timeFromStartScanningToFirstFrame );
+        new CountDownTimer(firstFrameTimeout, firstFrameTimeout / 2) {
+
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            public void onFinish() {
+                if (timeFromStartScanningToFirstFrame == 0) //no camera preview
+                {
+                    finishActivity();
+                }
+            }
+        }.start();
+    }
+
+    static void finishActivity()
+    {
+        try {
+            ((Activity) mContext).finish();
+        } catch (Exception e) { Log.d("NULL_REF", "EXCEPTION " + e.getMessage()); }
+    }														
     public static void decode(final byte[] data, final int width, final int height) {
         if (param_maxThreads > MAX_THREADS) {
             param_maxThreads = MAX_THREADS;
@@ -491,6 +540,8 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                 // Log.i("Active threads", String.valueOf(activeThreads));
                 long start = System.currentTimeMillis();
 
+				timeFromStartScanningToFirstFrame = start - startScanningTime;
+                //Log.d("NULL_REF", "time from to " + timeFromStartScanningToFirstFrame );		 
                 // byte[] source =
                 // CameraManager.get().buildLuminanceSource(data, width,
                 // height);
