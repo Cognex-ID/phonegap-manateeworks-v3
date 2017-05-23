@@ -99,7 +99,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         super.onCreate(savedInstanceState);
         mContext = this;
 
-		timeFromStartScanningToFirstFrame = 0;
+        timeFromStartScanningToFirstFrame = 0;
         if (param_Orientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
             setRequestedOrientation(param_Orientation);
             int currentOrientation = getResources().getConfiguration().orientation;
@@ -123,7 +123,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
             overlayImage = (ImageView) findViewById(resources.getIdentifier("overlayImage", "id", package_name));
 
-			surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));																									 
+			surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
             buttonFlash = (ImageButton) findViewById(resources.getIdentifier("flashButton", "id", package_name));
             if (buttonFlash != null) {
                 buttonFlash.setOnClickListener(new OnClickListener() {
@@ -187,10 +187,9 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     }
 
 	private int runOnResume() {
-        if (surfaceView == null) {
 			 
             surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
-        }
+
         if (surfaceView == null) {
             return -1;
         }
@@ -494,17 +493,20 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static void startScanning() {
         CameraManager.get().startPreview();
         state = State.PREVIEW;
+        if (timeFromStartScanningToFirstFrame == 0 && ctimerRunning) {ctimerRef.cancel(); ctimerRunning = false;}
 		startScanningTime = System.currentTimeMillis(); isRunning();															
         CameraManager.get().requestPreviewFrame(handler, MSG_DECODE);
         CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
     }
 
 	private static final long firstFrameTimeout = 2000; //ms
+    private static boolean ctimerRunning = false;
+    private static CountDownTimer ctimerRef = null;
 
     static void isRunning()
     {
         //Log.d("NULL_REF", "LAST SESSION time from to " + timeFromStartScanningToFirstFrame );
-        new CountDownTimer(firstFrameTimeout, firstFrameTimeout / 2) {
+        ctimerRef = new CountDownTimer(firstFrameTimeout, firstFrameTimeout / 2) {
 
             public void onTick(long millisUntilFinished) {
 
@@ -516,11 +518,14 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                     finishActivity();
                 }
             }
-        }.start();
+        };
+        ctimerRunning = true;
+        ctimerRef.start();
     }
 
     static void finishActivity()
     {
+        if (mContext == null)
         try {
             ((Activity) mContext).finish();
         } catch (Exception e) { Log.d("NULL_REF", "EXCEPTION " + e.getMessage()); }
