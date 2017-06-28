@@ -384,7 +384,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 }
             }
 
-            int registrationResult = BarcodeScanner.MWBregisterSDK(license_key, cordova.getActivity());
+            int registrationResult = BarcodeScanner.MWBregisterSDK(license_key, cordova.getActivity().getApplicationContext());
             callbackContext.success(String.valueOf(registrationResult));
             return true;
 
@@ -1653,6 +1653,15 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                         surfaceHolder.addCallback(BarcodeScannerPlugin.this);
                         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
+						if (ScannerActivity.param_DefaultFlashOn) {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ScannerActivity.flashOn = ScannerActivity.param_DefaultFlashOn;
+                                    updateFlash();
+                                }
+                            }, 1000);
+                        } 
                     }
                 });
 

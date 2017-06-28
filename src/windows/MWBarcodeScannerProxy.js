@@ -123,6 +123,7 @@ var DOM_complete = false;
 var fullscreenButtons = {
     flashReference: null,
 	flashControlRef: null,					  
+	flashControlRef_enabled: false,							   
     flashState: 0,
     zoomReference: null,
 	zoomControlRef: null,					 
@@ -1004,8 +1005,19 @@ var MWBarcodeScanner = {
                 if (torchLight.supported) {
                     console.log('Torch is supported.'); // torch / flash / light
                     //torchLight.powerPercent = 100;
-                    //torchLight.enabled = true;
-                    fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                    setTimeout(function () {
+                        if (fullscreenButtons.flashControlRef_enabled) {
+                            torchLight.enabled = true;
+                            fullscreenButtons.flashState = 1;
+                            fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                            console.log('Torch is turned on.');
+                        }
+                        else {
+                            torchLight.enabled = false;
+                            fullscreenButtons.flashState = 0;
+                            fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                        }
+                    }, 100); //950XL: 39, 640: 50
                 }
                 else {
                     console.log('Torch is NOT supported.'); //torch / flash / light
@@ -2179,13 +2191,27 @@ var MWBarcodeScanner = {
                 var controller = capture.videoDeviceController;
                 var deviceProps = controller.getAvailableMediaStreamProperties(Windows.Media.Capture.MediaStreamType.videoRecord);
 
-                fullscreenButtons.flashControlRef = torchLight = controller.torchControl;
+                fullscreenButtons.flashControlRef = torchLight = controller.torchControl; //HERE_9
                 if (torchLight.supported)
                 {
+
                     console.log('Torch is supported.'); // torch / flash / light
                     //torchLight.powerPercent = 100;
-                    //torchLight.enabled = true;
-
+                    setTimeout(function () {
+                        if (fullscreenButtons.flashControlRef_enabled) {
+                            fullscreenButtons.flashControlRef.enabled = torchLight.enabled = true;
+                            fullscreenButtons.flashState = 1;
+                            fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash1;
+                            console.log('Torch is turned on.');
+                        }
+                        else {
+                            fullscreenButtons.flashControlRef.enabled = torchLight.enabled = false;
+                            fullscreenButtons.flashState = 0;
+                            fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0;
+                        }
+                    }, 100); //950XL: 39, 640: 50
+                   
+                    /**/
                     //fullscreenButtons.flashReference.getElementsByTagName("img")[0].src = fullscreenButtons.flash0
                 }
                 else
@@ -2566,7 +2592,7 @@ var MWBarcodeScanner = {
      */
     turnFlashOn: function (success, fail, args) {
         var flashOn = ((typeof args[0]) == 'boolean') ? args[0] : false;
-        fullscreenButtons.flashControlRef.enabled = flashOn;
+        fullscreenButtons.flashControlRef_enabled = flashOn;
     },
 
     /**
