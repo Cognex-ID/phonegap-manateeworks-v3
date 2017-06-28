@@ -28,7 +28,7 @@ BOOL param_EnableFlash = YES;
 BOOL param_EnableZoom = YES;
 BOOL param_closeOnSuccess = YES;
 
-float param_closeDelay = 0.2;
+float param_closeDelay = 0.1;
 static BOOL param_use60fps = NO;
 
 BOOL param_defaultFlashOn = NO;
@@ -303,16 +303,6 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     }
     
     cameraOverlay.hidden = !(param_OverlayMode & OM_IMAGE);
-    
-    
-    if (param_EnableFlash && [self.device isTorchModeSupported:AVCaptureTorchModeOn] && param_defaultFlashOn){
-        if ([self.device lockForConfiguration:NULL]) {
-            if ([self.device torchMode] == AVCaptureTorchModeOff){
-                [self.device setTorchMode:AVCaptureTorchModeOn];
-                flashButton.selected = YES;
-            }
-        }
-    }
     
     [self updateTorch];
     
@@ -1066,7 +1056,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                     }
                     
                     [center postNotificationName:DecoderResultNotification object: notificationResult];
-                    NSLog(@"SCANNED RESULT: %@",mwResult.text);
+                    NSLog(@"SCANNED RESULT: %@",(mwResult.bytes != nil)?[[NSString alloc] initWithData:[[NSData alloc] initWithBytes:mwResult.bytes length:mwResult.bytesLength] encoding:NSUTF8StringEncoding]:mwResult.text);
                     
                 });
                 
@@ -1167,6 +1157,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void) startScanning {
+    
+    if (param_EnableFlash && [self.device isTorchModeSupported:AVCaptureTorchModeOn] && param_defaultFlashOn){
+        if ([self.device lockForConfiguration:NULL]) {
+            if ([self.device torchMode] == AVCaptureTorchModeOff){
+                [self.device setTorchMode:AVCaptureTorchModeOn];
+                flashButton.selected = YES;
+            }
+        }
+    }
+    
     self.state = LAUNCHING_CAMERA;
     [self.captureSession startRunning];
     self.prevLayer.hidden = NO;

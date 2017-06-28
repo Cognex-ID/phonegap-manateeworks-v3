@@ -86,10 +86,10 @@ NSMutableDictionary *recgtVals;
                 
                 [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
                 
-                
-                scannerViewController.state = LAUNCHING_CAMERA;
-                [scannerViewController.captureSession startRunning];
-                scannerViewController.state = CAMERA;
+                [scannerViewController startScanning];
+//                scannerViewController.state = LAUNCHING_CAMERA;
+//                [scannerViewController.captureSession startRunning];
+//                scannerViewController.state = CAMERA;
                 
 #if !__has_feature(objc_arc)
                 callbackId= [command.callbackId retain];
@@ -338,7 +338,7 @@ NSMutableDictionary *recgtVals;
             resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], [NSNumber numberWithBool:NO], [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
                                                               forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
         }
-        
+                
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
         
         if(![MWScannerViewController getCloseScannerOnDecode]){
