@@ -105,6 +105,18 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
     private boolean scanInView = false;
 
+	private boolean calledRegisterSDK = false;
+
+    public void provideContext()
+    {
+        if(!calledRegisterSDK)
+        {
+            android.util.Log.d("NESTO", "provideContextCalled");
+            BarcodeScanner.MWBregisterSDK("", cordova.getActivity().getApplicationContext());
+            calledRegisterSDK = true;
+        }
+    }
+	
     @Override
     public void onPause(boolean multitasking) {
         super.onPause(multitasking);
@@ -284,6 +296,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 cbc = callbackContext;
                 ScannerActivity.cbc = cbc;
 
+				provideContext();				 
                 if (cordova.hasPermission(Manifest.permission.CAMERA)) {
                     context = this.cordova.getActivity().getApplicationContext();
                     Intent intent = new Intent(context, com.manateeworks.ScannerActivity.class);
@@ -386,6 +399,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
             int registrationResult = BarcodeScanner.MWBregisterSDK(license_key, cordova.getActivity().getApplicationContext());
             callbackContext.success(String.valueOf(registrationResult));
+			calledRegisterSDK = true;						 
             return true;
 
         } else if ("setInterfaceOrientation".equals(action)) {
