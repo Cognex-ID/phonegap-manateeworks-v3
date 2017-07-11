@@ -1,6 +1,19 @@
 
 /*
-  Version 3.1.1
+  Version 3.0.33
+  
+  -Bug fixes
+     - Decoder updated to 3.1.5
+  -Added basic scan count statistics
+  -Added location/verification support for Code 11 and MSI Plessey
+  -Added option to strip GS1 prefixes from GS1 Databar barcodes
+  -Added option to turn verification on/off by barcode type
+  -Enhanced Code 25 algorithms for fewer false reads
+  -Fixed SDK state information tracking on Android
+  -Image pre-processing (for Illumination equalization) can now be disabled
+  -All SDK licensing features now implemented for Windows
+  
+  Version 3.0.26
 
   - Added getDeviceID : returns a promise that contains the deviceID
   usage:
@@ -8,8 +21,9 @@
         .then(function(deviceID){
             console.log("Device ID is: "+deviceID);
         });
+  - Decoder updated to 3.1.4
 
-  Version 3.1
+  Version 3.0.0
 
     Re-vamp of the whole plugin
   - added promises to the function calls, we no longer expect callbacks except for the callback from the scanner result, because that one is convinient
@@ -262,6 +276,9 @@
         MWB_PAR_VALUE_RESULT_PREFIX_NEVER :   0x00, // default
         MWB_PAR_VALUE_RESULT_PREFIX_ALWAYS :  0x01,
         MWB_PAR_VALUE_RESULT_PREFIX_DEFAULT : 0x02,
+		
+		MWB_PAR_VALUE_VERIFY_LOCATION_OFF :   0x00,
+        MWB_PAR_VALUE_VERIFY_LOCATION_ON :  0x01,
         /**/
 
 
