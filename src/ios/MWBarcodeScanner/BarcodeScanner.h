@@ -149,6 +149,8 @@ typedef unsigned char uint8_t;
  */
 #define  MWB_PAR_ID_ECI_MODE         0x08
 #define  MWB_PAR_ID_RESULT_PREFIX    0x10
+#define  MWB_PAR_ID_VERIFY_LOCATION  0x20
+    
 /**/
 
 /** @brief  Barcode param values
@@ -160,6 +162,10 @@ typedef unsigned char uint8_t;
 #define  MWB_PAR_VALUE_RESULT_PREFIX_NEVER    0x00 // default
 #define  MWB_PAR_VALUE_RESULT_PREFIX_ALWAYS   0x01
 #define  MWB_PAR_VALUE_RESULT_PREFIX_DEFAULT  0x02
+    
+#define  MWB_PAR_VALUE_VERIFY_LOCATION_OFF  0x00
+#define  MWB_PAR_VALUE_VERIFY_LOCATION_ON  0x01
+    
 /**/
 
     
