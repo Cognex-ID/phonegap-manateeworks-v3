@@ -1227,7 +1227,9 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(CameraManager.USE_FRONT_CAMERA ? 1 : 0, cameraInfo);
         if (cameraInfo.orientation == 270) {
-            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180);
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180 | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
+        } else {
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         }
 
         CameraManager.get().startPreview();
@@ -1320,18 +1322,28 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         }
         PluginResult pr = new PluginResult(PluginResult.Status.OK, jsonResult);
 
-        if (!ScannerActivity.param_closeOnSuccess) {
-
+        if (ScannerActivity.param_closeOnSuccess) {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stopScanner();
+                }
+            }, 500);
+        } else {
             pr.setKeepCallback(true);
-
+            MWOverlay.setPaused(this.cordova.getActivity(), true);
+//            if(ScannerActivity.param_continuousScanning) {
+//                ScannerActivity.state = State.PREVIEW;
+//                MWOverlay.setPaused(this.cordova.getActivity(), false);
+//            }
         }
         cbc.sendPluginResult(pr);
-        if (ScannerActivity.param_closeOnSuccess) {
-            stopScanner();
-        }
     }
 
     private void stopScanner() {
+		CameraManager cameraManager = CameraManager.get();
+        if (cameraManager != null) cameraManager.requestPreviewFrame(new Handler(), ScannerActivity.MSG_DECODE);	 
         if (rlFullScreen != null) {
             cordova.getActivity().runOnUiThread(new Runnable() {
 

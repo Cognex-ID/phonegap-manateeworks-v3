@@ -261,7 +261,7 @@ Parameters are interpreted as percentage of image dimensions, i.e. ranges are 0 
 @name "MWBsetLevel"
 Effort level of the scanner values can be 
 @param[in]   level     1,2,3,4 and 5
-example : [{"method":"setLevel" : "value" : [3]}]    
+example : [{"method" : "setLevel", "value" : [3]}]    
 
 @name "MWBsetInterfaceOrientation"
 Sets prefered User Interface orientation of scanner screen
@@ -276,7 +276,7 @@ default is OrientationPortrait
 @n  OverlayModeNone     No overlay is displayed
 @n  OverlayModeMW       Use MW Dynamic Viewfinder with blinking line
 @n  OverlayModeImage    Show image on top of camera preview
-example : [{"method":"MWBsetOverlayMode" : "value" : [mw_c.OverlayModeImage]}]    
+example : [{"method" : "MWBsetOverlayMode", "value" : [mw_c.OverlayModeImage]}]    
 
 @name "MWBresizePartialScanner"
 Resizes partial scanner dimensions. If usePartialScanner is true the scanner will open in a window with these dimensions
@@ -284,12 +284,12 @@ Resizes partial scanner dimensions. If usePartialScanner is true the scanner wil
 @param[in]   top       Y coordinate of top edge (percentage)
 @param[in]   width     Rectangle witdh (x axis) (percentage)
 @param[in]   height    Rectangle height (y axis) (percentage)
-example : [{"method":"MWBresizePartialScanner" : "value" : [0,0,50,50]}]    
+example : [{"method" : "MWBresizePartialScanner", "value" : [0,0,50,50]}]    
 
 @name "MWBusePartialScanner"
 Boolean value that opens a partial scanner if set true
 @param[in]   bool               true/false
-example : [{"method":"MWBusePartialScanner" : "value" : [true]}]
+example : [{"method" : "MWBusePartialScanner", "value" : [true]}]
 
 @name "MWBsetActiveParser"
 Set active parser types
@@ -302,7 +302,7 @@ Set active parser types
 @n      MWP_PARSER_MASK_AAMVA
 @n      MWP_PARSER_MASK_HIBC
 @n      MWP_PARSER_MASK_SCM    
-example : [{"method":"MWBsetActiveParser" : "value" : [mw_c.MWP_PARSER_MASK_GS1 | mw_c.MWP_PARSER_MASK_IUID]}]
+example : [{"method" : "MWBsetActiveParser", "value" : [mw_c.MWP_PARSER_MASK_GS1 | mw_c.MWP_PARSER_MASK_IUID]}]
 
 //additional settings:
 
@@ -310,7 +310,7 @@ example : [{"method":"MWBsetActiveParser" : "value" : [mw_c.MWP_PARSER_MASK_GS1 
 Set blinking line visible
 Default value is true
 @param[in]	visible
-example : [{"method" : "MWBsetBlinkingLineVisible" : "value" : [true]}]
+example : [{"method" : "MWBsetBlinkingLineVisible", "value" : [true]}]
 
 @name "MWBsetPauseMode"
 What happens when the scanner is paused
@@ -319,31 +319,31 @@ Default value is PM_PAUSE
 @n	PM_NONE             - Nothing happens
 @n	PM_PAUSE            - Blinking lines are replaced with a pause view
 @n	PM_STOP_BLINKING    - Blinking lines stop blinking
-example : [{"method" : "MWBsetPauseMode" : "value" : [mw_c.PM_STOP_BLINKING]}]
+example : [{"method" : "MWBsetPauseMode", "value" : [mw_c.PM_STOP_BLINKING]}]
 
 @name "MWBenableHiRes"
 Enable or disable high resolution scanning. It is recommended to enable it when target barcodes
 are of high density or small footprint. If device does not support high resolution param will be ignored
 Default value is true (enabled)
 @param[in]	enableHiRes
-example : [{"method" : "MWBenableHiRes" : "value" : [true]}]
+example : [{"method" : "MWBenableHiRes", "value" : [true]}]
 
 @name "MWBenableFlash"
 Enable or disable flash toggle button on scanning screen. If device does not support flash mode
 button will be hidden regardles of param
 Default value is true (enabled)
 @param[in]	enableFlash
-example : [{"method" : "MWBenableFlash" : "value" : [true]}]
+example : [{"method" : "MWBenableFlash", "value" : [true]}]
 
 @name "MWBturnFlashOn"
 Set default state of flash (torch) when scanner activity is started
 Default value is false (disabled)
 @param[in]	flashOn
-example : [{"method" : "MWBturnFlashOn" : "value" : [false]}]
+example : [{"method" : "MWBturnFlashOn", "value" : [false]}]
 
 @name "MWBtoggleFlash"
 Toggle on/off flash state
-example : [{"method" : "MWBtoggleFlash" : "value" : []}]
+example : [{"method" : "MWBtoggleFlash", "value" : []}]
 
 @name "MWBenableZoom"
 Enable or disable zoom button on scanning screen. If device does not support zoom,
@@ -351,7 +351,7 @@ button will be hidden regardles of param. Zoom is not supported on Windows Phone
 as there is no zooming api available!
 Default value is true (enabled)
 @param[in]	enableZoom
-example : [{"method" : "MWBenableZoom" : "value" : [true]}]
+example : [{"method" : "MWBenableZoom", "value" : [true]}]
 
 @name "MWBsetZoomLevels"
 Set two desired zoom levels in percentage and initial level. Set first two params to zero for default
@@ -365,18 +365,18 @@ Initial zoom level can be 0 (100% - non zoomed), 1 (zoomLevel1) or 2 (zoomLevel2
 @param[in]	zoomLevel1
 @param[in]	zoomLevel2
 @param[in]	initialZoomLevel
-example : [{"method" : "MWBsetZoomLevels" : "value" : [150, 300, 0]}] //android
-example : [{"method" : "MWBsetZoomLevels" : "value" : [2.0, 4.0, 0]}] //windows uwp
+example : [{"method" : "MWBsetZoomLevels", "value" : [150, 300, 0]}] //android
+example : [{"method" : "MWBsetZoomLevels", "value" : [2.0, 4.0, 0]}] //windows uwp
 
 @name "MWBtoggleZoom"
 Toggle on/off zoom state
-example : [{"method" : "MWBtoggleZoom" : "value" : []}]
+example : [{"method" : "MWBtoggleZoom", "value" : []}]
 
 @name "MWBsetMaxThreads"
 Set maximum threads to be used for decoding. Value will be limited to maximum available CPU cores.
 Default is 4 (will trim to max available value). Set to 1 to disable multi-threaded decoding
 @param[in]	maxThreads
-example : [{"method" : "MWBsetMaxThreads" : "value" : [2]}]
+example : [{"method" : "MWBsetMaxThreads", "value" : [2]}]
 
 @name "MWBcloseScannerOnDecode"
 Enable/disable continuous scanning. If 'shouldClose' is 'false', result callback will be performed and
@@ -384,58 +384,58 @@ scanner will be paused. The User can call 'resumeScanning' to continue scanning,
 for closing the scanner. Default is 'true'.
 Function is not available on WP8 and UWP due to the technical limitations.
 @param[in]	shouldClose
-example : [{"method" : "MWBcloseScannerOnDecode" : "value" : [true]}]
+example : [{"method" : "MWBcloseScannerOnDecode", "value" : [true]}]
 
 @name "MWBresumeScanning"
 Resume scanning. Use this method if already using MWBcloseScannerOnDecode(false).
 Function is not available on WP8 and UWP due to the technical limitations.
-example : [{"method" : "MWBresumeScanning" : "value" : []}]
+example : [{"method" : "MWBresumeScanning", "value" : []}]
 
 @name "MWBcloseScanner"
 Close scanner. Use this method if already using MWBcloseScannerOnDecode(false).
 Function is not available on WP8 due to the technical limitations.
-example : [{"method" : "MWBcloseScanner" : "value" : []}]
+example : [{"method" : "MWBcloseScanner", "value" : []}]
 
 @name "MWBuse60fps"
 Use 60 fps when available.
 Function is only available on iOS.
 Default value is false
 @param[in]	use
-example : [{"method" : "MWBuse60fps" : "value" : [false]}]
+example : [{"method" : "MWBuse60fps", "value" : [false]}]
 
 @name "MWBscanImage"
 Scan image.
 imageURI - path to the image to be scanned.
 @param[in]	imageURI
-example : [{"method" : "MWBscanImage" : "value" : ['image.jpg']}]
+example : [{"method" : "MWBscanImage", "value" : ['image.jpg']}]
 
 @name "MWBsetParam"
 Set custom decoder param id / value pair for decoder type specified in a codeMask.
 @param[in]	codeMask                Single decoder type (MWB_CODE_MASK_...)
 @param[in]	paramId                 ID of param
 @param[in]	paramValue              Integer value of param
-example : [{"method" : "MWBsetParam" : "value" : [codeMask, paramId, paramValue]}]
+example : [{"method" : "MWBsetParam", "value" : [codeMask, paramId, paramValue]}]
 
 @name "MWBtogglePauseResume"
 Pause/unpause scanner view
-example : [{"method" : "MWBtogglePauseResume" : "value" : []}]
+example : [{"method" : "MWBtogglePauseResume", "value" : []}]
 
 @name "MWBduplicateCodeDelay"
 Ignore result if scanned the same code in continuous scanning mode
 @param[in]	delay         Time interval between 2 scan results with the same result.code in milliseconds
-example : [{"method" : "MWBduplicateCodeDelay" : "value" : [1000]}]
+example : [{"method" : "MWBduplicateCodeDelay", "value" : [1000]}]
 
 @name "MWBuseAutoRect"
 Use auto generated full screen scanning rectangle, or use user defined scanning rectangles
 @param[in]	useAutoRect   Whether or not to use auto generated full screen scanning rectangle
 Default value is true
-example : [{"method" : "MWBuseAutoRect" : "value" : [true]}]
+example : [{"method" : "MWBuseAutoRect", "value" : [true]}]
 
 @name "MWBuseFrontCamera"
 Use front facing camera
 @param[in]	useFrontCamera   Whether or not to use front facing camera
 Default value is false
-example : [{"method" : "MWBuseFrontCamera" : "value" : [false]}]
+example : [{"method" : "MWBuseFrontCamera", "value" : [false]}]
 
 ```
 

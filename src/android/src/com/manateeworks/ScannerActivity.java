@@ -56,6 +56,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static boolean param_EnableZoom = true;
     public static boolean param_DefaultFlashOn = false;
     public static boolean param_closeOnSuccess = true;
+//    public static boolean param_continuousScanning = false;															 
     public static boolean param_showLocation = true;
     public static int param_OverlayMode = OM_MW;
     public static int param_activeParser = MWParser.MWP_PARSER_MASK_NONE;
@@ -468,7 +469,9 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(CameraManager.USE_FRONT_CAMERA ? 1 : 0, cameraInfo);
         if (cameraInfo.orientation == 270) {
-            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180);
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180 | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
+        } else {
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         }
 
         startScanning();
@@ -696,7 +699,10 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
             ScannerActivity.this.finish();
         } else {
             pr.setKeepCallback(true);
-
+//            if(param_continuousScanning) {
+//                state = State.PREVIEW;
+//                MWOverlay.setPaused(mContext, false);
+//            }
         }
         ScannerActivity.cbc.sendPluginResult(pr);
 
