@@ -464,7 +464,7 @@ removing the following line from the **index.html** file.
 ### Performance
 The camera capture and preview are implemented in JavaScript on the web side. Windows doesn't seem to support non-native implementation well, and this results in lower frame rate than hardware available. This can be improved by using a lower camera resolution (480p instead of the default 720p), which can be set with the method **MWBenableHiRes** and **false** as value. Some devices with slower processors could further improve their frame rate by reducing the number of cores the decoder uses (default is all), by using the method **MWBsetMaxThreads** with a value **lower than all CPU cores but not lower than 1**.
 
-# IONIC 1 Implementation
+# IONIC Implementation
 
 
 The Manatee Works Barcode Scanner SDK can be loaded as an Ionic plugin, which uses Cordova, so every PhoneGap plugin could run as an Ionic plugin with few changes. Most of the changes are in the configuration files.
@@ -479,59 +479,26 @@ sudo npm install -g cordova ionic
 if it's already installed, updating is done with:
 ```ssh
 npm update -g cordova ionic
-```
-or
-```ssh
+//or
 sudo npm update -g cordova ionic
 ```
 
-Then we "start" an Ionic app (similar to the PhoneGap process, where we *created* an app, here we *start* one). 
+Then we "start" an Ionic app (similar to the PhoneGap process, where we *created* an app, here we *start* one). This will create an Ionic blank app:
 
 ```ssh
-ionic start -a "Manateeworks Barcode Scanner Ionic App" mwbScanner blank -i com.ionic.manateeworks --v1
-cd mwbScanner
-ionic plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
-```
-
-<center>or</center>
-
-```ssh
-ionic plugin add https://github.com/manateeworks/phonegap-manateeworks-v3.git --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY        
-```
-
-<center>or</center>
-
-```ssh
-ionic plugin add LOCAL_PATH_TO_THE_FOLDER_WITH_PLUGIN --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY (if you are adding from local folder)  
-```
-
-In the platforms' www folder there are example files named exactly like the files needed to get the app started. 
-    
-```ssh
-$PATH_TO_FOLDER/mMwApp/platforms/[platform]/www/examples/ionic
-```
-*app.js* should be replaced with the one in *js/app.js* and *index.html* should be replaced with the *index.html* of your app.
-
-Demo app NOW available [HERE!](https://github.com/manateeworks/manateeworks-barcodescanner-starter)
-    
-# Ionic 2 Implementation
-
-Step 1 is the same as above to create an Ionic 2 blank app. This will create a slightly different project structure than PhoneGap or Ionic 1:
-
-```ssh
-ionic start myMwApp blank --v2
+ionic start myMwApp blank --type=ionic-angular
 cd myMwApp
-ionic plugin add manateeworks-barcodescanner-v3
+ionic cordova plugin add manateeworks-barcodescanner-v3
 ```
 
-To build for Ionic 2 you need to modify the files in your **src** folder. Ionic 2 pushes TypeScript usage:
+To build for Ionic you need to modify the files in your **src** folder. Ionic pushes TypeScript usage:
 
 ```ssh
 /src/pages/home folder 
 ```
 
 We want to modify the **home.html** file, and add a button and a text input (which will show the result) and the home.ts file which will handle the control of the scanner. These files have been copied in the examples folder when you added our plugin. 
-Copy the files to your ```ssh /src/pages/home folder```.
+Copy the files to your `/src/pages/home folder`.
 
 Important thing to notice is the addition of the 
 
@@ -539,14 +506,15 @@ Important thing to notice is the addition of the
 declare var mwbScanner:any; 
 ```
 
-this is done, to stop ionic2 from complaining about mwbScanner missing. 
+this is done, to stop Ionic from complaining about mwbScanner missing. 
 The mwbScanner variable becomes available after the cordova plugins load, so in order to "import" it to our component controller, we define it as a variable that can receive any value.
 
-Since manateeworks-barcodescanner plugin is essentially a phonegap plugin, naturally we use a callback to show results. But we also return a promise, which is more an ionic2 way. To disable the default callback we need to do:
+Since manateeworks-barcodescanner plugin is essentially a phonegap plugin, naturally we use a callback to show results. But we also return a promise, which is more an Ionic way. To disable the default callback we need to do:
 
 ```javascript
 mwbScanner.setCallback(function(result){});
 ```
+
 Then to show results from a scan we simply do
 
 ```javascript
@@ -558,24 +526,10 @@ mwbScanner.startScanning().then(function(response){
 ```
 
 Build for your platform
+
 ```ssh
-ionic build ios
+ionic cordova build ios
 ```
     
-FOR A MORE DETAILED EXAMPLE, PLEASE REFER TO [Ionic 2 Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
-
-
-# EXAMPLES
-
-We have added a minimum set of files to replace, to help configure your evaluation app quickly:
-
-[examples.zip](https://github.com/manateeworks/phonegap-manateeworks-v3/files/797274/examples.zip)
-
-Below are demo apps for the Ionic platform:
-
-[Ionic 1 Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-starter)
-
-[Ionic 2 Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
-
-
+FOR A MORE DETAILED EXAMPLE, PLEASE REFER TO [Ionic Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-ionic-starter)
 
