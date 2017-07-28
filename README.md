@@ -497,8 +497,7 @@ To build for Ionic you need to modify the files in your **src** folder. Ionic pu
 /src/pages/home folder 
 ```
 
-We want to modify the **home.html** file, and add a button and a text input (which will show the result) and the home.ts file which will handle the control of the scanner. These files have been copied in the examples folder when you added our plugin. 
-Copy the files to your `/src/pages/home folder`.
+We want to modify the **home.html** file, and add a button and a text input (which will show the result) and the **home.ts** file which will handle the control of the scanner.
 
 Important thing to notice is the addition of the 
 
@@ -506,7 +505,7 @@ Important thing to notice is the addition of the
 declare var mwbScanner:any; 
 ```
 
-this is done, to stop Ionic from complaining about mwbScanner missing. 
+This is done to stop Ionic from complaining about mwbScanner missing. 
 The mwbScanner variable becomes available after the cordova plugins load, so in order to "import" it to our component controller, we define it as a variable that can receive any value.
 
 Since manateeworks-barcodescanner plugin is essentially a phonegap plugin, naturally we use a callback to show results. But we also return a promise, which is more an Ionic way. To disable the default callback we need to do:
