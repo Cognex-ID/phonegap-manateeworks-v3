@@ -521,7 +521,7 @@ Step 1 is the same as above to create an Ionic 2 blank app. This will create a s
 ```ssh
 ionic start myMwApp blank --v2
 cd myMwApp
-ionic plugin add manateeworks-barcodescanner-v3 --variable MW_LICENSE_KEY=YOUR_LICENSE_KEY
+ionic plugin add manateeworks-barcodescanner-v3
 ```
 
 To build for Ionic 2 you need to modify the files in your **src** folder. Ionic 2 pushes TypeScript usage:
@@ -562,7 +562,7 @@ Build for your platform
 ionic build ios
 ```
     
-And run your app.
+FOR A MORE DETAILED EXAMPLE, PLEASE REFER TO [Ionic 2 Demo App](https://github.com/manateeworks/manateeworks-barcodescanner-ionic2-starter)
 
 
 # EXAMPLES
