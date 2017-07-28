@@ -16,7 +16,6 @@ version="3.0.34">
 
 <dependency id="cordova-plugin-dialogs" />
 <dependency id="cordova-plugin-device" />
-<dependency id="es6-promise-plugin" url="https://github.com/vstirbu/PromisesPlugin.git"> </dependency>
 <!-- android -->
 <platform name="android">
     
