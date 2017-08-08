@@ -1,5 +1,13 @@
 
 /*
+  Version 3.0.36
+  
+  -Bug fixes
+  -Fixed continuous scanning
+  -Removed es6-promise-plugin dependency
+     - Decoder updated to 3.2.0
+  -Added Micro PDF417 subcode
+
   Version 3.0.33
   
   -Bug fixes
@@ -385,6 +393,13 @@
         MWB_SUBC_MASK_QR_STANDARD :      0x00000001,
         MWB_SUBC_MASK_QR_MICRO    :      0x00000002,
         /** @} */
+		
+		/**
+        * @name Bit mask identifiers for PDF decoder types
+        * @{ */
+        MWB_SUBC_MASK_PDF_STANDARD :      0x00000001,
+        MWB_SUBC_MASK_PDF_MICRO    :      0x00000002,
+        /** @} */
 
 
         /**
@@ -435,35 +450,36 @@
         FOUND_39            :   2,
         FOUND_RSS_14        :   3,
         FOUND_RSS_14_STACK  :   4,
-        FOUND_RSS_LI        :   5,
-        FOUND_RSS_EX        :   6,
+        FOUND_RSS_LIM       :   5,
+        FOUND_RSS_EXP       :   6,
         FOUND_EAN_13        :   7,
-        FOUND_EAN_          :   8,
-        FOUND_UPC_          :   9,
-        FOUND_UPC_          :   10,
-        FOUND_12            :   11,
-        FOUND_PD            :   12,
+        FOUND_EAN_8         :   8,
+        FOUND_UPC_A         :   9,
+        FOUND_UPC_E         :   10,
+        FOUND_128           :   11,
+        FOUND_PDF           :   12,
         FOUND_QR            :   13,
-        FOUND_AZTE          :   14,
-        FOUND_25_INTERLEAVE :   15,
-        FOUND_25_STANDAR    :   16,
+        FOUND_AZTEC         :   14,
+        FOUND_25_INTERLEAVED:   15,
+        FOUND_25_STANDARD   :   16,
         FOUND_93            :   17,
-        FOUND_CODABA        :   18,
-        FOUND_DOTCOD        :   19,
-        FOUND_128_GS        :   20,
-        FOUND_ITF1          :   21,
+        FOUND_CODABAR       :   18,
+        FOUND_DOTCODE       :   19,
+        FOUND_128_GS1       :   20,
+        FOUND_ITF14         :   21,
         FOUND_11            :   22,
-        FOUND_MS            :   23,
-        FOUND_25_IAT        :   24,
-        FOUND_25_MATRI      :   25,
-        FOUND_25_COO        :   26,
-        FOUND_25_INVERTE    :   27,
+        FOUND_MSI           :   23,
+        FOUND_25_IATA       :   24,
+        FOUND_25_MATRIX     :   25,
+        FOUND_25_COOP       :   26,
+        FOUND_25_INVERTED   :   27,
         FOUND_QR_MICRO      :   28,
         FOUND_MAXICODE      :   29,
-        FOUND_POSTNE        :   30,
+        FOUND_POSTNET       :   30,
         FOUND_PLANET        :   31,
-        FOUND_IM            :   32,
-        FOUND_ROYALMAI      :   33,
+        FOUND_IMB           :   32,
+        FOUND_ROYALMAIL     :   33,
+        FOUND_MICRO_PDF     :   34,
 
 
 

@@ -213,6 +213,14 @@ typedef unsigned char uint8_t;
 /** @} */
     
 /**
+* @name Bit mask identifiers for QR decoder types
+* @{ */
+#define MWB_SUBC_MASK_PDF_STANDARD       0x00000001u
+#define MWB_SUBC_MASK_PDF_MICRO          0x00000002u
+ /** @} */
+
+    
+/**
  * @name Bit mask identifiers for 2 of 5 decoder types
  * @{ */
 #define MWB_SUBC_MASK_C25_INTERLEAVED   0x00000001u
@@ -293,7 +301,8 @@ enum res_types {
     FOUND_POSTNET,
     FOUND_PLANET,
     FOUND_IMB,
-    FOUND_ROYALMAIL
+    FOUND_ROYALMAIL,
+    FOUND_MICRO_PDF,
     
 };
 /** @} */
