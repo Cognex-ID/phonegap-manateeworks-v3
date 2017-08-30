@@ -1,5 +1,13 @@
 
 /*
+  Version 3.0.37
+  
+  -Bug fixes
+     - Decoder updated to 3.2.1
+  -Large Dotcode support
+  -Dotcode location fix
+  -Code128 trialing Group Separtor fix
+  
   Version 3.0.36
   
   -Bug fixes
