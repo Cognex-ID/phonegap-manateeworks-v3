@@ -213,7 +213,7 @@ typedef unsigned char uint8_t;
 /** @} */
     
 /**
-* @name Bit mask identifiers for QR decoder types
+* @name Bit mask identifiers for PDF decoder types
 * @{ */
 #define MWB_SUBC_MASK_PDF_STANDARD       0x00000001u
 #define MWB_SUBC_MASK_PDF_MICRO          0x00000002u
