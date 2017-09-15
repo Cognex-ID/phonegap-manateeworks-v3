@@ -9,7 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.CountDownTimer;								 
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -56,7 +56,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static boolean param_EnableZoom = true;
     public static boolean param_DefaultFlashOn = false;
     public static boolean param_closeOnSuccess = true;
-//    public static boolean param_continuousScanning = false;															 
+    //    public static boolean param_continuousScanning = false;
     public static boolean param_showLocation = true;
     public static int param_OverlayMode = OM_MW;
     public static int param_activeParser = MWParser.MWP_PARSER_MASK_NONE;
@@ -84,9 +84,10 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static int MAX_THREADS = Runtime.getRuntime().availableProcessors();
     public static Activity activity = null;
 
-	private static int frames = 0;
+    private static int frames = 0;
     private static long startScanningTime = 0;
-    private static long timeFromStartScanningToFirstFrame = 0;							  
+    private static long timeFromStartScanningToFirstFrame = 0;
+
     public enum State {
         STOPPED, PREVIEW, DECODING
     }
@@ -101,6 +102,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         mContext = this;
 
         timeFromStartScanningToFirstFrame = 0;
+
         if (param_Orientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
             setRequestedOrientation(param_Orientation);
             int currentOrientation = getResources().getConfiguration().orientation;
@@ -115,42 +117,46 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         }
 
         if (!requestingOrientation) {
-            state = State.STOPPED;
-            package_name = getApplication().getPackageName();
-            resources = getApplication().getResources();
+            loadScanner();
+        }
+    }
 
-            setContentView(resources.getIdentifier("scanner", "layout", package_name));
-            activity = this;
+    private void loadScanner() {
+        state = State.STOPPED;
+        package_name = getApplication().getPackageName();
+        resources = getApplication().getResources();
 
-            overlayImage = (ImageView) findViewById(resources.getIdentifier("overlayImage", "id", package_name));
+        setContentView(resources.getIdentifier("scanner", "layout", package_name));
+        activity = this;
 
-			surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
-            buttonFlash = (ImageButton) findViewById(resources.getIdentifier("flashButton", "id", package_name));
-            if (buttonFlash != null) {
-                buttonFlash.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        toggleFlash();
+        overlayImage = (ImageView) findViewById(resources.getIdentifier("overlayImage", "id", package_name));
 
-                    }
-                });
-            }
+        if (surfaceView == null)
+            surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
 
-            buttonZoom = (ImageButton) findViewById(resources.getIdentifier("zoomButton", "id", package_name));
-            if (buttonZoom != null) {
-                buttonZoom.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        toggleZoom();
+        buttonFlash = (ImageButton) findViewById(resources.getIdentifier("flashButton", "id", package_name));
+        if (buttonFlash != null) {
+            buttonFlash.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleFlash();
 
-                    }
-                });
-            }
-
-            CameraManager.init(getApplication());
-
+                }
+            });
         }
 
+        buttonZoom = (ImageButton) findViewById(resources.getIdentifier("zoomButton", "id", package_name));
+        if (buttonZoom != null) {
+            buttonZoom.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleZoom();
+
+                }
+            });
+        }
+
+        CameraManager.init(getApplication());
     }
 
     public static void refreshOverlay() {
@@ -187,44 +193,51 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
     }
 
-	private int runOnResume() {
-			 
-            surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
+    private int runOnResume() {
+
+        surfaceView = (SurfaceView) findViewById(this.resources.getIdentifier("preview_view", "id", this.package_name));
 
         if (surfaceView == null) {
             return -1;
         }
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
-			 
 
-        if ((param_OverlayMode & OM_MW) > 0) {
-            MWOverlay.removeOverlay();
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    MWOverlay.addOverlay(ScannerActivity.this, surfaceView);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if ((param_OverlayMode & OM_MW) > 0) {
+                    MWOverlay.removeOverlay();
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            MWOverlay.addOverlay(ScannerActivity.this, surfaceView);
+                        }
+                    }, 1);
                 }
-            }, 1);
-        }
 
-        if ((param_OverlayMode & OM_IMAGE) > 0) {
-            if (overlayImage != null) {
-                overlayImage.setVisibility(View.VISIBLE);
-				 
+                if ((param_OverlayMode & OM_IMAGE) > 0) {
+                    if (overlayImage != null) {
+                        overlayImage.setVisibility(View.VISIBLE);
+
+                    }
+
+                } else {
+                    if (overlayImage != null) {
+                        overlayImage.setVisibility(View.GONE);
+
+                    }
+                }
             }
-										  
-        } else {
-            if (overlayImage != null) {
-                overlayImage.setVisibility(View.GONE);
-																			   
-            }
-        }
+        }, 5);
+
 
         if (hasSurface) {
             // The activity was paused but not stopped, so the surface still
             // exists. Therefore
             // surfaceCreated() won't be called, so init the camera here.
+
             initCamera(surfaceHolder);
         } else {
             // Install the callback and wait for surfaceCreated() to init the
@@ -272,6 +285,11 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     @Override
     protected void onPause() {
         super.onPause();
+
+        runOnPause();
+    }
+
+    void runOnPause() {
         if (!requestingOrientation) {
 
             flashOn = false;
@@ -290,7 +308,6 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         //surfaceView = null;
         overlayImage = null;
         mContext = null;
-
     }
 
     private void toggleFlash() {
@@ -496,18 +513,21 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static void startScanning() {
         CameraManager.get().startPreview();
         state = State.PREVIEW;
-        if (timeFromStartScanningToFirstFrame == 0 && ctimerRunning) {ctimerRef.cancel(); ctimerRunning = false;}
-		startScanningTime = System.currentTimeMillis(); isRunning();															
+        if (timeFromStartScanningToFirstFrame == 0 && ctimerRunning) {
+            ctimerRef.cancel();
+            ctimerRunning = false;
+        }
+        startScanningTime = System.currentTimeMillis();
+        isRunning();
         CameraManager.get().requestPreviewFrame(handler, MSG_DECODE);
         CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
     }
 
-	private static final long firstFrameTimeout = 2000; //ms
+    private static final long firstFrameTimeout = 2000; //ms
     private static boolean ctimerRunning = false;
     private static CountDownTimer ctimerRef = null;
 
-    static void isRunning()
-    {
+    static void isRunning() {
         //Log.d("NULL_REF", "LAST SESSION time from to " + timeFromStartScanningToFirstFrame );
         ctimerRef = new CountDownTimer(firstFrameTimeout, firstFrameTimeout / 2) {
 
@@ -526,13 +546,15 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         ctimerRef.start();
     }
 
-    static void finishActivity()
-    {
+    static void finishActivity() {
         if (mContext == null)
-        try {
-            ((Activity) mContext).finish();
-        } catch (Exception e) { Log.d("NULL_REF", "EXCEPTION " + e.getMessage()); }
-    }														
+            try {
+                ((Activity) mContext).finish();
+            } catch (Exception e) {
+                Log.d("NULL_REF", "EXCEPTION " + e.getMessage());
+            }
+    }
+
     public static void decode(final byte[] data, final int width, final int height) {
         if (param_maxThreads > MAX_THREADS) {
             param_maxThreads = MAX_THREADS;
@@ -548,7 +570,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                 // Log.i("Active threads", String.valueOf(activeThreads));
                 long start = System.currentTimeMillis();
 
-				timeFromStartScanningToFirstFrame = start - startScanningTime;
+                timeFromStartScanningToFirstFrame = start - startScanningTime;
                 //Log.d("NULL_REF", "time from to " + timeFromStartScanningToFirstFrame );		 
                 // byte[] source =
                 // CameraManager.get().buildLuminanceSource(data, width,
@@ -670,11 +692,11 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
             if (result.locationPoints != null) {
                 jsonResult.put("location",
-                               new JSONObject().put("p1", new JSONObject().put("x", result.locationPoints.p1.x).put("y", result.locationPoints.p1.y))
-                                               .put("p2", new JSONObject().put("x", result.locationPoints.p2.x).put("y", result.locationPoints.p2.y))
-                                               .put("p3", new JSONObject().put("x", result.locationPoints.p3.x).put("y", result.locationPoints.p3.y))
-                                               .put("p4",
-                                                    new JSONObject().put("x", result.locationPoints.p4.x).put("y", result.locationPoints.p4.y)));
+                        new JSONObject().put("p1", new JSONObject().put("x", result.locationPoints.p1.x).put("y", result.locationPoints.p1.y))
+                                .put("p2", new JSONObject().put("x", result.locationPoints.p2.x).put("y", result.locationPoints.p2.y))
+                                .put("p3", new JSONObject().put("x", result.locationPoints.p3.x).put("y", result.locationPoints.p3.y))
+                                .put("p4",
+                                        new JSONObject().put("x", result.locationPoints.p4.x).put("y", result.locationPoints.p4.y)));
             } else {
                 jsonResult.put("location", false);
             }
@@ -727,4 +749,23 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         finish();
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        runOnPause();
+        if (param_Orientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+            setRequestedOrientation(param_Orientation);
+            int currentOrientation = getResources().getConfiguration().orientation;
+            if (!((param_Orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || param_Orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+                    && currentOrientation == Configuration.ORIENTATION_LANDSCAPE)
+                    && !(param_Orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && currentOrientation == Configuration.ORIENTATION_PORTRAIT)) {
+                requestingOrientation = true;
+                return;
+            } else {
+                requestingOrientation = false;
+            }
+        }
+        loadScanner();
+        runOnResume();
+    }
 }
