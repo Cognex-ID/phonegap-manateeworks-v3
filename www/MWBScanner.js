@@ -1,5 +1,9 @@
 
 /*
+  Version 3.0.38
+  
+  -Android OS 8.0 Oreo compatibility fix
+  
   Version 3.0.37
   
   -Bug fixes
