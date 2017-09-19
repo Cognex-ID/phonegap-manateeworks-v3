@@ -41,7 +41,7 @@ float widthP = 10;
 float heightP = 10;
 BOOL scanInView = NO;
 AVCaptureVideoPreviewLayer *scannerPreviewLayer;
-UIInterfaceOrientation currentOrientation;
+UIInterfaceOrientation currentOrientation = nil;
 UIImageView *overlayImage;
 BOOL useAutoRect = true;
 BOOL useFCamera = false;
@@ -57,8 +57,6 @@ NSMutableDictionary *recgtVals;
 
 - (void)startScannerView:(CDVInvokedUrlCommand*)command
 {
-    
-    
     if (![self.viewController.view viewWithTag:9158436]) {
         recgtVals = nil;
         [MWOverlay setPaused:NO];
@@ -72,7 +70,7 @@ NSMutableDictionary *recgtVals;
             //                }
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                currentOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+//                currentOrientation = [[UIApplication sharedApplication]statusBarOrientation];
                 scannerViewController.delegate = self;
                 [MWScannerViewController setUseFrontCamera:useFCamera];
                 scannerViewController.customParams = customParams;
@@ -147,6 +145,7 @@ NSMutableDictionary *recgtVals;
         }
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+            [self didRotate:nil];
             [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
             if ([MWScannerViewController getOverlayMode] == 1) {
                 [MWOverlay removeFromPreviewLayer];
@@ -449,8 +448,8 @@ NSMutableDictionary *recgtVals;
 
 - (void) didRotate:(NSNotification *)notification{
     
-    if ([self.viewController.view viewWithTag:9158436] && currentOrientation != [[UIApplication sharedApplication]statusBarOrientation] &&[[UIDevice currentDevice]orientation]<=4 && (int)[[UIDevice currentDevice]orientation] == (int)[UIApplication sharedApplication].statusBarOrientation
-        ) {
+    if (([self.viewController.view viewWithTag:9158436] && (!currentOrientation || currentOrientation == UIInterfaceOrientationUnknown)) || ([self.viewController.view viewWithTag:9158436] && currentOrientation != [[UIApplication sharedApplication]statusBarOrientation] &&[[UIDevice currentDevice]orientation]<=4 && (int)[[UIDevice currentDevice]orientation] == (int)[UIApplication sharedApplication].statusBarOrientation
+        )) {
         currentOrientation =[[UIApplication sharedApplication]statusBarOrientation];
         
         UIView *scannerView = [self.viewController.view viewWithTag:9158436];
