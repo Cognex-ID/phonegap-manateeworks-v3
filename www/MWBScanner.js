@@ -1,5 +1,9 @@
 
 /*
+  Version 3.0.39
+  
+  -Native libs QR fix
+  
   Version 3.0.38
   
   -Android OS 8.0 Oreo compatibility fix
