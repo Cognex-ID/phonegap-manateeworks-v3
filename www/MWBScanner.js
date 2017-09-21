@@ -1,7 +1,8 @@
 
 /*
   Version 3.0.41
-  -MWBsetInterfaceOrientation can take two arguments for Landscape (OrientationLandscapeLeft and OrientationLandscapeRight)
+  -MWBsetInterfaceOrientation can take two arguments for Landscape (OrientationLandscapeLeft and OrientationLandscapeRight). 
+    ex: // {"method" : 'MWBsetInterfaceOrientation', "value" : [mw_c.OrientationLandscapeLeft,mw_c.OrientationLandscapeRight]} used when both landscape orientation should be available for your app, so your scanner can start in the correct orientation
 
   Version 3.0.39
   

@@ -142,6 +142,9 @@ return mwbScanner.loadSettings(settings).then(function(response){
 		});
 ```
 
+For old OS versions, that use webViews that don't support promises, we need to provide support for the Promise object in order for the plugin to work. For that you can use any 3rd party plugin, one that comes to mind is:
+[Vstirbu's plugin](https://github.com/vstirbu/PromisesPlugin), which is pretty straight forward to include. We won't be including it by default with our plugin, to avoid overhead.
+
 ## Scan an Image
 
 Instead of mwbScanner.startScanning() use:
