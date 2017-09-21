@@ -1,5 +1,8 @@
 
 /*
+  Version 3.0.41
+  -MWBsetInterfaceOrientation can take two arguments for Landscape (OrientationLandscapeLeft and OrientationLandscapeRight)
+
   Version 3.0.39
   
   -Native libs QR fix
@@ -687,8 +690,12 @@ var BarcodeScanner = {
   *
   * Default value is OrientationPortrait
   */
-  MWBsetInterfaceOrientation: function(interfaceOrientation) {
-    cordova.exec(function(){}, function(){}, "MWBarcodeScanner", "setInterfaceOrientation", [interfaceOrientation]);
+  MWBsetInterfaceOrientation: function(interfaceOrientation, interfaceOrientationOptional) {
+    if (typeof interfaceOrientationOptional != "undefined"){
+        cordova.exec(function(){}, function(){}, "MWBarcodeScanner", "setInterfaceOrientation", [interfaceOrientation, interfaceOrientationOptional]);
+    }else{
+        cordova.exec(function(){}, function(){}, "MWBarcodeScanner", "setInterfaceOrientation", [interfaceOrientation]);
+    }
   },
 
   /**

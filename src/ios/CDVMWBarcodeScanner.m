@@ -41,7 +41,7 @@ float widthP = 10;
 float heightP = 10;
 BOOL scanInView = NO;
 AVCaptureVideoPreviewLayer *scannerPreviewLayer;
-UIInterfaceOrientation currentOrientation = nil;
+UIInterfaceOrientation currentOrientation = UIInterfaceOrientationUnknown;
 UIImageView *overlayImage;
 BOOL useAutoRect = true;
 BOOL useFCamera = false;
@@ -254,6 +254,15 @@ NSMutableDictionary *recgtVals;
                     scannerViewController.delegate = self;
                     [MWScannerViewController setUseFrontCamera:useFCamera];
                     scannerViewController.customParams = customParams;
+                    
+                    if (interfaceOrientation == UIInterfaceOrientationMaskLandscape) {
+                        
+                        if ([[UIApplication sharedApplication]statusBarOrientation] == UIInterfaceOrientationLandscapeRight) {
+                            [MWScannerViewController setInterfaceOrientation:UIInterfaceOrientationMaskLandscapeRight];
+                        } else{
+                            [MWScannerViewController setInterfaceOrientation:UIInterfaceOrientationMaskLandscapeLeft];
+                        }
+                    }
                     
                     [self.viewController presentViewController:scannerViewController animated:YES completion:^{
                         scannerViewController.state = CAMERA;
@@ -576,26 +585,34 @@ NSMutableDictionary *recgtVals;
     MWB_setLevel(level);
 }
 
+UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft;
 - (void)setInterfaceOrientation:(CDVInvokedUrlCommand*)command
 {
     NSString *orientation = [command.arguments objectAtIndex:0];
-    UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft;
+    interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft;
     
     if ([orientation isEqualToString:@"Portrait"]){
         interfaceOrientation = UIInterfaceOrientationMaskPortrait;
     }
     if ([orientation isEqualToString:@"LandscapeLeft"]){
-        interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft;
+        if (command.arguments.count > 1 && [[command.arguments objectAtIndex:1]isEqualToString:@"LandscapeRight"]) {
+            interfaceOrientation = UIInterfaceOrientationMaskLandscape;
+        }else{
+            interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft;
+        }
     }
     if ([orientation isEqualToString:@"LandscapeRight"]){
-        interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight;
+        if (command.arguments.count > 1 && [[command.arguments objectAtIndex:1]isEqualToString:@"LandscapeLeft"]) {
+            interfaceOrientation = UIInterfaceOrientationMaskLandscape;
+        }else{
+            interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight;
+        }
     }
     if ([orientation isEqualToString:@"All"]){
         interfaceOrientation = UIInterfaceOrientationMaskAll;
     }
     
     [MWScannerViewController setInterfaceOrientation:interfaceOrientation];
-    
 }
 
 -(void)setBlinkingLineVisible:(CDVInvokedUrlCommand*)command

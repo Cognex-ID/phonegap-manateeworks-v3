@@ -19,9 +19,11 @@ import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -105,18 +107,16 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
     private boolean scanInView = false;
 
-	private boolean calledRegisterSDK = false;
+    private boolean calledRegisterSDK = false;
 
-    public void provideContext()
-    {
-        if(!calledRegisterSDK)
-        {
+    public void provideContext() {
+        if (!calledRegisterSDK) {
             android.util.Log.d("NESTO", "provideContextCalled");
             BarcodeScanner.MWBregisterSDK("", cordova.getActivity().getApplicationContext());
             calledRegisterSDK = true;
         }
     }
-	
+
     @Override
     public void onPause(boolean multitasking) {
         super.onPause(multitasking);
@@ -260,6 +260,8 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
     }
 
+    String orientation;
+
     @Override
     public boolean execute(String action, CordovaArgs args, final CallbackContext callbackContext) throws JSONException {
 
@@ -273,7 +275,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         } else if ("getDeviceID".equals(action)) {
             callbackContext.success(BarcodeScanner.MWBgetDeviceID());
             return true;
-        }else if ("usePartialScanner".equals(action)) {
+        } else if ("usePartialScanner".equals(action)) {
 
             scanInView = args.getBoolean(0);
             return true;
@@ -296,8 +298,15 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 cbc = callbackContext;
                 ScannerActivity.cbc = cbc;
 
-				provideContext();				 
+                provideContext();
                 if (cordova.hasPermission(Manifest.permission.CAMERA)) {
+
+                    if (orientation.equalsIgnoreCase("Landscape")) {
+                        ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                        if (getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+                            ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    }
+
                     context = this.cordova.getActivity().getApplicationContext();
                     Intent intent = new Intent(context, com.manateeworks.ScannerActivity.class);
                     this.cordova.startActivityForResult(this, intent, 1);
@@ -399,22 +408,22 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
             int registrationResult = BarcodeScanner.MWBregisterSDK(license_key, cordova.getActivity().getApplicationContext());
             callbackContext.success(String.valueOf(registrationResult));
-			calledRegisterSDK = true;						 
+            calledRegisterSDK = true;
             return true;
 
         } else if ("setInterfaceOrientation".equals(action)) {
 
-            String orientation = args.getString(0);
+            orientation = args.getString(0);
             if (orientation.equalsIgnoreCase("Portrait")) {
                 ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            } else if (orientation.equalsIgnoreCase("LandscapeLeft"))
-
-            {
+            } else if (orientation.equalsIgnoreCase("LandscapeLeft")) {
                 ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            } else if (orientation.equalsIgnoreCase("LandscapeRight"))
-
-            {
+                if (args.get(1) != null && args.getString(1).equals("LandscapeRight"))
+                    orientation = "Landscape";
+            } else if (orientation.equalsIgnoreCase("LandscapeRight")) {
                 ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                if (args.get(1) != null && args.getString(1).equals("LandscapeLeft"))
+                    orientation = "Landscape";
             } else if (orientation.equalsIgnoreCase("All")) {
                 ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
             }
@@ -1342,8 +1351,9 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
     }
 
     private void stopScanner() {
-		CameraManager cameraManager = CameraManager.get();
-        if (cameraManager != null) cameraManager.requestPreviewFrame(new Handler(), ScannerActivity.MSG_DECODE);	 
+        CameraManager cameraManager = CameraManager.get();
+        if (cameraManager != null)
+            cameraManager.requestPreviewFrame(new Handler(), ScannerActivity.MSG_DECODE);
         if (rlFullScreen != null) {
             cordova.getActivity().runOnUiThread(new Runnable() {
 
@@ -1679,7 +1689,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                         surfaceHolder.addCallback(BarcodeScannerPlugin.this);
                         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-						if (ScannerActivity.param_DefaultFlashOn) {
+                        if (ScannerActivity.param_DefaultFlashOn) {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1687,7 +1697,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                                     updateFlash();
                                 }
                             }, 1000);
-                        } 
+                        }
                     }
                 });
 
@@ -1699,4 +1709,66 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
     }
 
+    private int getScreenOrientation() {
+        int rotation = this.cordova.getActivity().getWindowManager().getDefaultDisplay().getRotation();
+        DisplayMetrics dm = new DisplayMetrics();
+        this.cordova.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int orientation;
+        // if the device's natural orientation is portrait:
+        if ((rotation == Surface.ROTATION_0
+                || rotation == Surface.ROTATION_180) && height > width ||
+                (rotation == Surface.ROTATION_90
+                        || rotation == Surface.ROTATION_270) && width > height) {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                default:
+//                    Log.e(TAG, "Unknown screen orientation. Defaulting to " +
+//                    "portrait.");
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+            }
+        }
+        // if the device's natural orientation is landscape or if the device
+        // is square:
+        else {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                default:
+//                    Log.e(TAG, "Unknown screen orientation. Defaulting to " +
+//                    "landscape.");
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+            }
+        }
+
+        return orientation;
+    }
 }
