@@ -301,7 +301,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 provideContext();
                 if (cordova.hasPermission(Manifest.permission.CAMERA)) {
 
-                    if (orientation.equalsIgnoreCase("Landscape")) {
+                    if (orientation != null && orientation.equalsIgnoreCase("Landscape")) {
                         ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
                         if (getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
                             ScannerActivity.param_Orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
