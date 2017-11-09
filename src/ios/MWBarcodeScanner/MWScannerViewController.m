@@ -273,13 +273,13 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     param_ZoomLevel1 = zoomLevel1;
     param_ZoomLevel2 = zoomLevel2;
     zoomLevel = initialZoomLevel;
+    
     if (zoomLevel > 2){
         zoomLevel = 2;
     }
     if (zoomLevel < 0){
         zoomLevel = 0;
     }
-    
 }
 
 
@@ -298,9 +298,9 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     [self initCapture];
 #endif
     
-    if (param_OverlayMode & OM_MW){
-        [MWOverlay addToPreviewLayer:self.prevLayer];
-    }
+//    if (param_OverlayMode & OM_MW){
+//        [MWOverlay addToPreviewLayer:self.prevLayer];
+//    }
     
     cameraOverlay.hidden = !(param_OverlayMode & OM_IMAGE);
     
@@ -324,7 +324,9 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
+    if (param_OverlayMode & OM_MW){
+        [MWOverlay addToPreviewLayer:self.prevLayer];
+    }
 }
 
 - (void)viewDidLoad {
@@ -1074,7 +1076,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 
 - (IBAction)doClose:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:^{}];
+    if (self.parentViewController != nil && ![self.parentViewController.class isKindOfClass:[self class]]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeScanner" object:nil];
+    }else{
+        [self dismissViewControllerAnimated:YES completion:^{}];
+    }
     [self.delegate scanningFinished:@"" withType:@"Cancel" isGS1:NO andRawResult:[[NSData alloc] init] locationPoints:nil imageWidth:0 imageHeight:0];
 }
 
@@ -1187,6 +1193,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [MWOverlay setPaused:YES];
 }
 
+-(BOOL) scanningInPartialView{
+    return (self.parentViewController != nil && ![self.parentViewController.class isKindOfClass:[self class]]);
+}
 - (void)decodeResultNotification: (NSNotification *)notification {
     
     if ([notification.object isKindOfClass:[DecoderResult class]])
@@ -1199,10 +1208,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             
             if (param_closeOnSuccess) {
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(param_closeDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    [self dismissViewControllerAnimated:YES completion:^{
+                    if ([self scanningInPartialView]) {
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeScanner" object:nil];
                         [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
-
-                    }];
+                    }else
+                        [self dismissViewControllerAnimated:YES completion:^{
+                            [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
+                            
+                        }];
                 });
             }else{
                 [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
@@ -1235,16 +1248,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-    
+    if ([self scanningInPartialView]) {
+        return;
+    }
     if (param_OverlayMode == OM_MW) {
         [MWOverlay addToPreviewLayer:self.prevLayer];
     }
-    
-    
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    
+    if ([self scanningInPartialView]) {
+        return;
+    }
     if (param_OverlayMode == OM_MW) {
         [MWOverlay removeFromPreviewLayer];
     }

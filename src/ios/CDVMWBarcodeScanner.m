@@ -22,6 +22,7 @@
 NSString *callbackId;
 NSMutableDictionary *customParams = nil;
 MWScannerViewController *scannerViewController;
+NSMutableDictionary *scanningRectValues;
 BOOL hasCameraPermission = NO;
 
 - (void)initDecoder:(CDVInvokedUrlCommand*)command
@@ -46,7 +47,7 @@ UIImageView *overlayImage;
 BOOL useAutoRect = true;
 BOOL useFCamera = false;
 
-NSMutableDictionary *recgtVals;
+//NSMutableDictionary *recgtVals;
 
 - (void)registerCode:(CDVInvokedUrlCommand *)command
 {
@@ -57,50 +58,48 @@ NSMutableDictionary *recgtVals;
 
 - (void)startScannerView:(CDVInvokedUrlCommand*)command
 {
-    if (![self.viewController.view viewWithTag:9158436]) {
-        recgtVals = nil;
-        [MWOverlay setPaused:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
         
-        dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+        if (![self.viewController.view viewWithTag:9158436]) {
+//            recgtVals = nil;
+            [MWOverlay setPaused:NO];
+            
             UIView *view = [[UIView alloc] init];
             [view setTag:9158436];
-            
-            //                if (!scannerViewController) {
-            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil] ;
-            //                }
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-//                currentOrientation = [[UIApplication sharedApplication]statusBarOrientation];
-                scannerViewController.delegate = self;
-                [MWScannerViewController setUseFrontCamera:useFCamera];
-                scannerViewController.customParams = customParams;
-                [[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(decodeNotification:) name: @"DecoderResultNotification" object: nil];
-                [[NSNotificationCenter defaultCenter] addObserver:self
-                                                         selector:@selector(didRotate:)
-                                                             name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+            [view setClipsToBounds:YES];
+            dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
+                scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil] ;
                 
-                [self.viewController.view addSubview:view];
-                
-                
-                [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
-                
-                [scannerViewController startScanning];
-//                scannerViewController.state = LAUNCHING_CAMERA;
-//                [scannerViewController.captureSession startRunning];
-//                scannerViewController.state = CAMERA;
-                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    scannerViewController.delegate = self;
+                    [[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(closeScanner:) name: @"closeScanner" object: nil];
+                    [[NSNotificationCenter defaultCenter] addObserver:self
+                                                             selector:@selector(didRotate:)
+                                                                 name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+                    
+                    [self.viewController.view addSubview:view];
+                    
+                    [self.viewController addChildViewController:scannerViewController];
+                    scannerViewController.view.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+                    [view addSubview:scannerViewController.view];
+                    [scannerViewController didMoveToParentViewController:self.viewController];
+                    
+                    
+                    [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
+                    
+                    [scannerViewController startScanning];
+                    
 #if !__has_feature(objc_arc)
-                callbackId= [command.callbackId retain];
+                    callbackId= [command.callbackId retain];
 #else
-                callbackId= command.callbackId;
+                    callbackId= command.callbackId;
 #endif
+                });
             });
-        });
-    }else{
-        //        [CDVMWBarcodeScanner setAutoRect:scannerPreviewLayer];
-        [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
-    }
-    
+        }else{
+            [self resizePartialScanner:(command.arguments.count > 3)?command:nil];
+        }
+    });
 }
 
 - (void)getDeviceID:(CDVInvokedUrlCommand*)command
@@ -128,6 +127,7 @@ NSMutableDictionary *recgtVals;
         UIView *view = [self.viewController.view viewWithTag:9158436];
         [view setFrame:CGRectMake(x,y,width,height)];
         
+        scannerPreviewLayer = scannerViewController.prevLayer;
         @autoreleasepool {
             if (!scannerPreviewLayer) {
                 scannerPreviewLayer = [scannerViewController generateLayerWithRect:CGPointMake(width, height)];
@@ -165,33 +165,11 @@ NSMutableDictionary *recgtVals;
             }
         });
         
-        
-        if ([MWScannerViewController isFlashEnabled] && [scannerViewController.device isTorchModeSupported:AVCaptureTorchModeOn]) {
-            if (!scannerViewController.flashButton) {
-                scannerViewController.flashButton = [[UIButton alloc]init];
-                [scannerViewController.flashButton setImage:[UIImage imageNamed:@"flashbuttonoff.png"] forState:UIControlStateNormal];
-                [scannerViewController.flashButton setImage:[UIImage imageNamed:@"flashbuttonon.png"] forState:UIControlStateSelected];
-                [scannerViewController.flashButton setBackgroundImage:nil forState:UIControlStateSelected];
-                [scannerViewController.flashButton setBackgroundImage:nil forState:UIControlStateNormal];
-                [scannerViewController.flashButton addTarget:scannerViewController action:@selector(doFlashToggle:) forControlEvents:UIControlEventTouchUpInside];
-                [scannerViewController.flashButton setSelected:NO];
-                [scannerViewController.flashButton setHidden:NO];
-                [view addSubview:scannerViewController.flashButton];
-            }
-            
-            [scannerViewController.flashButton setFrame:CGRectMake(view.frame.size.width-10-35, 10, 35, 35)];
+        if (![scannerViewController.zoomButton actionsForTarget:scannerViewController forControlEvent:UIControlEventTouchUpInside] || [scannerViewController.zoomButton actionsForTarget:scannerViewController forControlEvent:UIControlEventTouchUpInside].count == 0) {
+            [scannerViewController.zoomButton addTarget:scannerViewController action:@selector(doZoomToggle:) forControlEvents:UIControlEventTouchUpInside];
         }
-        
-        if ([MWScannerViewController isZoomEnabled]) {
-            if (!scannerViewController.zoomButton) {
-                scannerViewController.zoomButton = [[UIButton alloc]init];
-                [scannerViewController.zoomButton setImage:[UIImage imageNamed:@"zoom.png"] forState:UIControlStateNormal];
-                [scannerViewController.zoomButton setHidden:NO];
-                [scannerViewController.zoomButton setBackgroundImage:nil forState:UIControlStateNormal];
-                [scannerViewController.zoomButton addTarget:scannerViewController action:@selector(doZoomToggle:) forControlEvents:UIControlEventTouchUpInside];
-                [view addSubview:scannerViewController.zoomButton];
-            }
-            [scannerViewController.zoomButton setFrame:CGRectMake(10, 10, 35, 35)];
+        if (![scannerViewController.flashButton actionsForTarget:scannerViewController forControlEvent:UIControlEventTouchUpInside] || [scannerViewController.flashButton actionsForTarget:scannerViewController forControlEvent:UIControlEventTouchUpInside].count == 0) {
+            [scannerViewController.flashButton addTarget:scannerViewController action:@selector(doFlashToggle:) forControlEvents:UIControlEventTouchUpInside];
         }
     }
 }
@@ -265,6 +243,7 @@ NSMutableDictionary *recgtVals;
                     }
                     
                     [self.viewController presentViewController:scannerViewController animated:YES completion:^{
+                        [CDVMWBarcodeScanner setAutoRect:scannerViewController.prevLayer];
                         scannerViewController.state = CAMERA;
                     }];
 #if !__has_feature(objc_arc)
@@ -292,6 +271,8 @@ NSMutableDictionary *recgtVals;
     
     if ([self.viewController.view viewWithTag:9158436]) {
         [scannerViewController stopScanning];
+        [scannerViewController willMoveToParentViewController:nil];
+        [scannerViewController.view removeFromSuperview];
         [scannerViewController removeFromParentViewController];
         [[self.viewController.view viewWithTag:9158436]removeFromSuperview];
         
@@ -299,7 +280,8 @@ NSMutableDictionary *recgtVals;
             [scannerPreviewLayer removeFromSuperlayer];
             scannerPreviewLayer = nil;
         }
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"closeScanner" object:nil];
+//        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
         
         [scannerViewController unload];
@@ -315,7 +297,6 @@ NSMutableDictionary *recgtVals;
 - (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat isGS1: (bool) isGS1 andRawResult: (NSData *) rawResult locationPoints:(MWLocation *)locationPoints imageWidth:(int)imageWidth imageHeight:(int)imageHeight
 {
     dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
-        
         
         CDVPluginResult* pluginResult = nil;
         
@@ -356,24 +337,6 @@ NSMutableDictionary *recgtVals;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
         
     });
-    
-}
-- (void)decodeNotification: (NSNotification *)notification {
-    
-    if ([notification.object isKindOfClass:[DecoderResult class]])
-    {
-        
-        DecoderResult *obj = (DecoderResult*)notification.object;
-        if (obj.succeeded)
-        {
-            if ([MWScannerViewController getCloseScannerOnDecode]) {
-                [self performSelector:@selector(stopScanner:) withObject:nil afterDelay:[MWScannerViewController getCloseDelay]];
-//                [self stopScanner:nil];
-            }
-            
-            [self scanningFinished:obj.result.text withType: obj.result.typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
-        }
-    }
 }
 
 + (void) setAutoRect:(AVCaptureVideoPreviewLayer *)layer{
@@ -424,22 +387,22 @@ NSMutableDictionary *recgtVals;
         
     }else{
         
-        if (!recgtVals) {
-            recgtVals = [[NSMutableDictionary alloc]init];
+        if (!scanningRectValues) {
+            scanningRectValues = [[NSMutableDictionary alloc]init];
             
             for (int i =0; i<16; i++) {
                 
                 float left,top,width,height;
                 MWB_getScanningRect(masks[i], &left, &top, &width, &height);
-                [recgtVals setObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:left],[NSNumber numberWithInt:top],[NSNumber numberWithInt:width],[NSNumber numberWithInt:height], nil] forKey:[NSNumber numberWithInt:masks[i]]];
-                
+                [scanningRectValues setObject:@[@(left),@(top),@(width),@(height)] forKey:@(masks[i])];
             }
             
         }else{
             
             for (int i = 0 ; i<16; i++) {
                 
-                NSArray *rectVals = [[NSArray alloc] initWithArray:[recgtVals objectForKey:[NSNumber numberWithInt:masks[i]]]];
+//                NSArray *rectVals = [[NSArray alloc] initWithArray:[recgtVals objectForKey:[NSNumber numberWithInt:masks[i]]]];
+                NSArray *rectVals = (NSArray*) scanningRectValues[@(masks[i])];
                 MWB_setScanningRect(masks[i],[[rectVals objectAtIndex:0]intValue], [[rectVals objectAtIndex:1]intValue], [[rectVals objectAtIndex:2]intValue], [[rectVals objectAtIndex:3]intValue]);
             }
             
@@ -453,7 +416,6 @@ NSMutableDictionary *recgtVals;
         }
     }
 }
-
 
 - (void) didRotate:(NSNotification *)notification{
     
@@ -492,12 +454,9 @@ NSMutableDictionary *recgtVals;
         if ([MWScannerViewController isFlashEnabled] && scannerViewController.flashButton) {
             scannerViewController.flashButton.frame = CGRectMake(scannerView.frame.size.width-10-35, 10, 35, 35);
         }
-        
-        
     }
     
 }
-
 
 - (void)registerSDK:(CDVInvokedUrlCommand*)command
 {
@@ -570,11 +529,16 @@ NSMutableDictionary *recgtVals;
 
 - (void)setScanningRect:(CDVInvokedUrlCommand*)command
 {
+    if (!scanningRectValues)
+        scanningRectValues = [NSMutableDictionary new];
+
     int codeMask = [[command.arguments objectAtIndex:0] intValue];
     int left = [[command.arguments objectAtIndex:1] intValue];
     int top = [[command.arguments objectAtIndex:2] intValue];
     int width = [[command.arguments objectAtIndex:3] intValue];
     int height = [[command.arguments objectAtIndex:4] intValue];
+    
+    [scanningRectValues setObject:@[@(left),@(top),@(width),@(height)] forKey:@(codeMask)];
     
     MWB_setScanningRect(codeMask, left, top, width, height);
 }
@@ -742,9 +706,14 @@ UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLand
     if ([self.viewController.view viewWithTag:9158436]) {
         dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
             [scannerViewController stopScanning];
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"closeScanner" object:nil];
+//            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DecoderResultNotification" object:nil];
             [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
             dispatch_async(dispatch_get_main_queue(), ^{
+                [scannerViewController willMoveToParentViewController:nil];
+                [scannerViewController.view removeFromSuperview];
+                [scannerViewController removeFromParentViewController];
+                
                 [[self.viewController.view viewWithTag:9158436] removeFromSuperview];
                 if (scannerPreviewLayer && scannerPreviewLayer.superlayer) {
                     [scannerPreviewLayer removeFromSuperlayer];
@@ -893,10 +862,6 @@ UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLand
     CGColorSpaceRelease( colorSpace);
     
     return imageData;
-    
 }
-
-
-
 
 @end

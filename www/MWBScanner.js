@@ -1,5 +1,10 @@
 
 /*
+  Version 3.0.44
+  - iOS Fixed scanning rects losing their values
+  - iOS Fixed partial view to use XIB layout
+  - iOS Fixed partial view initial zoom
+
   Version 3.0.43
   -Android fixed null pointer when not setting orientation in MWBConfig.js
 
