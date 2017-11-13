@@ -1,5 +1,10 @@
 
 /*
+  Version 3.0.45
+  - Added Code 32 support
+  - Added UPCE don't expand flag
+	 - Decoder updated to 3.2.3
+  
   Version 3.0.44
   - iOS Fixed scanning rects losing their values
   - iOS Fixed partial view to use XIB layout
@@ -261,6 +266,16 @@
         */
         MWB_CFG_CODE39_EXTENDED_MODE :      0x8,
         /**/
+		
+		/** @brief  Code39 decoder flags value: Try decoding result to CODE32. if failed, Code39 will return
+		*/
+		MWB_CFG_CODE39_CODE32_ENABLED :      0x10,
+		/**/
+
+		/** @brief  Code39 decoder flags value: ADD 'A' prefix to Code32 result
+		*/
+		MWB_CFG_CODE39_CODE32_PREFIX :      0x20,
+		/**/
 
         /** @brief  Code93 decoder flags value: decode full ASCII
         */
@@ -322,6 +337,7 @@
         /** @brief  UPC/EAN decoder disable addons detection
         */
         MWB_CFG_EANUPC_DISABLE_ADDON :  0x1,
+		MWB_CFG_EANUPC_DONT_EXPAND_UPCE :   0x2,
         /**/
 
         /** @brief  Global decoder flags value: apply sharpening on input image
@@ -509,6 +525,7 @@
         FOUND_IMB           :   32,
         FOUND_ROYALMAIL     :   33,
         FOUND_MICRO_PDF     :   34,
+        FOUND_32	        :   35,
 
 
 

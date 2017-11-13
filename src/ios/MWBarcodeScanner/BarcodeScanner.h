@@ -1,7 +1,7 @@
 /**
  * @file    BarcodeScanner.h
  * @brief   Barcode Decoders Library
- * @n       (C) Manatee Works, 2011-2012.
+ * @n       (C) Cognex Corporation, 2017.
  *
  *          Main user public header.
  */
@@ -53,6 +53,9 @@ typedef unsigned char uint8_t;
 #define MWB_RTREG_INVALID_KEY_VERSION -5
 #define MWB_RTREG_INVALID_PLATFORM    -6
 #define MWB_RTREG_KEY_EXPIRED         -7
+#define MWB_RTREG_AIMER_REQUIRED      -8
+#define MWB_RTREG_AIMER_NOT_DETECTED  -9
+    
 /** @} */
 
 /**
@@ -105,6 +108,17 @@ typedef unsigned char uint8_t;
 #define  MWB_CFG_CODE39_EXTENDED_MODE       0x8
 /**/
     
+/** @brief  Code39 decoder flags value: Try decoding result to CODE32. if failed, Code39 will return
+ */
+#define  MWB_CFG_CODE39_CODE32_ENABLED       0x10
+/**/
+    
+/** @brief  Code39 decoder flags value: ADD 'A' prefix to Code32 result
+  */
+#define  MWB_CFG_CODE39_CODE32_PREFIX       0x20
+/**/
+
+    
 /** @brief  Code93 decoder flags value: decode full ASCII
  */
 #define  MWB_CFG_CODE93_EXTENDED_MODE       0x8
@@ -114,7 +128,10 @@ typedef unsigned char uint8_t;
  */
 #define  MWB_CFG_EANUPC_DISABLE_ADDON       0x1
 /**/
-    
+/** @brief  UPC/EAN disable UPC-E expanding to UPC-A
+ */
+#define  MWB_CFG_EANUPC_DONT_EXPAND_UPCE    0x2
+/**/
     
 /** @brief  Code25 decoder flags value: require checksum check
  */
@@ -303,6 +320,7 @@ enum res_types {
     FOUND_IMB,
     FOUND_ROYALMAIL,
     FOUND_MICRO_PDF,
+    FOUND_32
     
 };
 /** @} */

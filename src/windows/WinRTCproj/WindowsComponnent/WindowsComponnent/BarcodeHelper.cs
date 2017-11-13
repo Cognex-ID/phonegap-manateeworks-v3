@@ -483,6 +483,7 @@ namespace WindowsComponnent
             if (bcType == Scanner.FOUND_PLANET) typeName = "Planet";
             if (bcType == Scanner.FOUND_IMB) typeName = "Intelligent mail";
             if (bcType == Scanner.FOUND_ROYALMAIL) typeName = "Royal mail";
+            if (bcType == Scanner.FOUND_32) typeName = "Code 32";
 
             if (Scanner.MWBisLastGS1() == 1)
             {

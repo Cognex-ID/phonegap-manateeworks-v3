@@ -750,6 +750,8 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                                 break;
                             case BarcodeScanner.FOUND_ROYALMAIL:
                                 typeName = "Royal Mail";
+							case BarcodeScanner.FOUND_32:
+                                typeName = "Code 32";
 
                         }
 
