@@ -13,7 +13,6 @@
 
 @interface CDVMWBarcodeScanner : CDVPlugin <ScanningFinishedDelegate>
 
-- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat isGS1: (bool) isGS1 andRawResult: (NSData *) rawResult locationPoints:(MWLocation *)locationPoints imageWidth:(int)imageWidth imageHeight:(int)imageHeight;
 - (void)initDecoder:(CDVInvokedUrlCommand*)command;
 - (void)usePartialScanner:(CDVInvokedUrlCommand*) command;
 - (void)resizePartialScanner:(CDVInvokedUrlCommand*)command;

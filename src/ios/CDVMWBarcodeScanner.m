@@ -212,7 +212,7 @@ BOOL useFCamera = false;
 -(void)noPermissionErrorCallback {
     [self closeScanner:nil];
     
-    [self scanningFinished:@"No Camera Permission" withType:@"Error" isGS1:NO andRawResult:[[NSData alloc] init] locationPoints:nil imageWidth:0 imageHeight:0];
+    [self scanningFinished:@"No Camera Permission" withType:@"Error" mwResult:nil];
 //    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User declined Camera Permission"] callbackId:callbackId];
 }
 
@@ -294,11 +294,17 @@ BOOL useFCamera = false;
     MWB_setDuplicatesTimeout([[command.arguments objectAtIndex:0] intValue]);
 }
 
-- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat isGS1: (bool) isGS1 andRawResult: (NSData *) rawResult locationPoints:(MWLocation *)locationPoints imageWidth:(int)imageWidth imageHeight:(int)imageHeight
+- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat mwResult:(MWResult *)mwResult
 {
     dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
         
         CDVPluginResult* pluginResult = nil;
+        
+        BOOL isGS1 = mwResult?mwResult.isGS1:NO;
+        NSData*rawResult = mwResult?[[NSData alloc] initWithBytes: mwResult.bytes length: mwResult.bytesLength]:[[NSData alloc] init];
+        MWLocation*locationPoints = mwResult?mwResult.locationPoints:nil;
+        int imageWidth = mwResult?mwResult.imageWidth:0;
+        int imageHeight = mwResult?mwResult.imageHeight:0;
         
         NSMutableArray *bytesArray = [[NSMutableArray alloc] init];
         unsigned char *bytes = (unsigned char *) [rawResult bytes];
@@ -327,7 +333,27 @@ BOOL useFCamera = false;
             resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], [NSNumber numberWithBool:NO], [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
                                                               forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
         }
+        
+        if (mwResult) {
+            resultDict[@"barcodeWidth"] = @(mwResult.barcodeWidth);
+            resultDict[@"barcodeHeight"] = @(mwResult.barcodeHeight);
+            
+            resultDict[@"pdfRowsCount"] = @(mwResult.pdfRowsCount);
+            resultDict[@"pdfColumnsCount"] = @(mwResult.pdfColumnsCount);
+            resultDict[@"pdfECLevel"] = @(mwResult.pdfECLevel);
+            resultDict[@"pdfIsTruncated"] = @(mwResult.pdfIsTruncated);
+            
+            if (mwResult.pdfCodewords) {
+                NSMutableArray *pdfCodewords = [NSMutableArray new];
+                for (int i = 0; i < mwResult.pdfCodewords[0]; i++) {
+                    [pdfCodewords addObject:@(mwResult.pdfCodewords[i])];
+                }
                 
+                resultDict[@"pdfCodewords"] = pdfCodewords;
+            }else
+                resultDict[@"pdfCodewords"] = @[];
+        }
+        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
         
         if(![MWScannerViewController getCloseScannerOnDecode]){
@@ -810,10 +836,10 @@ UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLand
             }
             if (mwResult)
             {
-                [self scanningFinished:mwResult.text withType: mwResult.typeName isGS1:mwResult.isGS1  andRawResult: [[NSData alloc] initWithBytes: mwResult.bytes length: mwResult.bytesLength] locationPoints:mwResult.locationPoints imageWidth:mwResult.imageWidth imageHeight:mwResult.imageHeight];
+                [self scanningFinished:mwResult.text withType: mwResult.typeName mwResult:mwResult];
                 
             }else{
-                [self scanningFinished:@"" withType: @"NoResult" isGS1:NO  andRawResult: nil locationPoints:nil imageWidth:0 imageHeight:0];
+                [self scanningFinished:@"" withType: @"NoResult" mwResult:mwResult];
             }
         }
         

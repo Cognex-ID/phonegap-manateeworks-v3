@@ -257,6 +257,7 @@ typedef unsigned char uint8_t;
 #define MWB_SUBC_MASK_POSTAL_PLANET     0x00000002u
 #define MWB_SUBC_MASK_POSTAL_IM         0x00000004u
 #define MWB_SUBC_MASK_POSTAL_ROYAL      0x00000008u
+#define MWB_SUBC_MASK_POSTAL_AUSTRALIAN 0x00000010u
 
 /** @} */
     
@@ -320,7 +321,8 @@ enum res_types {
     FOUND_IMB,
     FOUND_ROYALMAIL,
     FOUND_MICRO_PDF,
-    FOUND_32
+    FOUND_32,
+    FOUND_AUSTRALIAN,
     
 };
 /** @} */
@@ -363,6 +365,18 @@ enum res_types {
 #define MWB_RESULT_FT_SKEW                  0x0000000Fu
 #define MWB_RESULT_FT_KANJI                 0x00000010u
     
+#define MWB_RESULT_FT_BARCODE_WIDTH         0x00000011u
+#define MWB_RESULT_FT_BARCODE_HEIGHT        0x00000012u
+    
+#define MWB_RESULT_FT_PDF_ROWS              0x00000020u
+#define MWB_RESULT_FT_PDF_COLUMNS           0x00000021u
+#define MWB_RESULT_FT_PDF_TRUNCATED         0x00000022u
+#define MWB_RESULT_FT_PDF_ECLEVEL           0x00000023u
+#define MWB_RESULT_FT_PDF_CODEWORDS         0x00000024u
+    
+    
+    
+
     
 
     /** @} */
@@ -387,6 +401,16 @@ enum res_types {
 #define MWB_RESULT_FNAME_MODULE_SIZE_X      "Module Size X"
 #define MWB_RESULT_FNAME_MODULE_SIZE_Y      "Module Size Y"
 #define MWB_RESULT_FNAME_SKEW               "Skew"
+#define MWB_RESULT_FNAME_KANJI              "Kanji"
+    
+#define MWB_RESULT_FNAME_BARCODE_WIDTH      "Barcode Width"
+#define MWB_RESULT_FNAME_BARCODE_HEIGHT     "Barcode Height"
+    
+#define MWB_RESULT_FNAME_PDF_ROWS           "PDF417 Rows Count"
+#define MWB_RESULT_FNAME_PDF_COLUMNS        "PDF417 Columns Count"
+#define MWB_RESULT_FNAME_PDF_TRUNCATED      "PDF417 is Truncated"
+#define MWB_RESULT_FNAME_PDF_ECLEVEL        "PDF417 EC Level"
+#define MWB_RESULT_FNAME_PDF_CODEWORDS      "PDF417 Codewords"
 
     
     /** @} */

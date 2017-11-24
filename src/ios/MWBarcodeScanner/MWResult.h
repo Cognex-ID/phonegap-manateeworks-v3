@@ -47,6 +47,19 @@
 @property (readwrite) float moduleSizeY;
 @property (readwrite) float skew;
 
+@property (readwrite) float barcodeWidth;
+@property (readwrite) float barcodeHeight;
+
+@property (readwrite) int pdfRowsCount;
+@property (readwrite) int pdfColumnsCount;
+@property (readwrite) int pdfECLevel;
+@property (readwrite) bool pdfIsTruncated;
+@property (readwrite) uint32_t *pdfCodewords;
+
+
+
+
+
 
 
 @end

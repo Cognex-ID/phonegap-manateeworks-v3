@@ -1081,7 +1081,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }else{
         [self dismissViewControllerAnimated:YES completion:^{}];
     }
-    [self.delegate scanningFinished:@"" withType:@"Cancel" isGS1:NO andRawResult:[[NSData alloc] init] locationPoints:nil imageWidth:0 imageHeight:0];
+    [self.delegate scanningFinished:@"" withType:@"Cancel" mwResult:nil];
 }
 
 - (IBAction)doFlashToggle:(id)sender {
@@ -1210,15 +1210,15 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(param_closeDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                     if ([self scanningInPartialView]) {
                         [[NSNotificationCenter defaultCenter] postNotificationName:@"closeScanner" object:nil];
-                        [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
+                        [self.delegate scanningFinished:obj.result.text withType: typeName mwResult:obj.result];
                     }else
                         [self dismissViewControllerAnimated:YES completion:^{
-                            [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
+                            [self.delegate scanningFinished:obj.result.text withType: typeName mwResult:obj.result];
                             
                         }];
                 });
             }else{
-                [self.delegate scanningFinished:obj.result.text withType: typeName isGS1:obj.result.isGS1  andRawResult: [[NSData alloc] initWithBytes: obj.result.bytes length: obj.result.bytesLength] locationPoints:obj.result.locationPoints imageWidth:obj.result.imageWidth imageHeight:obj.result.imageHeight];
+                [self.delegate scanningFinished:obj.result.text withType: typeName mwResult:obj.result];
             }
             
             
