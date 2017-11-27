@@ -1,5 +1,17 @@
 
 /*
+  Version 3.0.46
+  - Added australian postal subcode
+  - Added new result field types for barcode size and PDF properties
+		-result.barcodeWidth;
+		-result.barcodeHeight;
+		-result.pdfRowsCount;
+		-result.pdfColumnsCount;
+		-result.pdfECLevel;
+		-result.pdfIsTruncated;
+		-result.pdfCodewords; //int[] - first element at [0] is array length (with [0] included)
+	 - Decoder updated to 3.3.0
+	 
   Version 3.0.45
   - Added Code 32 support
   - Added UPCE don't expand flag
@@ -467,6 +479,7 @@
         MWB_SUBC_MASK_POSTAL_PLANET  :   0x00000002,
         MWB_SUBC_MASK_POSTAL_IM      :   0x00000004,
         MWB_SUBC_MASK_POSTAL_ROYAL   :   0x00000008,
+        MWB_SUBC_MASK_POSTAL_AUSTRALIAN :0x00000008,
 
         /** @} */
 
@@ -487,7 +500,7 @@
         MWB_SCANDIRECTION_HORIZONTAL :   0x00000001,
         MWB_SCANDIRECTION_VERTICAL :     0x00000002,
         MWB_SCANDIRECTION_OMNI :         0x00000004,
-        MWB_SCANDIRECTION_AUTODETECT :   0x00000008,
+        MWB_SCANDIRECTION_AUTODETECT :   0x00000010,
         /** @} */
 
         FOUND_NONE          :   0,
@@ -526,6 +539,7 @@
         FOUND_ROYALMAIL     :   33,
         FOUND_MICRO_PDF     :   34,
         FOUND_32	        :   35,
+        FOUND_AUSTRALIAN    :   36,
 
 
 

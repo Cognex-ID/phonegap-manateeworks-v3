@@ -786,6 +786,42 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                             }
 
                             jsonResult.put("bytes", rawArray);
+							
+							//NEW! result fields in jsonResult:
+							//result.barcodeWidth;
+							//result.barcodeHeight;
+							//result.pdfRowsCount;
+							//result.pdfColumnsCount;
+							//result.pdfECLevel;
+							//result.pdfIsTruncated;
+							//result.pdfCodewords; //int[]
+							
+							jsonResult.put("barcodeWidth", mwResult.barcodeWidth);
+							jsonResult.put("barcodeHeight", mwResult.barcodeHeight);
+							jsonResult.put("pdfRowsCount", mwResult.pdfRowsCount);
+							jsonResult.put("pdfColumnsCount", mwResult.pdfColumnsCount);
+							jsonResult.put("pdfECLevel", mwResult.pdfECLevel);
+							jsonResult.put("pdfIsTruncated", mwResult.pdfIsTruncated);
+							
+							int[] result_pdfCodewords = null;
+
+							if (mwResult != null && mwResult.pdfCodewords != null) {
+								result_pdfCodewords = mwResult.pdfCodewords; //int[]
+							}
+							
+							if (result_pdfCodewords != null) {				
+								int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
+								
+								JSONArray pdfArray = new JSONArray();
+								for (int p = 0; p < pdfCodewords_count; p++)
+								{
+									pdfArray.put(result_pdfCodewords[p]);
+								}
+								
+								jsonResult.put("pdfCodewords", pdfArray);
+							} else {
+								jsonResult.put("pdfCodewords", false);
+							}
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1027,6 +1063,8 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                     }
 
                     jsonResult.put("bytes", rawArray);
+					
+					//no NEW! result fields for GS1
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1053,6 +1091,8 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
     }
 
     public static void initDecoder() {
+
+        int res = BarcodeScanner.MWBgetLibVersion();
 
         BarcodeScanner.MWBsetActiveCodes(
                 BarcodeScanner.MWB_CODE_MASK_25 | BarcodeScanner.MWB_CODE_MASK_39 | BarcodeScanner.MWB_CODE_MASK_93 | BarcodeScanner.MWB_CODE_MASK_128
@@ -1326,6 +1366,42 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
             }
 
             jsonResult.put("bytes", rawArray);
+			
+			//NEW! result fields in jsonResult:
+			//result.barcodeWidth;
+			//result.barcodeHeight;
+			//result.pdfRowsCount;
+			//result.pdfColumnsCount;
+			//result.pdfECLevel;
+			//result.pdfIsTruncated;
+			//result.pdfCodewords; //int[]
+			
+			jsonResult.put("barcodeWidth", result.barcodeWidth);
+			jsonResult.put("barcodeHeight", result.barcodeHeight);
+			jsonResult.put("pdfRowsCount", result.pdfRowsCount);
+			jsonResult.put("pdfColumnsCount", result.pdfColumnsCount);
+			jsonResult.put("pdfECLevel", result.pdfECLevel);
+			jsonResult.put("pdfIsTruncated", result.pdfIsTruncated);
+			
+			int[] result_pdfCodewords = null;
+
+			if (result != null && result.pdfCodewords != null) {
+				result_pdfCodewords = result.pdfCodewords; //int[]
+			}
+			
+			if (result_pdfCodewords != null) {				
+				int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
+				
+				JSONArray pdfArray = new JSONArray();
+				for (int p = 0; p < pdfCodewords_count; p++)
+				{
+					pdfArray.put(result_pdfCodewords[p]);
+				}
+				
+                jsonResult.put("pdfCodewords", pdfArray);
+            } else {
+                jsonResult.put("pdfCodewords", false);
+            }
 
         } catch (JSONException e) {
             // TODO Auto-generated catch block
