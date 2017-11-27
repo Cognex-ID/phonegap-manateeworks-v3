@@ -401,7 +401,6 @@ enum res_types {
 #define MWB_RESULT_FNAME_MODULE_SIZE_X      "Module Size X"
 #define MWB_RESULT_FNAME_MODULE_SIZE_Y      "Module Size Y"
 #define MWB_RESULT_FNAME_SKEW               "Skew"
-#define MWB_RESULT_FNAME_KANJI              "Kanji"
     
 #define MWB_RESULT_FNAME_BARCODE_WIDTH      "Barcode Width"
 #define MWB_RESULT_FNAME_BARCODE_HEIGHT     "Barcode Height"
