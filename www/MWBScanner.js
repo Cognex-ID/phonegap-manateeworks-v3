@@ -1,5 +1,8 @@
 
 /*
+Version 3.0.47
+  - iOS Flash button will not have a fixed frame, instead it will use the MWScannerViewController.xib file
+
   Version 3.0.46
   - Added australian postal subcode
 	 - Decoder updated to 3.3.0
