@@ -477,9 +477,6 @@ BOOL useFCamera = false;
         }else if([MWScannerViewController getOverlayMode] == 2){
             [overlayImage setFrame:scannerPreviewLayer.frame];
         }
-        if ([MWScannerViewController isFlashEnabled] && scannerViewController.flashButton) {
-            scannerViewController.flashButton.frame = CGRectMake(scannerView.frame.size.width-10-35, 10, 35, 35);
-        }
     }
     
 }
