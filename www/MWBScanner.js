@@ -1,5 +1,8 @@
 
 /*
+Version 3.0.48
+  - Android and iOS libs updated to v3.3.1
+
 Version 3.0.47
   - iOS Flash button will not have a fixed frame, instead it will use the MWScannerViewController.xib file
 
