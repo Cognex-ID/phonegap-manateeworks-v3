@@ -1,5 +1,8 @@
 
 /*
+Version 3.0.49
+  - iOS restored missing params in MWResult.h that were removed in 3.0.48
+
 Version 3.0.48
   - Android and iOS libs updated to v3.3.1
 
