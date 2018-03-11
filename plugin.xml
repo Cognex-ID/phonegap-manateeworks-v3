@@ -41,25 +41,36 @@ version="3.0.49">
 
  </config-file>
  
- 
-<source-file src="src/android/libs/mwbscanner.jar" target-dir="libs" framework="true" />
+ <!-- I changed from a source-file to lib-file. Seems to work on cordova-android 6 & 7. -->
+ <lib-file src="src/android/libs/mwbscanner.jar" />
+ <!-- For cordova-android 7 it seems I to have to put the jar file in libs for compile time and jniLibs for runtime -->
+ <!-- (hopefully this is ignored by cordova-android 6) -->
+ <resource-file src="src/android/libs/mwbscanner.jar" target="jniLibs/mwbscanner.jar" />
 
  <source-file src="src/android/src/com/manateeworks/BarcodeScannerPlugin.java" target-dir="src/com/manateeworks" />
  <source-file src="src/android/src/com/manateeworks/ScannerActivity.java" target-dir="src/com/manateeworks" />
  
- <source-file src="src/android/res/layout/scanner.xml" target-dir="res/layout" />
- <source-file src="src/android/res/drawable/overlay_mw.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable-hdpi/overlay_mw.png" target-dir="res/drawable-hdpi" />
- <source-file src="src/android/res/drawable/flashbuttonoff.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable/flashbuttonon.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable/zoom.png" target-dir="res/drawable" />
+ <!-- changed source-file to resource-file and used target instead of target-dir (works better with cordova-android 7) -->
+ <resource-file src="src/android/res/layout/scanner.xml" target="res/layout/scanner.xml" />
+ <resource-file src="src/android/res/drawable/overlay_mw.png" target="res/drawable/overlay_mw.png" />
+ <resource-file src="src/android/res/drawable-hdpi/overlay_mw.png" target="res/drawable-hdpi/overlay_mw.png" />
+ <resource-file src="src/android/res/drawable/flashbuttonoff.png" target="res/drawable/flashbuttonoff.png" />
+ <resource-file src="src/android/res/drawable/flashbuttonon.png" target="res/drawable/flashbuttonon.png" />
+ <resource-file src="src/android/res/drawable/zoom.png" target="res/drawable/zoom.png" />
  
- <source-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target-dir="libs/armeabi" />
- <source-file src="src/android/libs/x86/libBarcodeScannerLib.so" target-dir="libs/x86" />
- <source-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target-dir="libs/armeabi-v7a" />
- <source-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target-dir="libs/arm64-v8a" />
-  <source-file src="src/android/libs/mips/libBarcodeScannerLib.so" target-dir="libs/mips" />
+ <!-- changed source-file to resource-file and used target instead of target-dir (works better with cordova-android 7) -->
+ <resource-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target="libs/armeabi/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/x86/libBarcodeScannerLib.so" target="libs/x86/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target="libs/armeabi-v7a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target="libs/arm64-v8a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/mips/libBarcodeScannerLib.so" target="libs/mips/libBarcodeScannerLib.so" />
 
+ <!-- cordova-android 7 directives (hopefully ignored by cordova-android 6) -->
+ <resource-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target="jniLibs/armeabi/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/x86/libBarcodeScannerLib.so" target="jniLibs/x86/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target="jniLibs/armeabi-v7a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target="jniLibs/arm64-v8a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/mips/libBarcodeScannerLib.so" target="jniLibs/mips/libBarcodeScannerLib.so" />
 
 
 
