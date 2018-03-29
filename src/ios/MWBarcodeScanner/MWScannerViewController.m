@@ -287,7 +287,11 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     statusBarHidden =  [[UIApplication sharedApplication] isStatusBarHidden];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+
+    BOOL scannerFullScreen = self.parentViewController == nil;
+    if (scannerFullScreen) {
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    }
     
     flashButton.hidden = !param_EnableFlash;
     zoomButton.hidden = !param_EnableZoom;
@@ -320,6 +324,11 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     [self stopScanning];
     [self deinitCapture];
     flashButton.selected = NO;
+
+    BOOL scannerFullScreen = self.parentViewController == nil;
+    if (scannerFullScreen) {
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -343,7 +352,12 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 // IOS 7 statusbar hide
 - (BOOL)prefersStatusBarHidden
 {
-    return YES;
+    BOOL scannerFullScreen = self.parentViewController == nil;
+    if (scannerFullScreen) {
+        return YES;
+    }
+    
+    return statusBarHidden;
 }
 
 

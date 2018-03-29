@@ -1,5 +1,8 @@
 
 /*
+Version 3.0.50
+  - iOS fixed StatusBar disappearing when scanning in view
+
 Version 3.0.49
   - iOS restored missing params in MWResult.h that were removed in 3.0.48
 
