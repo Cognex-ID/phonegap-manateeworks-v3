@@ -42,23 +42,23 @@ version="3.0.50">
  </config-file>
  
  
-<source-file src="src/android/libs/mwbscanner.jar" target-dir="libs" framework="true" />
+    <lib-file src="src/android/libs/mwbscanner.jar"/>
 
- <source-file src="src/android/src/com/manateeworks/BarcodeScannerPlugin.java" target-dir="src/com/manateeworks" />
- <source-file src="src/android/src/com/manateeworks/ScannerActivity.java" target-dir="src/com/manateeworks" />
- 
- <source-file src="src/android/res/layout/scanner.xml" target-dir="res/layout" />
- <source-file src="src/android/res/drawable/overlay_mw.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable-hdpi/overlay_mw.png" target-dir="res/drawable-hdpi" />
- <source-file src="src/android/res/drawable/flashbuttonoff.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable/flashbuttonon.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable/zoom.png" target-dir="res/drawable" />
- 
- <source-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target-dir="libs/armeabi" />
- <source-file src="src/android/libs/x86/libBarcodeScannerLib.so" target-dir="libs/x86" />
- <source-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target-dir="libs/armeabi-v7a" />
- <source-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target-dir="libs/arm64-v8a" />
-  <source-file src="src/android/libs/mips/libBarcodeScannerLib.so" target-dir="libs/mips" />
+    <source-file src="src/android/src/com/manateeworks/BarcodeScannerPlugin.java" target-dir="src/com/manateeworks" />
+    <source-file src="src/android/src/com/manateeworks/ScannerActivity.java" target-dir="src/com/manateeworks" />
+
+    <source-file src="src/android/res/layout/scanner.xml" target-dir="app/src/main/res/layout" />
+    <source-file src="src/android/res/drawable/overlay_mw.png" target-dir="app/src/main/res/drawable" />
+    <source-file src="src/android/res/drawable-hdpi/overlay_mw.png" target-dir="app/src/main/res/drawable-hdpi" />
+    <source-file src="src/android/res/drawable/flashbuttonoff.png" target-dir="app/src/main/res/drawable" />
+    <source-file src="src/android/res/drawable/flashbuttonon.png" target-dir="app/src/main/res/drawable" />
+    <source-file src="src/android/res/drawable/zoom.png" target-dir="app/src/main/res/drawable" />
+
+    <source-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target-dir="app/src/main/jniLibs/armeabi" />
+    <source-file src="src/android/libs/x86/libBarcodeScannerLib.so" target-dir="app/src/main/jniLibs/x86" />
+    <source-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target-dir="app/src/main/jniLibs/armeabi-v7a" />
+    <source-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target-dir="app/src/main/jniLibs/arm64-v8a" />
+    <source-file src="src/android/libs/mips/libBarcodeScannerLib.so" target-dir="app/src/main/jniLibs/mips" />
 
 
 
