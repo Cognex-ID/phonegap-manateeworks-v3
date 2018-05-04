@@ -22,7 +22,7 @@ version="3.0.50">
 <config-file target="res/xml/config.xml" parent="/*">
 <preference name="CrosswalkAnimatable" value="true" />
  <feature name="MWBarcodeScanner">
- <param name="android-package" value="com.manateeworks.BarcodeScannerPlugin"/>
+	<param name="android-package" value="com.manateeworks.BarcodeScannerPlugin"/>
  </feature>
  </config-file>
 
@@ -42,26 +42,36 @@ version="3.0.50">
  </config-file>
  
  
-<source-file src="src/android/libs/mwbscanner.jar" target-dir="libs" framework="true" />
-
- <source-file src="src/android/src/com/manateeworks/BarcodeScannerPlugin.java" target-dir="src/com/manateeworks" />
- <source-file src="src/android/src/com/manateeworks/ScannerActivity.java" target-dir="src/com/manateeworks" />
+ <lib-file src="src/android/libs/mwbscanner.jar" />
  
- <source-file src="src/android/res/layout/scanner.xml" target-dir="res/layout" />
- <source-file src="src/android/res/drawable/overlay_mw.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable-hdpi/overlay_mw.png" target-dir="res/drawable-hdpi" />
- <source-file src="src/android/res/drawable/flashbuttonoff.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable/flashbuttonon.png" target-dir="res/drawable" />
- <source-file src="src/android/res/drawable/zoom.png" target-dir="res/drawable" />
+ <!-- For cordova-android 7.x -->
+ <resource-file src="src/android/src/com/manateeworks/BarcodeScannerPlugin.java" target="java/com/manateeworks/BarcodeScannerPlugin.java" />
+ <resource-file src="src/android/src/com/manateeworks/ScannerActivity.java" target="java/com/manateeworks/ScannerActivity.java" />
+
+ <!-- For cordova-android 6.x -->
+ <resource-file src="src/android/src/com/manateeworks/BarcodeScannerPlugin.java" target="src/com/manateeworks/BarcodeScannerPlugin.java" />
+ <resource-file src="src/android/src/com/manateeworks/ScannerActivity.java" target="src/com/manateeworks/ScannerActivity.java" />
  
- <source-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target-dir="libs/armeabi" />
- <source-file src="src/android/libs/x86/libBarcodeScannerLib.so" target-dir="libs/x86" />
- <source-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target-dir="libs/armeabi-v7a" />
- <source-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target-dir="libs/arm64-v8a" />
-  <source-file src="src/android/libs/mips/libBarcodeScannerLib.so" target-dir="libs/mips" />
+ <resource-file src="src/android/res/layout/scanner.xml" target="res/layout/scanner.xml" />
+ <resource-file src="src/android/res/drawable/overlay_mw.png" target="res/drawable/overlay_mw.png" />
+ <resource-file src="src/android/res/drawable-hdpi/overlay_mw.png" target="res/drawable-hdpi/overlay_mw.png" />
+ <resource-file src="src/android/res/drawable/flashbuttonoff.png" target="res/drawable/flashbuttonoff.png" />
+ <resource-file src="src/android/res/drawable/flashbuttonon.png" target="res/drawable/flashbuttonon.png" />
+ <resource-file src="src/android/res/drawable/zoom.png" target="res/drawable/zoom.png" />
 
+ <!-- For cordova-android 6.x -->
+ <resource-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target="libs/armeabi/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/x86/libBarcodeScannerLib.so" target="libs/x86/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target="libs/armeabi-v7a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target="libs/arm64-v8a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/mips/libBarcodeScannerLib.so" target="libs/mips/libBarcodeScannerLib.so" />
 
-
+ <!-- For cordova-android 7.x -->
+ <resource-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target="jniLibs/armeabi/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/x86/libBarcodeScannerLib.so" target="jniLibs/x86/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target="jniLibs/armeabi-v7a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target="jniLibs/arm64-v8a/libBarcodeScannerLib.so" />
+ <resource-file src="src/android/libs/mips/libBarcodeScannerLib.so" target="jniLibs/mips/libBarcodeScannerLib.so" />
 
 
  </platform>
