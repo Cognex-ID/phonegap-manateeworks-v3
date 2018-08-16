@@ -1518,9 +1518,6 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                                                 public void run() {
                                                     if (rlFullScreen != null) {
 
-                                                        int w = cordova.getActivity().findViewById(android.R.id.content).getWidth();
-                                                        int h = cordova.getActivity().findViewById(android.R.id.content).getHeight();
-
                                                         WindowManager wm = (WindowManager) cordova.getActivity()
                                                                 .getSystemService(Context.WINDOW_SERVICE);
                                                         Display display = wm.getDefaultDisplay();
@@ -1528,13 +1525,15 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                                                         final Point size = new Point();
                                                         display.getSize(size);
 
+                                                        int w = size.x;
+                                                        int h = size.y;
+
                                                         final float AR = (float) size.y / (float) size.x;
 
                                                         final double x = xP / 100 * w;
                                                         final double y = yP / 100 * h;
                                                         final double width = widthP / 100 * w;
                                                         final double height = heightP / 100 * h;
-
 
                                                         int heightTmp;
                                                         int widthTmp;
@@ -1546,7 +1545,9 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                                                             widthTmp = (int) Math.round(height / AR);
                                                             heightTmp = (int) Math.round(height);
                                                         }
+
                                                         final float heightTmpRunnable = heightTmp;
+                                                        final float widthTmpRunnable = widthTmp;
 
 
                                                         LayoutParams lps = new LayoutParams((int) Math.round(width), (int) Math.round(height));
@@ -1599,7 +1600,8 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                                                                                                             public void run() {
                                                                                                                 if (rlFullScreen != null) {
                                                                                                                     setAutoRect();
-                                                                                                                    scrollView.scrollTo(0, (int) (heightTmpRunnable / 2 - height / 2));
+                                                                                                                    scrollView.scrollTo((int) Math.round(widthTmpRunnable / 2 - width / 2),
+                                                                                                                            (int) Math.round(heightTmpRunnable / 2 - height / 2));
 
 
                                                                                                                     if (ScannerActivity.param_OverlayMode == 2) {
