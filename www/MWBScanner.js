@@ -386,6 +386,11 @@ Version 3.0.47
         MWB_CFG_CODE39_REQ_CHKSUM            :    0x2,
         /**/
 
+        /** @brief  Global decoder flags value:  Enable multicode mode
+        */
+        MWB_CFG_GLOBAL_ENABLE_MULTI           :   0x100,
+        /**/
+
 
         /**
         * @name Bit mask identifiers for supported decoder types
@@ -1002,6 +1007,7 @@ var BarcodeScanner = {
     valid_key : false,
     dflt_clb : function(result){
         /**
+        * In case of successful scan result object is json array of items with following structure
         * result.code - string representation of barcode result
         * result.type - type of barcode detected or 'Cancel' if scanning is canceled
         * result.bytes - bytes array of raw barcode result
@@ -1009,12 +1015,31 @@ var BarcodeScanner = {
         * result.location - contains rectangle points p1,p2,p3,p4 with the corresponding x,y
         * result.imageWidth - Width of the scanned image
         * result.imageHeight - Height of the scanned image
+        * result.barcodeWidth;
+        * result.barcodeHeight;
+        * result.pdfRowsCount;
+        * result.pdfColumnsCount;
+        * result.pdfECLevel;
+        * result.pdfIsTruncated;
+        * result.pdfCodewords;
         */
-        if (result.type == 'NoResult'){
-          //Perform some action on scanning canceled if needed
+
+        if (result.type == "Error"){
+            navigator.notification.alert(result.code, function(){}, "Error", 'Close');
         }
-        else if (result && result.code){
-          navigator.notification.alert(result.code, function(){}, result.type + (result.isGS1?" (GS1)":""), 'Close');
+        else if (result.type == "Cancel" || result.type == "NoResult"){
+            alert("No Read" + result.code);
+            //Perform some action on scanning canceled if needed
+        }
+        else
+        {
+            var resultText = "";
+
+            result.forEach(function (item, index){
+                resultText += item.type + (item.isGS1 ? " (GS1)" : "") + ": " + item.code + "\n";
+            });
+
+            navigator.notification.alert(resultText, function(){}, "Result", 'Close');
         }
     }
   }
@@ -1321,6 +1346,13 @@ var Scanner = function(){
   Scanner.prototype.resizePartialScanner = function(x,y,width,height){
     BarcodeScanner.MWBresizePartialScanner(x,y,width,height);
   };
+  /*
+* @name setFlags
+* @description exposes the setFlags native function. It sets decoder flags
+**/
+Scanner.prototype.setFlags = function(mask, flag){
+  BarcodeScanner.MWBsetFlags(mask,flag);
+};
 
   var scanner = new Scanner();
 

@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
@@ -373,7 +374,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
         } else if ("setFlags".equals(action)) {
 
-            callbackContext.success(BarcodeScanner.MWBsetFlags(args.getInt(0), args.getInt(1)));
+            callbackContext.success(BarcodeScanner.MWBsetFlags(args.getInt(0), BarcodeScanner.MWBgetFlags(args.getInt(0)) | args.getInt(1)));
             return true;
 
         } else if ("setMinLength".equals(action)) {
@@ -632,7 +633,6 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
             String imageURI = args.getString(0);
             if (imageURI.startsWith("file://"))
-
             {
                 imageURI = imageURI.substring(7);
             }
@@ -640,7 +640,6 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
             ImageInfo imageInfo = bitmapToGrayscale(imageURI);
 
             if (imageInfo != null)
-
             {
                 // initDecoder();
                 byte[] result = BarcodeScanner.MWBscanGrayscaleImage(imageInfo.pixels, imageInfo.width, imageInfo.height);
@@ -648,184 +647,18 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 if (result != null) {
                     MWResults mwResults = new MWResults(result);
                     if (mwResults != null && mwResults.count > 0) {
-                        MWResult mwResult = mwResults.getResult(0);
 
-                        String typeName = "";
-                        switch (mwResult.type) {
-                            case BarcodeScanner.FOUND_25_INTERLEAVED:
-                                typeName = "Code 25";
-                                break;
-                            case BarcodeScanner.FOUND_25_STANDARD:
-                                typeName = "Code 25 Standard";
-                                break;
-                            case BarcodeScanner.FOUND_128:
-                                typeName = "Code 128";
-                                break;
-                            case BarcodeScanner.FOUND_39:
-                                typeName = "Code 39";
-                                break;
-                            case BarcodeScanner.FOUND_93:
-                                typeName = "Code 93";
-                                break;
-                            case BarcodeScanner.FOUND_AZTEC:
-                                typeName = "AZTEC";
-                                break;
-                            case BarcodeScanner.FOUND_DM:
-                                typeName = "Datamatrix";
-                                break;
-                            case BarcodeScanner.FOUND_EAN_13:
-                                typeName = "EAN 13";
-                                break;
-                            case BarcodeScanner.FOUND_EAN_8:
-                                typeName = "EAN 8";
-                                break;
-                            case BarcodeScanner.FOUND_NONE:
-                                typeName = "None";
-                                break;
-                            case BarcodeScanner.FOUND_RSS_14:
-                                typeName = "Databar 14";
-                                break;
-                            case BarcodeScanner.FOUND_RSS_14_STACK:
-                                typeName = "Databar 14 Stacked";
-                                break;
-                            case BarcodeScanner.FOUND_RSS_EXP:
-                                typeName = "Databar Expanded";
-                                break;
-                            case BarcodeScanner.FOUND_RSS_LIM:
-                                typeName = "Databar Limited";
-                                break;
-                            case BarcodeScanner.FOUND_UPC_A:
-                                typeName = "UPC A";
-                                break;
-                            case BarcodeScanner.FOUND_UPC_E:
-                                typeName = "UPC E";
-                                break;
-                            case BarcodeScanner.FOUND_PDF:
-                                typeName = "PDF417";
-                                break;
-                            case BarcodeScanner.FOUND_QR:
-                                typeName = "QR";
-                                break;
-                            case BarcodeScanner.FOUND_CODABAR:
-                                typeName = "Codabar";
-                                break;
-                            case BarcodeScanner.FOUND_128_GS1:
-                                typeName = "Code 128 GS1";
-                                break;
-                            case BarcodeScanner.FOUND_ITF14:
-                                typeName = "ITF 14";
-                                break;
-                            case BarcodeScanner.FOUND_11:
-                                typeName = "Code 11";
-                                break;
-                            case BarcodeScanner.FOUND_MSI:
-                                typeName = "MSI Plessey";
-                                break;
-                            case BarcodeScanner.FOUND_25_IATA:
-                                typeName = "IATA Code 25";
-                                break;
-                            case BarcodeScanner.FOUND_25_MATRIX:
-                                typeName = "25 Matrix";
-                                break;
-                            case BarcodeScanner.FOUND_25_COOP:
-                                typeName = "25 Coop";
-                                break;
-                            case BarcodeScanner.FOUND_25_INVERTED:
-                                typeName = "25 Inverted";
-                                break;
-                            case BarcodeScanner.FOUND_QR_MICRO:
-                                typeName = "QR Micro";
-                                break;
-                            case BarcodeScanner.FOUND_MAXICODE:
-                                typeName = "Maxicode";
-                                break;
-                            case BarcodeScanner.FOUND_POSTNET:
-                                typeName = "Postnet";
-                                break;
-                            case BarcodeScanner.FOUND_PLANET:
-                                typeName = "Planet";
-                                break;
-                            case BarcodeScanner.FOUND_IMB:
-                                typeName = "IMB";
-                                break;
-                            case BarcodeScanner.FOUND_ROYALMAIL:
-                                typeName = "Royal Mail";
-							case BarcodeScanner.FOUND_32:
-                                typeName = "Code 32";
+                        ArrayList<MWResult> listResults = new ArrayList<MWResult>();
 
-                        }
+                        for (int i = 0; i < mwResults.count; i++)
+                            listResults.add(mwResults.getResult(i));
 
-                        JSONObject jsonResult = new JSONObject();
-                        try {
-                            jsonResult.put("code", mwResult.text);
-                            jsonResult.put("type", typeName);
-                            jsonResult.put("isGS1", mwResult.isGS1);
-                            jsonResult.put("imageWidth", mwResult.imageWidth);
-                            jsonResult.put("imageHeight", mwResult.imageHeight);
 
-                            if (mwResult.locationPoints != null) {
-                                jsonResult.put("location",
-                                        new JSONObject()
-                                                .put("p1",
-                                                        new JSONObject().put("x", mwResult.locationPoints.p1.x).put("y",
-                                                                mwResult.locationPoints.p1.y))
-                                                .put("p2", new JSONObject().put("x", mwResult.locationPoints.p2.x)
-                                                        .put("y", mwResult.locationPoints.p2.y))
-                                                .put("p3", new JSONObject().put("x", mwResult.locationPoints.p3.x)
-                                                        .put("y", mwResult.locationPoints.p3.y))
-                                                .put("p4", new JSONObject().put("x", mwResult.locationPoints.p4.x)
-                                                        .put("y", mwResult.locationPoints.p4.y)));
-                            } else {
-                                jsonResult.put("location", false);
-                            }
+                        JSONArray jsonResult = new JSONArray();
 
-                            JSONArray rawArray = new JSONArray();
+                        for (int i = 0; i < listResults.size(); i++)
+                            jsonResult.put(mwResultToJson(listResults.get(i)));
 
-                            for (int i = 0; i < mwResult.bytesLength; i++) {
-                                rawArray.put(0xff & mwResult.bytes[i]);
-                            }
-
-                            jsonResult.put("bytes", rawArray);
-							
-							//NEW! result fields in jsonResult:
-							//result.barcodeWidth;
-							//result.barcodeHeight;
-							//result.pdfRowsCount;
-							//result.pdfColumnsCount;
-							//result.pdfECLevel;
-							//result.pdfIsTruncated;
-							//result.pdfCodewords; //int[]
-							
-							jsonResult.put("barcodeWidth", mwResult.barcodeWidth);
-							jsonResult.put("barcodeHeight", mwResult.barcodeHeight);
-							jsonResult.put("pdfRowsCount", mwResult.pdfRowsCount);
-							jsonResult.put("pdfColumnsCount", mwResult.pdfColumnsCount);
-							jsonResult.put("pdfECLevel", mwResult.pdfECLevel);
-							jsonResult.put("pdfIsTruncated", mwResult.pdfIsTruncated);
-							
-							int[] result_pdfCodewords = null;
-
-							if (mwResult != null && mwResult.pdfCodewords != null) {
-								result_pdfCodewords = mwResult.pdfCodewords; //int[]
-							}
-							
-							if (result_pdfCodewords != null) {				
-								int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
-								
-								JSONArray pdfArray = new JSONArray();
-								for (int p = 0; p < pdfCodewords_count; p++)
-								{
-									pdfArray.put(result_pdfCodewords[p]);
-								}
-								
-								jsonResult.put("pdfCodewords", pdfArray);
-							} else {
-								jsonResult.put("pdfCodewords", false);
-							}
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
                         PluginResult pr = new PluginResult(PluginResult.Status.OK, jsonResult);
 
                         callbackContext.sendPluginResult(pr);
@@ -847,6 +680,125 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
         }
         return false;
+    }
+
+    protected JSONObject mwResultToJson(MWResult mwResult)
+    {
+        JSONObject jsonObject = new JSONObject();
+
+        byte[] rawResult = null;
+
+        if (mwResult != null && mwResult.bytes != null) {
+            rawResult = mwResult.bytes;
+        }
+
+
+        String s = "";
+
+        if (ScannerActivity.param_activeParser != MWParser.MWP_PARSER_MASK_NONE && BarcodeScanner
+                .MWBgetResultType() == BarcodeScanner.MWB_RESULT_TYPE_MW
+                && !(ScannerActivity.param_activeParser == MWParser.MWP_PARSER_MASK_GS1 && !mwResult.isGS1)) {
+
+            s = MWParser.MWPgetJSON(ScannerActivity.param_activeParser, mwResult.encryptedResult.getBytes());
+            if (s == null) {
+                try {
+                    s = new String(rawResult, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+
+                    s = "";
+                    for (byte aRawResult : rawResult) s = s + (char) aRawResult;
+                    e.printStackTrace();
+                }
+            }
+        } else {
+
+            try {
+                s = new String(rawResult, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+
+                s = "";
+                for (byte aRawResult : rawResult) s = s + (char) aRawResult;
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            jsonObject.put("code", s);
+            jsonObject.put("type", mwResult.typeName);
+            jsonObject.put("isGS1", mwResult.isGS1);
+            jsonObject.put("imageWidth", mwResult.imageWidth);
+            jsonObject.put("imageHeight", mwResult.imageHeight);
+
+            if (mwResult.locationPoints != null) {
+                jsonObject.put("location",
+                        new JSONObject()
+                                .put("p1",
+                                        new JSONObject().put("x", mwResult.locationPoints.p1.x).put("y",
+                                                mwResult.locationPoints.p1.y))
+                                .put("p2", new JSONObject().put("x", mwResult.locationPoints.p2.x)
+                                        .put("y", mwResult.locationPoints.p2.y))
+                                .put("p3", new JSONObject().put("x", mwResult.locationPoints.p3.x)
+                                        .put("y", mwResult.locationPoints.p3.y))
+                                .put("p4", new JSONObject().put("x", mwResult.locationPoints.p4.x)
+                                        .put("y", mwResult.locationPoints.p4.y)));
+            } else {
+                jsonObject.put("location", false);
+            }
+
+            JSONArray rawArray = new JSONArray();
+
+            if (rawResult != null) {
+                for (byte aRawResult : rawResult) {
+                    rawArray.put((int) (0xff & aRawResult));
+                }
+            }
+
+            jsonObject.put("bytes", rawArray);
+
+            //NEW! result fields in jsonResult:
+            //result.barcodeWidth;
+            //result.barcodeHeight;
+            //result.pdfRowsCount;
+            //result.pdfColumnsCount;
+            //result.pdfECLevel;
+            //result.pdfIsTruncated;
+            //result.pdfCodewords; //int[]
+
+            jsonObject.put("barcodeWidth", mwResult.barcodeWidth);
+            jsonObject.put("barcodeHeight", mwResult.barcodeHeight);
+            jsonObject.put("pdfRowsCount", mwResult.pdfRowsCount);
+            jsonObject.put("pdfColumnsCount", mwResult.pdfColumnsCount);
+            jsonObject.put("pdfECLevel", mwResult.pdfECLevel);
+            jsonObject.put("pdfIsTruncated", mwResult.pdfIsTruncated);
+
+            int[] result_pdfCodewords = null;
+
+            if (mwResult != null && mwResult.pdfCodewords != null) {
+                result_pdfCodewords = mwResult.pdfCodewords; //int[]
+            }
+
+            if (result_pdfCodewords != null) {
+                int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
+
+                JSONArray pdfArray = new JSONArray();
+                for (int p = 0; p < pdfCodewords_count; p++)
+                {
+                    pdfArray.put(result_pdfCodewords[p]);
+                }
+
+                jsonObject.put("pdfCodewords", pdfArray);
+            } else {
+                jsonObject.put("pdfCodewords", false);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject;
     }
 
 
@@ -1048,11 +1000,13 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         if (requestCode == 1) {
 
             if (resultCode == 1 && ScannerActivity.param_closeOnSuccess) {
-                JSONObject jsonResult = new JSONObject();
+                JSONArray jsonResult = new JSONArray();
+
+                JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonResult.put("code", intent.getStringExtra("code"));
-                    jsonResult.put("type", intent.getStringExtra("type"));
-                    jsonResult.put("isGS1", (BarcodeScanner.MWBisLastGS1() == 1));
+                    jsonObject.put("code", intent.getStringExtra("code"));
+                    jsonObject.put("type", intent.getStringExtra("type"));
+                    jsonObject.put("isGS1", (BarcodeScanner.MWBisLastGS1() == 1));
 
                     JSONArray rawArray = new JSONArray();
                     byte[] bytes = intent.getByteArrayExtra("bytes");
@@ -1062,13 +1016,15 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                         }
                     }
 
-                    jsonResult.put("bytes", rawArray);
-					
+                    jsonObject.put("bytes", rawArray);
+                    jsonResult.put(jsonObject);
 					//no NEW! result fields for GS1
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+
                 cbc.success(jsonResult);
 
             } else if (resultCode == 0) {
@@ -1262,7 +1218,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                             break;
                         case ScannerActivity.MSG_DECODE_SUCCESS:
                             ScannerActivity.state = State.STOPPED;
-                            handleDecode((MWResult) msg.obj);
+                            handleDecode((ArrayList<MWResult>) msg.obj);
                             break;
 
                         default:
@@ -1278,9 +1234,9 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(CameraManager.USE_FRONT_CAMERA ? 1 : 0, cameraInfo);
         if (cameraInfo.orientation == 270) {
-            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180 | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWBgetFlags(0) | BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180 | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         } else {
-            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWBgetFlags(0) | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         }
 
         CameraManager.get().startPreview();
@@ -1297,116 +1253,24 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
     }
 
-    public void handleDecode(MWResult result) {
+    public void handleDecode(ArrayList<MWResult> listResults) {
 
-        byte[] rawResult = null;
+        PointF[] allLocations = new PointF[listResults.size() * 4];
+        JSONArray jsonResult = new JSONArray();
 
-        if (result != null && result.bytes != null) {
-            rawResult = result.bytes;
+        for (int i = 0; i < listResults.size(); i++) {
+            jsonResult.put(mwResultToJson(listResults.get(i)));
+
+            allLocations[(4 * i)] = listResults.get(i).locationPoints.p1;
+            allLocations[(4 * i) + 1] = listResults.get(i).locationPoints.p2;
+            allLocations[(4 * i) + 2] = listResults.get(i).locationPoints.p3;
+            allLocations[(4 * i) + 3] = listResults.get(i).locationPoints.p4;
         }
 
-        String s = "";
-
-        if (ScannerActivity.param_activeParser != MWParser.MWP_PARSER_MASK_NONE && BarcodeScanner
-                .MWBgetResultType() == BarcodeScanner.MWB_RESULT_TYPE_MW
-                && !(ScannerActivity.param_activeParser == MWParser.MWP_PARSER_MASK_GS1 && !result.isGS1)) {
-
-            s = MWParser.MWPgetJSON(ScannerActivity.param_activeParser, result.encryptedResult.getBytes());
-            if (s == null) {
-                try {
-                    s = new String(rawResult, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-
-                    s = "";
-                    for (byte aRawResult : rawResult) s = s + (char) aRawResult;
-                    e.printStackTrace();
-                }
-            }
-        } else {
-
-            try {
-                s = new String(rawResult, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-
-                s = "";
-                for (byte aRawResult : rawResult) s = s + (char) aRawResult;
-                e.printStackTrace();
-            }
+        if (allLocations.length > 0 && CameraManager.get() .getCurrentResolution() != null && ScannerActivity.param_OverlayMode == ScannerActivity.OM_MW) {
+            MWOverlay.showLocations(allLocations, listResults.get(0).imageWidth, listResults.get(0).imageHeight);
         }
 
-        if (result.locationPoints != null && CameraManager.get()
-                .getCurrentResolution() != null && ScannerActivity.param_OverlayMode == ScannerActivity.OM_MW) {
-            MWOverlay.showLocation(result.locationPoints.points, result.imageWidth, result.imageHeight);
-        }
-
-        JSONObject jsonResult = new JSONObject();
-        try {
-            jsonResult.put("code", s);
-            jsonResult.put("type", result.typeName);
-            jsonResult.put("isGS1", result.isGS1);
-            jsonResult.put("imageWidth", result.imageWidth);
-            jsonResult.put("imageHeight", result.imageHeight);
-
-            if (result.locationPoints != null) {
-                jsonResult.put("location",
-                        new JSONObject().put("p1", new JSONObject().put("x", result.locationPoints.p1.x).put("y", result.locationPoints.p1.y))
-                                .put("p2", new JSONObject().put("x", result.locationPoints.p2.x).put("y", result.locationPoints.p2.y))
-                                .put("p3", new JSONObject().put("x", result.locationPoints.p3.x).put("y", result.locationPoints.p3.y))
-                                .put("p4",
-                                        new JSONObject().put("x", result.locationPoints.p4.x).put("y", result.locationPoints.p4.y)));
-            } else {
-                jsonResult.put("location", false);
-            }
-
-            JSONArray rawArray = new JSONArray();
-            if (rawResult != null) {
-                for (byte aRawResult : rawResult) {
-                    rawArray.put((int) (0xff & aRawResult));
-                }
-            }
-
-            jsonResult.put("bytes", rawArray);
-			
-			//NEW! result fields in jsonResult:
-			//result.barcodeWidth;
-			//result.barcodeHeight;
-			//result.pdfRowsCount;
-			//result.pdfColumnsCount;
-			//result.pdfECLevel;
-			//result.pdfIsTruncated;
-			//result.pdfCodewords; //int[]
-			
-			jsonResult.put("barcodeWidth", result.barcodeWidth);
-			jsonResult.put("barcodeHeight", result.barcodeHeight);
-			jsonResult.put("pdfRowsCount", result.pdfRowsCount);
-			jsonResult.put("pdfColumnsCount", result.pdfColumnsCount);
-			jsonResult.put("pdfECLevel", result.pdfECLevel);
-			jsonResult.put("pdfIsTruncated", result.pdfIsTruncated);
-			
-			int[] result_pdfCodewords = null;
-
-			if (result != null && result.pdfCodewords != null) {
-				result_pdfCodewords = result.pdfCodewords; //int[]
-			}
-			
-			if (result_pdfCodewords != null) {				
-				int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
-				
-				JSONArray pdfArray = new JSONArray();
-				for (int p = 0; p < pdfCodewords_count; p++)
-				{
-					pdfArray.put(result_pdfCodewords[p]);
-				}
-				
-                jsonResult.put("pdfCodewords", pdfArray);
-            } else {
-                jsonResult.put("pdfCodewords", false);
-            }
-
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         PluginResult pr = new PluginResult(PluginResult.Status.OK, jsonResult);
 
         if (ScannerActivity.param_closeOnSuccess) {
@@ -1460,6 +1324,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
     private void noPermissionErrorCallback() {
         ScannerActivity.flashOn = false;
         updateFlash();
+
         JSONObject jsonResult = new JSONObject();
         try {
             jsonResult.put("code", "No Camera Permission");

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.PointF;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -30,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TimerTask;
 
@@ -470,7 +472,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                             break;
                         case MSG_DECODE_SUCCESS:
                             state = State.STOPPED;
-                            handleDecode((MWResult) msg.obj);
+                            handleDecode((ArrayList<MWResult>) msg.obj);
                             break;
 
                         default:
@@ -486,9 +488,9 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(CameraManager.USE_FRONT_CAMERA ? 1 : 0, cameraInfo);
         if (cameraInfo.orientation == 270) {
-            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180 | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWBgetFlags(0) | BarcodeScanner.MWB_CFG_GLOBAL_ROTATE180 | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         } else {
-            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
+            BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWBgetFlags(0) | BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         }
 
         startScanning();
@@ -579,9 +581,9 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                 byte[] rawResult = null;
                 /*
                  * if (Global.mode_39) rawResult =
-				 * BarcodeScanner.decode39(source, w, h); else rawResult =
-				 * BarcodeScanner.decodeDM(source, w, h);
-				 */
+                 * BarcodeScanner.decode39(source, w, h); else rawResult =
+                 * BarcodeScanner.decodeDM(source, w, h);
+                 */
 
                 rawResult = BarcodeScanner.MWBscanGrayscaleImage(data, width, height);
 
@@ -590,42 +592,40 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                     return;
                 }
 
-                MWResult mwResult = null;
+                ArrayList<MWResult> listResults = new ArrayList<MWResult>();
 
                 if (rawResult != null && BarcodeScanner.MWBgetResultType() == BarcodeScanner.MWB_RESULT_TYPE_MW) {
 
                     BarcodeScanner.MWResults results = new BarcodeScanner.MWResults(rawResult);
 
-                    if (results.count > 0) {
-                        mwResult = results.getResult(0);
-                        rawResult = mwResult.bytes;
-                    }
-
+                    for (int i = 0; i < results.count; i++)
+                        listResults.add(results.getResult(i));
                 }
 
-                if (rawResult != null) {
+                if (listResults.size() > 0) {
 
                     state = State.STOPPED;
-                    BarcodeScanner.MWBsetDuplicate(mwResult.bytes, mwResult.bytesLength);
+
+                    for (MWResult mwResult : listResults)
+                        BarcodeScanner.MWBsetDuplicate(mwResult.bytes, mwResult.bytesLength);
 
                     if (mContext != null) {
                         MWOverlay.setPaused(mContext, true);
                     }
 
-                    String s = "";
 
-                    for (int i = 0; i < rawResult.length; i++)
-                        s = s + (char) rawResult[i];
+                    Message message = Message.obtain(handler, MSG_DECODE_SUCCESS, listResults);
 
-                    Message message = Message.obtain(handler, MSG_DECODE_SUCCESS, mwResult);
-
-					/*
+                    /*
                      * Bundle bundle = new Bundle();
-					 * bundle.putParcelable(DecodeThread.BARCODE_BITMAP,
-					 * CameraManager.get().renderCroppedGreyscaleBitmap(data, w,
-					 * h)); message.setData(bundle);
-					 */
-                    message.arg1 = mwResult.type;
+                     * bundle.putParcelable(DecodeThread.BARCODE_BITMAP,
+                     * CameraManager.get().renderCroppedGreyscaleBitmap(data, w,
+                     * h)); message.setData(bundle);
+                     */
+                    if (listResults.size() == 1)
+                        message.arg1 = listResults.get(0).type;
+                    else
+                        message.arg1 = -1;
 
                     message.sendToTarget();
 
@@ -640,7 +640,44 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
     }
 
-    public void handleDecode(MWResult result) {
+    public void handleDecode(ArrayList<MWResult> listResults) {
+
+        PointF[] allLocations = new PointF[listResults.size() * 4];
+        JSONArray jsonResult = new JSONArray();
+
+        for (int i = 0; i < listResults.size(); i++) {
+            jsonResult.put(mwResultToJson(listResults.get(i)));
+
+            allLocations[(4 * i)] = listResults.get(i).locationPoints.p1;
+            allLocations[(4 * i) + 1] = listResults.get(i).locationPoints.p2;
+            allLocations[(4 * i) + 2] = listResults.get(i).locationPoints.p3;
+            allLocations[(4 * i) + 3] = listResults.get(i).locationPoints.p4;
+        }
+
+        if (allLocations.length > 0 && CameraManager.get().getCurrentResolution() != null && ScannerActivity.param_OverlayMode == 1) {
+
+            MWOverlay.showLocations(allLocations, listResults.get(0).imageWidth, listResults.get(0).imageHeight);
+        }
+
+        PluginResult pr = new PluginResult(PluginResult.Status.OK, jsonResult);
+
+        if (param_closeOnSuccess) {
+
+            ScannerActivity.this.finish();
+        } else {
+            pr.setKeepCallback(true);
+//            if(param_continuousScanning) {
+//                state = State.PREVIEW;
+//                MWOverlay.setPaused(mContext, false);
+//            }
+        }
+        ScannerActivity.cbc.sendPluginResult(pr);
+
+    }
+
+    protected JSONObject mwResultToJson(MWResult result)
+    {
+        JSONObject jsonObject = new JSONObject();
 
         byte[] rawResult = null;
 
@@ -677,28 +714,22 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         }
 
 
-        if (result.locationPoints != null && CameraManager.get().getCurrentResolution() != null && ScannerActivity.param_OverlayMode == 1) {
-
-            MWOverlay.showLocation(result.locationPoints.points, result.imageWidth, result.imageHeight);
-        }
-
-        JSONObject jsonResult = new JSONObject();
         try {
-            jsonResult.put("code", s);
-            jsonResult.put("type", result.typeName);
-            jsonResult.put("isGS1", result.isGS1);
-            jsonResult.put("imageWidth", result.imageWidth);
-            jsonResult.put("imageHeight", result.imageHeight);
+            jsonObject.put("code", s);
+            jsonObject.put("type", result.typeName);
+            jsonObject.put("isGS1", result.isGS1);
+            jsonObject.put("imageWidth", result.imageWidth);
+            jsonObject.put("imageHeight", result.imageHeight);
 
             if (result.locationPoints != null) {
-                jsonResult.put("location",
+                jsonObject.put("location",
                         new JSONObject().put("p1", new JSONObject().put("x", result.locationPoints.p1.x).put("y", result.locationPoints.p1.y))
                                 .put("p2", new JSONObject().put("x", result.locationPoints.p2.x).put("y", result.locationPoints.p2.y))
                                 .put("p3", new JSONObject().put("x", result.locationPoints.p3.x).put("y", result.locationPoints.p3.y))
                                 .put("p4",
                                         new JSONObject().put("x", result.locationPoints.p4.x).put("y", result.locationPoints.p4.y)));
             } else {
-                jsonResult.put("location", false);
+                jsonObject.put("location", false);
             }
 
             JSONArray rawArray = new JSONArray();
@@ -708,62 +739,52 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                 }
             }
 
-            jsonResult.put("bytes", rawArray);
-			
-			//NEW! result fields in jsonResult:
-			//result.barcodeWidth;
-			//result.barcodeHeight;
-			//result.pdfRowsCount;
-			//result.pdfColumnsCount;
-			//result.pdfECLevel;
-			//result.pdfIsTruncated;
-			//result.pdfCodewords; //int[]
-			
-			jsonResult.put("barcodeWidth", result.barcodeWidth);
-			jsonResult.put("barcodeHeight", result.barcodeHeight);
-			jsonResult.put("pdfRowsCount", result.pdfRowsCount);
-			jsonResult.put("pdfColumnsCount", result.pdfColumnsCount);
-			jsonResult.put("pdfECLevel", result.pdfECLevel);
-			jsonResult.put("pdfIsTruncated", result.pdfIsTruncated);
-			
-			int[] result_pdfCodewords = null;
+            jsonObject.put("bytes", rawArray);
 
-			if (result != null && result.pdfCodewords != null) {
-				result_pdfCodewords = result.pdfCodewords; //int[]
-			}
-			
-			if (result_pdfCodewords != null) {				
-				int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
-				
-				JSONArray pdfArray = new JSONArray();
-				for (int p = 0; p < pdfCodewords_count; p++)
-				{
-					pdfArray.put(result_pdfCodewords[p]);
-				}
-				
-                jsonResult.put("pdfCodewords", pdfArray);
+            //NEW! result fields in jsonResult:
+            //result.barcodeWidth;
+            //result.barcodeHeight;
+            //result.pdfRowsCount;
+            //result.pdfColumnsCount;
+            //result.pdfECLevel;
+            //result.pdfIsTruncated;
+            //result.pdfCodewords; //int[]
+
+            jsonObject.put("barcodeWidth", result.barcodeWidth);
+            jsonObject.put("barcodeHeight", result.barcodeHeight);
+            jsonObject.put("pdfRowsCount", result.pdfRowsCount);
+            jsonObject.put("pdfColumnsCount", result.pdfColumnsCount);
+            jsonObject.put("pdfECLevel", result.pdfECLevel);
+            jsonObject.put("pdfIsTruncated", result.pdfIsTruncated);
+
+            int[] result_pdfCodewords = null;
+
+            if (result != null && result.pdfCodewords != null) {
+                result_pdfCodewords = result.pdfCodewords; //int[]
+            }
+
+            if (result_pdfCodewords != null) {
+                int pdfCodewords_count = result_pdfCodewords[0]; //first element is the array length (including this element)
+
+                JSONArray pdfArray = new JSONArray();
+                for (int p = 0; p < pdfCodewords_count; p++) {
+                    pdfArray.put(result_pdfCodewords[p]);
+                }
+
+                jsonObject.put("pdfCodewords", pdfArray);
             } else {
-                jsonResult.put("pdfCodewords", false);
+                jsonObject.put("pdfCodewords", false);
             }
 
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        PluginResult pr = new PluginResult(PluginResult.Status.OK, jsonResult);
-
-        if (param_closeOnSuccess) {
-
-            ScannerActivity.this.finish();
-        } else {
-            pr.setKeepCallback(true);
-//            if(param_continuousScanning) {
-//                state = State.PREVIEW;
-//                MWOverlay.setPaused(mContext, false);
-//            }
+        catch (Exception e) {
+            e.printStackTrace();
         }
-        ScannerActivity.cbc.sendPluginResult(pr);
 
+        return jsonObject;
     }
 
     @Override
