@@ -14,12 +14,12 @@ Version 3.0.47
 
   Version 3.0.46
   - Added australian postal subcode
-	 - Decoder updated to 3.3.0
-	 
+   - Decoder updated to 3.3.0
+   
   Version 3.0.45
   - Added Code 32 support
   - Added UPCE don't expand flag
-	 - Decoder updated to 3.2.3
+   - Decoder updated to 3.2.3
   
   Version 3.0.44
   - iOS Fixed scanning rects losing their values
@@ -282,16 +282,16 @@ Version 3.0.47
         */
         MWB_CFG_CODE39_EXTENDED_MODE :      0x8,
         /**/
-		
-		/** @brief  Code39 decoder flags value: Try decoding result to CODE32. if failed, Code39 will return
-		*/
-		MWB_CFG_CODE39_CODE32_ENABLED :      0x10,
-		/**/
+    
+    /** @brief  Code39 decoder flags value: Try decoding result to CODE32. if failed, Code39 will return
+    */
+    MWB_CFG_CODE39_CODE32_ENABLED :      0x10,
+    /**/
 
-		/** @brief  Code39 decoder flags value: ADD 'A' prefix to Code32 result
-		*/
-		MWB_CFG_CODE39_CODE32_PREFIX :      0x20,
-		/**/
+    /** @brief  Code39 decoder flags value: ADD 'A' prefix to Code32 result
+    */
+    MWB_CFG_CODE39_CODE32_PREFIX :      0x20,
+    /**/
 
         /** @brief  Code93 decoder flags value: decode full ASCII
         */
@@ -344,8 +344,8 @@ Version 3.0.47
         MWB_PAR_VALUE_RESULT_PREFIX_NEVER :   0x00, // default
         MWB_PAR_VALUE_RESULT_PREFIX_ALWAYS :  0x01,
         MWB_PAR_VALUE_RESULT_PREFIX_DEFAULT : 0x02,
-		
-		MWB_PAR_VALUE_VERIFY_LOCATION_OFF :   0x00,
+    
+    MWB_PAR_VALUE_VERIFY_LOCATION_OFF :   0x00,
         MWB_PAR_VALUE_VERIFY_LOCATION_ON :  0x01,
         /**/
 
@@ -353,7 +353,7 @@ Version 3.0.47
         /** @brief  UPC/EAN decoder disable addons detection
         */
         MWB_CFG_EANUPC_DISABLE_ADDON :  0x1,
-		MWB_CFG_EANUPC_DONT_EXPAND_UPCE :   0x2,
+    MWB_CFG_EANUPC_DONT_EXPAND_UPCE :   0x2,
         /**/
 
         /** @brief  Global decoder flags value: apply sharpening on input image
@@ -412,6 +412,7 @@ Version 3.0.47
         MWB_CODE_MASK_MSI :              0x00002000,
         MWB_CODE_MASK_MAXICODE:          0x00004000,
         MWB_CODE_MASK_POSTAL:            0x00008000,
+        MWB_CODE_MASK_TELEPEN:            0x00010000,
         MWB_CODE_MASK_ALL :              0xffffffff,
         /** @} */
 
@@ -459,8 +460,8 @@ Version 3.0.47
         MWB_SUBC_MASK_QR_STANDARD :      0x00000001,
         MWB_SUBC_MASK_QR_MICRO    :      0x00000002,
         /** @} */
-		
-		/**
+    
+    /**
         * @name Bit mask identifiers for PDF decoder types
         * @{ */
         MWB_SUBC_MASK_PDF_STANDARD :      0x00000001,
@@ -547,8 +548,9 @@ Version 3.0.47
         FOUND_IMB           :   32,
         FOUND_ROYALMAIL     :   33,
         FOUND_MICRO_PDF     :   34,
-        FOUND_32	        :   35,
+        FOUND_32          :   35,
         FOUND_AUSTRALIAN    :   36,
+        FOUND_TELEPEN    :   37,
 
 
 
