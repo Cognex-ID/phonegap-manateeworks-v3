@@ -35,4 +35,5 @@ enum PauseMode{
 + (void) setViewportLineUIColor: (UIColor*) value;
 + (void) setBlinkingLineUIColor: (UIColor*) value;
 + (void) showLocation: (CGPoint *) points imageWidth:(int) width imageHeight: (int) height;
++ (void) showLocations: (CGPoint *) points count:(int) count imageWidth:(int) width imageHeight: (int) height;
 @end

@@ -15,7 +15,7 @@
 
 
 @protocol ScanningFinishedDelegate <NSObject>
-- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat mwResult:(MWResult*) mwResult;
+- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat mwResult:(MWResults*) mwResults;
 @end
 
 
@@ -110,6 +110,7 @@ typedef enum eMainScreenState {
 + (BOOL) isFlashEnabled;
 + (BOOL) isZoomEnabled;
 + (void) setActiveParser: (int) parserType;
++ (int) getActiveParser;
 
 
 @end

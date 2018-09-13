@@ -92,6 +92,10 @@ typedef unsigned char uint8_t;
   */
 #define  MWB_CFG_GLOBAL_DISABLE_PREPROCESSING             0x80
     
+/** @brief  Global decoder flags value: disable some image pre=processing, suitable for devices with weak CPU
+  */
+#define  MWB_CFG_GLOBAL_ENABLE_MULTI                     0x100
+    
 
 /** @brief  Code39 decoder flags value: require checksum check
  */
@@ -210,6 +214,7 @@ typedef unsigned char uint8_t;
 #define MWB_CODE_MASK_MSI                   0x00002000u
 #define MWB_CODE_MASK_MAXICODE              0x00004000u
 #define MWB_CODE_MASK_POSTAL                0x00008000u
+#define MWB_CODE_MASK_TELEPEN               0x00010000u
 #define MWB_CODE_MASK_ALL                   0x00ffffffu
 /** @} */
 
@@ -323,6 +328,7 @@ enum res_types {
     FOUND_MICRO_PDF,
     FOUND_32,
     FOUND_AUSTRALIAN,
+    FOUND_TELEPEN,
     
 };
 /** @} */
@@ -504,6 +510,16 @@ extern int MWB_registerSDK(const char * key);
  * @retval      NULL                    ID can't be retrieved
  */
 extern char* MWB_getDeviceID(void);
+    
+/**
+ * Get license string for retrieving remaining devices
+ * It should be called after registering call, and works only on iOS and Android
+ *
+ *
+ * @retval      non NULL                encrypted licenseString
+ * @retval      NULL                    ID can't be retrieved
+ */
+extern char* MWB_getLicenseString(void);
 
 
 

@@ -429,7 +429,94 @@ BOOL isPaused = NO;
     
 }
 
-
++ (void) showLocations: (CGPoint *) points count:(int) count imageWidth:(int) width imageHeight: (int) height{
+    
+    
+    
+    imageWidth = width;
+    imageHeight = height;
+    
+    if (points == NULL){
+        return;
+    }
+    
+    if (!isAttached || !previewLayer){
+        return;
+    }
+    
+    
+    
+    //    dispatch_async(dispatch_get_main_queue(), ^(void) {
+    
+    [locationLayer removeAllAnimations];
+    
+    [previewLayer addSublayer:locationLayer];
+    
+    
+    CGRect cgRect = locationLayer.frame;
+    
+    
+    UIGraphicsBeginImageContext(cgRect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    UIGraphicsPushContext(context);
+    
+    
+    CGContextClearRect(context, cgRect);
+    
+    float r = (locationLineColor >> 16) / 255.0;
+    float g = ((locationLineColor & 0x00ff00) >> 8) / 255.0;
+    float b = (locationLineColor & 0x0000ff) / 255.0;
+    
+    CGContextSetRGBStrokeColor(context, r, g, b, 1);
+    
+    CGContextSetLineWidth(context, locationLineWidth);
+    
+    for (int l = 0; l < count; l++){
+        
+        CGPoint tmpPoints[] = {CGPointZero,CGPointZero,CGPointZero,CGPointZero};
+        for (int i = 0; i < 4; i++) {
+            tmpPoints[i] = CGPointMake(points[i + l * 4].x, points[i + l * 4].y);
+        }
+        
+        for (int i = 0; i < 4; i++){
+            tmpPoints[i].x/= imageWidth;
+            tmpPoints[i].y/= imageHeight;
+            
+            tmpPoints[i] = [previewLayer pointForCaptureDevicePointOfInterest:tmpPoints[i]];
+        }
+        
+        
+        CGContextMoveToPoint(context, tmpPoints[0].x,tmpPoints[0].y);
+        for (int i = 1; i < 4; i++){
+            CGContextAddLineToPoint(context, tmpPoints[i].x,tmpPoints[i].y);
+        }
+        CGContextAddLineToPoint(context, tmpPoints[0].x,tmpPoints[0].y);
+        
+        CGContextStrokePath(context);
+    }
+    
+    UIGraphicsPopContext();
+    
+    locationLayer.contents = (id)[UIGraphicsGetImageFromCurrentImageContext() CGImage];
+    
+    UIGraphicsEndImageContext();
+    
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    [animation setFromValue:[NSNumber numberWithFloat:1]];
+    [animation setToValue:[NSNumber numberWithFloat:0.0]];
+    [animation setDuration:2.5];
+    [animation setTimingFunction:[CAMediaTimingFunction
+                                  functionWithName:kCAMediaTimingFunctionEaseOut]];
+    [animation setFillMode:kCAFillModeForwards];
+    [animation setRemovedOnCompletion:NO];
+    // [animation setAutoreverses:NO];
+    //[animation setRepeatCount:0];
+    [locationLayer addAnimation:animation forKey:@"opacity"];
+    
+    
+    //    });
+    
+}
 
 + (void) startLineAnimation {
     [lineLayer removeAllAnimations];

@@ -294,75 +294,109 @@ BOOL useFCamera = false;
     MWB_setDuplicatesTimeout([[command.arguments objectAtIndex:0] intValue]);
 }
 
-- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat mwResult:(MWResult *)mwResult
+- (void)scanningFinished:(NSString *)result withType:(NSString *)lastFormat mwResult:(MWResults*) mwResults
 {
     dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
         
         CDVPluginResult* pluginResult = nil;
         
-        BOOL isGS1 = mwResult?mwResult.isGS1:NO;
-        NSData*rawResult = mwResult?[[NSData alloc] initWithBytes: mwResult.bytes length: mwResult.bytesLength]:[[NSData alloc] init];
-        MWLocation*locationPoints = mwResult?mwResult.locationPoints:nil;
-        int imageWidth = mwResult?mwResult.imageWidth:0;
-        int imageHeight = mwResult?mwResult.imageHeight:0;
-        
-        NSMutableArray *bytesArray = [[NSMutableArray alloc] init];
-        unsigned char *bytes = (unsigned char *) [rawResult bytes];
-        for (int i = 0; i < rawResult.length; i++){
-            [bytesArray addObject:[NSNumber numberWithInt: bytes[i]]];
-        }
-        NSMutableDictionary *resultDict;
-        if (locationPoints) {
-            NSArray *xyArray = [NSArray arrayWithObjects:@"x",@"y", nil];
-            
-            NSDictionary *p1 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p1.x],[NSNumber numberWithFloat:locationPoints.p1.y], nil]
-                                                           forKeys:xyArray];
-            NSDictionary *p2 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p2.x],[NSNumber numberWithFloat:locationPoints.p2.y], nil]
-                                                           forKeys:xyArray];
-            NSDictionary *p3 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p3.x],[NSNumber numberWithFloat:locationPoints.p3.y], nil]
-                                                           forKeys:xyArray];
-            NSDictionary *p4 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p4.x],[NSNumber numberWithFloat:locationPoints.p4.y], nil]
-                                                           forKeys:xyArray];
-            
-            NSDictionary *location =[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:p1,p2,p3,p4 ,nil]
-                                                                forKeys:[NSArray arrayWithObjects:@"p1",@"p2",@"p3",@"p4",nil]];
-            resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], location, [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
-                                                              forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
-            
-        }else{
-            resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, bytesArray, [NSNumber numberWithBool:isGS1], [NSNumber numberWithBool:NO], [NSNumber numberWithInt:imageWidth],[NSNumber numberWithInt:imageHeight],nil]
-                                                              forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
-        }
-        
-        if (mwResult) {
-            resultDict[@"barcodeWidth"] = @(mwResult.barcodeWidth);
-            resultDict[@"barcodeHeight"] = @(mwResult.barcodeHeight);
-            
-            resultDict[@"pdfRowsCount"] = @(mwResult.pdfRowsCount);
-            resultDict[@"pdfColumnsCount"] = @(mwResult.pdfColumnsCount);
-            resultDict[@"pdfECLevel"] = @(mwResult.pdfECLevel);
-            resultDict[@"pdfIsTruncated"] = @(mwResult.pdfIsTruncated);
-            
-            if (mwResult.pdfCodewords) {
-                NSMutableArray *pdfCodewords = [NSMutableArray new];
-                for (int i = 0; i < mwResult.pdfCodewords[0]; i++) {
-                    [pdfCodewords addObject:@(mwResult.pdfCodewords[i])];
+        if (mwResults) {
+            NSMutableArray *scanResults = NSMutableArray.new;
+            for (int i = 0; i < mwResults.count; i++) {
+                if ([mwResults resultAtIntex:i]) {
+                    [scanResults addObject:[self mwResultToJson:[mwResults resultAtIntex:i]]];
                 }
-                
-                resultDict[@"pdfCodewords"] = pdfCodewords;
-            }else
-                resultDict[@"pdfCodewords"] = @[];
+            }
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:scanResults];
+        }else{
+            NSMutableDictionary * resultDict = [[NSMutableDictionary alloc] initWithObjects:[NSArray arrayWithObjects:result, lastFormat, @(NO), @(NO), [NSNumber numberWithBool:NO], @(0), @(0),nil]
+                                                              forKeys:[NSArray arrayWithObjects:@"code", @"type",@"bytes", @"isGS1",@"location",@"imageWidth",@"imageHeight", nil]];
+
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
         }
-        
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDict];
         
         if(![MWScannerViewController getCloseScannerOnDecode]){
             [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         }
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-        
     });
+}
+
+- (NSMutableDictionary*) mwResultToJson:(MWResult*) mwResult {
+    MWB_setDuplicate(mwResult.bytes, mwResult.bytesLength);
+    
+    NSMutableDictionary *resultDict = NSMutableDictionary.new;
+    BOOL isGS1 = mwResult?mwResult.isGS1:NO;
+    NSData*rawResult = mwResult?[[NSData alloc] initWithBytes: mwResult.bytes length: mwResult.bytesLength]:[[NSData alloc] init];
+    MWLocation*locationPoints = mwResult?mwResult.locationPoints:nil;
+    int imageWidth = mwResult?mwResult.imageWidth:0;
+    int imageHeight = mwResult?mwResult.imageHeight:0;
+    
+    NSMutableArray *bytesArray = [[NSMutableArray alloc] init];
+    unsigned char *bytes = (unsigned char *) [rawResult bytes];
+    for (int i = 0; i < rawResult.length; i++){
+        [bytesArray addObject:[NSNumber numberWithInt: bytes[i]]];
+    }
+    
+    NSString *scanResult = mwResult.text;
+    if(MWScannerViewController.getActiveParser != MWP_PARSER_MASK_NONE && !(MWScannerViewController.getActiveParser == MWP_PARSER_MASK_GS1 && !mwResult.isGS1)){
+        unsigned char * parserResult = NULL;
+        double parserRes = -1;
+        
+        parserRes = MWP_getJSON(MWScannerViewController.getActiveParser, mwResult.encryptedResult, mwResult.bytesLength, &parserResult);
+        
+        if (parserRes >= 0){
+            scanResult = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
+        }
+    }
+    
+    resultDict[@"code"] = scanResult;
+    resultDict[@"type"] = mwResult.typeName;
+    resultDict[@"bytes"] = bytesArray;
+    resultDict[@"isGS1"] = @(isGS1);
+    resultDict[@"imageWidth"] = @(imageWidth);
+    resultDict[@"imageHeight"] = @(imageHeight);
+    if (locationPoints) {
+        NSArray *xyArray = [NSArray arrayWithObjects:@"x",@"y", nil];
+        
+        NSDictionary *p1 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p1.x],[NSNumber numberWithFloat:locationPoints.p1.y], nil]
+                                                       forKeys:xyArray];
+        NSDictionary *p2 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p2.x],[NSNumber numberWithFloat:locationPoints.p2.y], nil]
+                                                       forKeys:xyArray];
+        NSDictionary *p3 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p3.x],[NSNumber numberWithFloat:locationPoints.p3.y], nil]
+                                                       forKeys:xyArray];
+        NSDictionary *p4 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:[NSNumber numberWithFloat:locationPoints.p4.x],[NSNumber numberWithFloat:locationPoints.p4.y], nil]
+                                                       forKeys:xyArray];
+        
+        NSDictionary *location =[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:p1,p2,p3,p4 ,nil]
+                                                            forKeys:[NSArray arrayWithObjects:@"p1",@"p2",@"p3",@"p4",nil]];
+        resultDict[@"location"] = location;
+    }else{
+        resultDict[@"location"] = @(NO);
+    }
+    
+    if (mwResult) {
+        resultDict[@"barcodeWidth"] = @(mwResult.barcodeWidth);
+        resultDict[@"barcodeHeight"] = @(mwResult.barcodeHeight);
+        
+        resultDict[@"pdfRowsCount"] = @(mwResult.pdfRowsCount);
+        resultDict[@"pdfColumnsCount"] = @(mwResult.pdfColumnsCount);
+        resultDict[@"pdfECLevel"] = @(mwResult.pdfECLevel);
+        resultDict[@"pdfIsTruncated"] = @(mwResult.pdfIsTruncated);
+        
+        if (mwResult.pdfCodewords) {
+            NSMutableArray *pdfCodewords = [NSMutableArray new];
+            for (int i = 0; i < mwResult.pdfCodewords[0]; i++) {
+                [pdfCodewords addObject:@(mwResult.pdfCodewords[i])];
+            }
+            
+            resultDict[@"pdfCodewords"] = pdfCodewords;
+        }else
+            resultDict[@"pdfCodewords"] = @[];
+    }
+    
+    return resultDict;
 }
 
 + (void) setAutoRect:(AVCaptureVideoPreviewLayer *)layer{
@@ -534,7 +568,7 @@ BOOL useFCamera = false;
 {
     int codeMask = [[command.arguments objectAtIndex:0] intValue];
     int flags = [[command.arguments objectAtIndex:1] intValue];
-    MWB_setFlags(codeMask, flags);
+    MWB_setFlags(codeMask, (MWB_getFlags(codeMask) | flags));
 }
 
 - (void)setMinLength:(CDVInvokedUrlCommand*)command
@@ -806,6 +840,7 @@ UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLand
     
     if (image!=nil) {
         
+        MWResults *scanResults;
         int newWidth;
         int newHeight;
         
@@ -826,17 +861,17 @@ UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLand
                 
                 mwResults = [[MWResults alloc] initWithBuffer:pResult];
                 if (mwResults && mwResults.count > 0){
-                    mwResult = [mwResults resultAtIntex:0];
+                    scanResults = mwResults;
                 }
                 free(pResult);
-                
             }
-            if (mwResult)
+            
+            if (scanResults)
             {
-                [self scanningFinished:mwResult.text withType: mwResult.typeName mwResult:mwResult];
-                
+                [self scanningFinished:mwResult.text withType: mwResult.typeName mwResult:scanResults];
             }else{
-                [self scanningFinished:@"" withType: @"NoResult" mwResult:mwResult];
+//                [self scanningFinished:@"" withType: @"NoResult" mwResult:nil];
+                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(-1)] callbackId:callbackId];
             }
         }
         

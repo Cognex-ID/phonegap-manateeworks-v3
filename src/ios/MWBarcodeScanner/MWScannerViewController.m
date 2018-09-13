@@ -222,6 +222,10 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
     param_activeParser = parserType;
 }
 
++ (int) getActiveParser {
+    return param_activeParser;
+}
+
 + (void) setMaxThreads: (int) maxThreads {
     
     if (availableThreads == 0){
@@ -969,6 +973,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             //        NSLog(@"Frame decoded. Active threads: %d", activeThreads);
             MWResults *mwResults = nil;
             MWResult *mwResult = nil;
+            NSMutableArray<MWLocation*> *locations = NSMutableArray.new;
+            
             if (resLength > 0){
                 
                 if (self.state == NORMAL){
@@ -985,95 +991,40 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 }
             }
             
-            if (mwResult)
+            if (mwResults)
             {
-                MWB_setDuplicate(mwResult.bytes, mwResult.bytesLength);
-                
                 self.state = NORMAL;
                 [MWOverlay setPaused:NO];
                 
-                
-                if(param_activeParser != MWP_PARSER_MASK_NONE && !(param_activeParser == MWP_PARSER_MASK_GS1 && !mwResult.isGS1)){
-                    
-                    
-                    unsigned char * parserResult = NULL;
-                    double parserRes = -1;
-                    NSString *parserMask;
-                    
-                    
-                    
-                    //USE THIS CODE FOR JSONFORMATTED RESULT
-                    
-                    parserRes = MWP_getJSON(param_activeParser, mwResult.encryptedResult, mwResult.bytesLength, &parserResult);
-                    
-                    
-                    //use jsonString to get the JSON formatted result
-                    if (parserRes >= 0){
-                        mwResult.text = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
-                    }
-                    
-                    //
-                    
-                    /*
-                     //USE THIS CODE FOR TEXT FORMATTED RESULT
-                     
-                     parserRes = MWP_getFormattedText(MWPARSER_MASK, obj.result.encryptedResult, obj.result.bytesLength, &parserResult);
-                     if (parserRes >= 0){
-                     decodeResult = [NSString stringWithCString:parserResult encoding:NSUTF8StringEncoding];
-                     }
-                     */
-                    //
-                    
-                    
-                    
-                    NSLog(@"%f",parserRes);
-                    if (parserRes >= 0){
-                        
-                        switch (param_activeParser) {
-                            case MWP_PARSER_MASK_GS1:
-                                parserMask = @"GS1";
-                                break;
-                            case MWP_PARSER_MASK_IUID:
-                                parserMask = @"IUID";
-                                break;
-                            case MWP_PARSER_MASK_ISBT:
-                                parserMask = @"ISBT";
-                                break;
-                            case MWP_PARSER_MASK_AAMVA:
-                                parserMask = @"AAMVA";
-                                break;
-                            case MWP_PARSER_MASK_HIBC:
-                                parserMask = @"HIBC";
-                                break;
-                            case MWP_PARSER_MASK_SCM:
-                                parserMask = @"SCM";
-                                break;
-                            default:
-                                parserMask = @"Unknown";
-                                break;
-                        }
-                        
-                        mwResult.typeName = [NSString stringWithFormat:@"%@ (%@)", mwResult.typeName, parserMask];
-                        
-                    }
-                }
-                
-                
                 NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-                DecoderResult *notificationResult = [DecoderResult createSuccess:mwResult];
+//                DecoderResult *notificationResult = [DecoderResult createSuccess:mwResult];
                 
                 dispatch_async(dispatch_get_main_queue(), ^(void) {
                     
                     if (param_closeOnSuccess) {
                         [self.captureSession stopRunning];
                     }
-                    if (mwResult.locationPoints) {
-                        [MWOverlay showLocation:mwResult.locationPoints.points imageWidth:mwResult.imageWidth imageHeight:mwResult.imageHeight];
+                    
+                    for (int i = 0; i < mwResults.count; i++) {
+                        if ([mwResults resultAtIntex:i] && [mwResults resultAtIntex:i].locationPoints) {
+                            [locations addObject:[mwResults resultAtIntex:i].locationPoints];
+                        }
                     }
                     
-                    [center postNotificationName:DecoderResultNotification object: notificationResult];
-                    NSLog(@"SCANNED RESULT: %@",(mwResult.bytes != nil)?[[NSString alloc] initWithData:[[NSData alloc] initWithBytes:mwResult.bytes length:mwResult.bytesLength] encoding:NSUTF8StringEncoding]:mwResult.text);
+                    if (locations.count > 0) {
+                        CGPoint locs[locations.count*4];
+                        for (int i = 0; i < locations.count; i++) {
+                            for (int k = 0; k < 4; k++) {
+                                locs[(i*4)+k] = CGPointMake(locations[i].points[k].x, locations[i].points[k].y);
+                            }
+                        }
+                        
+                        [MWOverlay showLocations:locs count:(int)(locations.count) imageWidth:mwResult.imageWidth imageHeight:mwResult.imageHeight];
+                    }
                     
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ // small delay to show location
+                        [center postNotificationName:DecoderResultNotification object:mwResults];
+                    });
                 });
                 
             }
@@ -1212,30 +1163,23 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 - (void)decodeResultNotification: (NSNotification *)notification {
     
-    if ([notification.object isKindOfClass:[DecoderResult class]])
+    if ([notification.object isKindOfClass:[MWResults class]])
     {
-        DecoderResult *obj = (DecoderResult*)notification.object;
-        if (obj.succeeded)
-        {
-            
-            NSString *typeName = obj.result.typeName;
-            
-            if (param_closeOnSuccess) {
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(param_closeDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    if ([self scanningInPartialView]) {
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeScanner" object:nil];
-                        [self.delegate scanningFinished:obj.result.text withType: typeName mwResult:obj.result];
-                    }else
-                        [self dismissViewControllerAnimated:YES completion:^{
-                            [self.delegate scanningFinished:obj.result.text withType: typeName mwResult:obj.result];
-                            
-                        }];
-                });
-            }else{
-                [self.delegate scanningFinished:obj.result.text withType: typeName mwResult:obj.result];
-            }
-            
-            
+        MWResults *obj = (MWResults*)notification.object;
+        
+        if (param_closeOnSuccess) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(param_closeDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if ([self scanningInPartialView]) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"closeScanner" object:nil];
+                    [self.delegate scanningFinished:@"" withType:@"" mwResult:obj];
+                }else
+                    [self dismissViewControllerAnimated:YES completion:^{
+                        [self.delegate scanningFinished:@"" withType:@"" mwResult:obj];
+                        
+                    }];
+            });
+        }else{
+            [self.delegate scanningFinished:@"" withType:@"" mwResult:obj];
         }
     }
 }
