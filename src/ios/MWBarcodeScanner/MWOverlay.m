@@ -504,7 +504,7 @@ BOOL isPaused = NO;
     CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
     [animation setFromValue:[NSNumber numberWithFloat:1]];
     [animation setToValue:[NSNumber numberWithFloat:0.0]];
-    [animation setDuration:2.5];
+    [animation setDuration:0.5];
     [animation setTimingFunction:[CAMediaTimingFunction
                                   functionWithName:kCAMediaTimingFunctionEaseOut]];
     [animation setFillMode:kCAFillModeForwards];
