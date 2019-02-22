@@ -1354,6 +1354,7 @@ var Scanner = function(){
 **/
 Scanner.prototype.setFlags = function(mask, flag){
   BarcodeScanner.MWBsetFlags(mask,flag);
+  alert("setFlags executed");
 };
 
   var scanner = new Scanner();
