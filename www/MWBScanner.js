@@ -1159,10 +1159,6 @@ var Scanner = function(){
         if(Array.isArray(settings)){
           for (var i = settings.length - 1; i >= 0; i--) {
             var expression = settings[i];
-			
-			if(expression["method"] == "MWBsetFlags")
-                alert(expression["method"] + ": " + expression["value"]);
-			
             BarcodeScanner[expression.method].apply(null,expression.value);
           }
         }
