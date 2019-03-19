@@ -1,5 +1,8 @@
 
 /*
+Version 3.0.53
+  - Android added missing architecture x86_64
+
 Version 3.0.50
   - iOS fixed StatusBar disappearing when scanning in view
 
