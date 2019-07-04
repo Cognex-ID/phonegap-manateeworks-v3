@@ -1,5 +1,9 @@
 
 /*
+Version 3.1.0
+  - Android and iOS libs updated to v3.3.6
+  - Removed armeabi and mips native libs on Android
+  
 Version 3.0.53
   - Android added missing architecture x86_64
 

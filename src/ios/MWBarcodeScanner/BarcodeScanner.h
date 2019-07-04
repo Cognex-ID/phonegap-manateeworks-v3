@@ -55,6 +55,11 @@ typedef unsigned char uint8_t;
 #define MWB_RTREG_KEY_EXPIRED         -7
 #define MWB_RTREG_AIMER_REQUIRED      -8
 #define MWB_RTREG_AIMER_NOT_DETECTED  -9
+
+//Warnings
+#define MWB_RTREG_CUSTOM_SIZE_EXCEEDED   -100
+    
+    
     
 /** @} */
 
@@ -494,6 +499,20 @@ extern int MWB_getScanningRect(const uint32_t codeMask, float *left, float *top,
  */
 extern int MWB_registerSDK(const char * key);
     
+    /**
+     * Same as RegisterSDK with addition of custom string to be
+     * sent along with tracking info.
+     *
+     * @param[in]   key                     License key string
+     * @param[in]   customData              Custom string
+     *
+     * @retval      MWB_RT_OK               Registration successful
+     * @retval      < 0                     Error code - see MWB_RTREG values
+     */
+extern int MWB_registerSDKCustom(const char * key, const char* customData);
+    
+    
+    
     
 /**
  * Get device ID
@@ -504,6 +523,16 @@ extern int MWB_registerSDK(const char * key);
  * @retval      NULL                    ID can't be retrieved
  */
 extern char* MWB_getDeviceID(void);
+    
+/**
+ * Get license string for retrieving remaining devices
+ * It should be called after registering call, and works only on iOS and Android
+ *
+ *
+ * @retval      non NULL                encrypted licenseString
+ * @retval      NULL                    ID can't be retrieved
+ */
+extern char* MWB_getLicenseString(void);
 
 
 
@@ -623,6 +652,7 @@ extern int MWB_disableSubcode(const uint32_t codeMask, const uint32_t subMask);
  *              control order by which decoders will be called.
  *
  * @param[in]   codeMask                Single decoder type/group (MWB_CODE_MASK_...)
+ * @param[in]   priority                Priority level
  *
  * @retval      MWB_RT_OK               Success
  * @retval      MWB_RT_NOT_SUPPORTED    Decoder group not supported

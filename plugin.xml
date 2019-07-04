@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
 id="manateeworks-barcodescanner-v3"
-version="3.0.53">
+version="3.1.0">
 <name>MWBarcodeScanner</name>
 <description>Manatee Works Barcode Scanner Plugin</description>
 <license>MIT</license>
@@ -60,19 +60,15 @@ version="3.0.53">
  <resource-file src="src/android/res/drawable/zoom.png" target="res/drawable/zoom.png" />
 
  <!-- For cordova-android 6.x -->
- <resource-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target="libs/armeabi/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/x86/libBarcodeScannerLib.so" target="libs/x86/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target="libs/armeabi-v7a/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target="libs/arm64-v8a/libBarcodeScannerLib.so" />
- <resource-file src="src/android/libs/mips/libBarcodeScannerLib.so" target="libs/mips/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/x86_64/libBarcodeScannerLib.so" target="libs/x86_64/libBarcodeScannerLib.so" />
 
  <!-- For cordova-android 7.x -->
- <resource-file src="src/android/libs/armeabi/libBarcodeScannerLib.so" target="jniLibs/armeabi/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/x86/libBarcodeScannerLib.so" target="jniLibs/x86/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/armeabi-v7a/libBarcodeScannerLib.so" target="jniLibs/armeabi-v7a/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/arm64-v8a/libBarcodeScannerLib.so" target="jniLibs/arm64-v8a/libBarcodeScannerLib.so" />
- <resource-file src="src/android/libs/mips/libBarcodeScannerLib.so" target="jniLibs/mips/libBarcodeScannerLib.so" />
  <resource-file src="src/android/libs/x86_64/libBarcodeScannerLib.so" target="jniLibs/x86_64/libBarcodeScannerLib.so" />
 
 

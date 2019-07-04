@@ -107,16 +107,6 @@ extern "C" {
 #define SCM_WARNING_INVALID_TERMINATOR			3		//possible compression used by UPS
 
 
-/**
- * Returns version code of Parser Library.
- *
- * @return  32-bit version code in x.y.z format.
- * @n       Byte 3 (most significant byte):     reserved (0)
- * @n       Byte 2:                             value x
- * @n       Byte 1:                             value y
- * @n       Byte 0 (least significant byte):    value z
- */
-extern unsigned int MWP_getLibVersion(void);
 
 /**
  * Returns supported parsers in this library release.
