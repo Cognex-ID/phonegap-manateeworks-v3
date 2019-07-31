@@ -156,7 +156,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
             });
         }
 
-        CameraManager.init(getApplication());
+        CameraManager.init(getApplication(), true);
     }
 
     public static void refreshOverlay() {
@@ -172,6 +172,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                         }
 
                         if ((param_OverlayMode & OM_MW) > 0) {
+                            MWOverlay.overlayMode = MWOverlay.OverlayMode.OM_LEGACY;
                             MWOverlay.addOverlay(mContext, surfaceView);
                         }
 
@@ -212,6 +213,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            MWOverlay.overlayMode = MWOverlay.OverlayMode.OM_LEGACY;
                             MWOverlay.addOverlay(ScannerActivity.this, surfaceView);
                         }
                     }, 1);
@@ -458,7 +460,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                     switch (msg.what) {
                         case MSG_AUTOFOCUS:
                             if (state == State.PREVIEW || state == State.DECODING) {
-                                CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
+                                //CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
                             }
                             break;
                         case MSG_DECODE:
@@ -520,7 +522,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
         startScanningTime = System.currentTimeMillis();
         isRunning();
         CameraManager.get().requestPreviewFrame(handler, MSG_DECODE);
-        CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
+        //CameraManager.get().requestAutoFocus(handler, MSG_AUTOFOCUS);
     }
 
     private static final long firstFrameTimeout = 2000; //ms

@@ -1,5 +1,9 @@
 
 /*
+Version 3.1.1
+  - Android and iOS libs updated to v3.6.0
+  - Add error callback parameter for scanImage API
+
 Version 3.1.0
   - Android and iOS libs updated to v3.3.6
   - Removed armeabi and mips native libs on Android
@@ -898,8 +902,8 @@ var BarcodeScanner = {
   * Scan image.
   * imageURI - path to the image to be scanned.
   */
-  MWBscanImage: function(imageURI, callback) {
-    cordova.exec(callback, function(){}, "MWBarcodeScanner", "scanImage", [imageURI]);
+  MWBscanImage: function(imageURI, callback, error_callback) {
+    cordova.exec(callback, error_callback, "MWBarcodeScanner", "scanImage", [imageURI]);
   },
   /**
   * Set custom decoder param.
@@ -1189,15 +1193,20 @@ var Scanner = function(){
 
     var args = Array.prototype.slice.call(arguments)
         ,callback = this.dflt_clb
+        ,error_callback = function(){}
         ,that = this
         ,imageUri = args[0];
 
 
-      if(args.length == 2)
+      if(args.length > 1)
         if(typeof args[1] === 'function')
             callback = args[1];
 
-    BarcodeScanner.MWBscanImage(imageUri,callback);
+      if(args.length > 2)
+        if(typeof args[2] === 'function')
+            error_callback = args[2];
+
+    BarcodeScanner.MWBscanImage(imageUri,callback,error_callback);
   }
 
 

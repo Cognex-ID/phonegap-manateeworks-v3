@@ -245,6 +245,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
                             setAutoRect();
                             if (ScannerActivity.param_OverlayMode == 1) {
+                                MWOverlay.overlayMode = MWOverlay.OverlayMode.OM_LEGACY;
                                 MWOverlay.addOverlay(cordova.getActivity(), surfaceView);
                             }
                             scrollView.scrollTo((int) Math.round(widthTmpRunnable / 2 - width / 2),
@@ -444,6 +445,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                             }
 
                             if ((ScannerActivity.param_OverlayMode & ScannerActivity.OM_MW) > 0) {
+                                MWOverlay.overlayMode = MWOverlay.OverlayMode.OM_LEGACY;
                                 MWOverlay.addOverlay(cordova.getActivity(), surfaceView);
                             }
 
@@ -1250,7 +1252,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                     switch (msg.what) {
                         case ScannerActivity.MSG_AUTOFOCUS:
                             if (ScannerActivity.state == State.PREVIEW || ScannerActivity.state == State.DECODING) {
-                                CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
+                                //CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
                             }
                             break;
                         case ScannerActivity.MSG_DECODE:
@@ -1286,7 +1288,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
         CameraManager.get().startPreview();
         ScannerActivity.state = State.PREVIEW;
         CameraManager.get().requestPreviewFrame(ScannerActivity.handler, ScannerActivity.MSG_DECODE);
-        CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
+        //CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
         if (scrollView != null)
             scrollView.setVisibility(View.VISIBLE);
 
@@ -1633,6 +1635,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
                                                                                                                     if (ScannerActivity.param_OverlayMode == 1) {
                                                                                                                         MWOverlay.removeOverlay();
+                                                                                                                        MWOverlay.overlayMode = MWOverlay.OverlayMode.OM_LEGACY;
                                                                                                                         MWOverlay.addOverlay(cordova.getActivity(), surfaceView);
                                                                                                                         MWOverlay.setPaused(cordova.getActivity(), false);
                                                                                                                     }
@@ -1663,7 +1666,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                 cordova.getActivity().runOnUiThread(new Runnable() {
 
                     public void run() {
-                        CameraManager.init(cordova.getActivity());
+                        CameraManager.init(cordova.getActivity(), true);
                         final ViewGroup viewGroupToAddTo = getMainViewGroup();
 
                         rlFullScreen = new RelativeLayout(cordova.getActivity());
