@@ -834,14 +834,18 @@ UIInterfaceOrientationMask interfaceOrientation = UIInterfaceOrientationMaskLand
             if (mwResult)
             {
                 [self scanningFinished:mwResult.text withType: mwResult.typeName mwResult:mwResult];
-                
             }else{
-                [self scanningFinished:@"" withType: @"NoResult" mwResult:mwResult];
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(-1)];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }
+        }else {
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(-1)];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }
-        
+    } else {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(-1)];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
-    
 }
 
 
