@@ -1,5 +1,8 @@
 
 /*
+Version 3.1.2
+  - Add promise for scanImage API
+
 Version 3.1.1
   - Android and iOS libs updated to v3.6.0
   - Add error callback parameter for scanImage API
@@ -1206,7 +1209,18 @@ var Scanner = function(){
         if(typeof args[2] === 'function')
             error_callback = args[2];
 
-    BarcodeScanner.MWBscanImage(imageUri,callback,error_callback);
+    return new window.Promise(function(resolve,reject){
+        BarcodeScanner.MWBscanImage(imageUri,
+            function(result){
+                callback.call(null,result); //call the callback for backward compatability
+                resolve(result); //return a promise
+            },
+            function(result){
+                error_callback.call(null,result); //call the callback for backward compatability
+                resolve(result); //return a promise
+            }
+        );
+    });
   }
 
 
