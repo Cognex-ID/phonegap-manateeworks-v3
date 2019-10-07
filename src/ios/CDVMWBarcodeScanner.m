@@ -224,35 +224,30 @@ BOOL useFCamera = false;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self stopScanner:command];
             
-            dispatch_async(dispatch_queue_create(MWBackgroundQueue, nil), ^{
-
-                scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
+            scannerViewController = [[MWScannerViewController alloc] initWithNibName:@"MWScannerViewController" bundle:nil];
+            
+            scannerViewController.delegate = self;
+            [MWScannerViewController setUseFrontCamera:useFCamera];
+            scannerViewController.customParams = customParams;
+            
+            if (interfaceOrientation == UIInterfaceOrientationMaskLandscape) {
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    scannerViewController.delegate = self;
-                    [MWScannerViewController setUseFrontCamera:useFCamera];
-                    scannerViewController.customParams = customParams;
-                    
-                    if (interfaceOrientation == UIInterfaceOrientationMaskLandscape) {
-                        
-                        if ([[UIApplication sharedApplication]statusBarOrientation] == UIInterfaceOrientationLandscapeRight) {
-                            [MWScannerViewController setInterfaceOrientation:UIInterfaceOrientationMaskLandscapeRight];
-                        } else{
-                            [MWScannerViewController setInterfaceOrientation:UIInterfaceOrientationMaskLandscapeLeft];
-                        }
-                    }
-                    
-                    [self.viewController presentViewController:scannerViewController animated:YES completion:^{
-                        [CDVMWBarcodeScanner setAutoRect:scannerViewController.prevLayer];
-                        scannerViewController.state = CAMERA;
-                    }];
+                if ([[UIApplication sharedApplication]statusBarOrientation] == UIInterfaceOrientationLandscapeRight) {
+                    [MWScannerViewController setInterfaceOrientation:UIInterfaceOrientationMaskLandscapeRight];
+                } else{
+                    [MWScannerViewController setInterfaceOrientation:UIInterfaceOrientationMaskLandscapeLeft];
+                }
+            }
+            
+            [self.viewController presentViewController:scannerViewController animated:YES completion:^{
+                [CDVMWBarcodeScanner setAutoRect:scannerViewController.prevLayer];
+                scannerViewController.state = CAMERA;
+            }];
 #if !__has_feature(objc_arc)
-                    callbackId= [command.callbackId retain];
+            callbackId= [command.callbackId retain];
 #else
-                    callbackId= command.callbackId;
+            callbackId= command.callbackId;
 #endif
-                });
-            });
             
         });
     }

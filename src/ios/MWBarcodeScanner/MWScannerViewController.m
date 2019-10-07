@@ -81,6 +81,9 @@ static NSString *DecoderResultNotification = @"DecoderResultNotification";
 #pragma mark -
 #pragma mark Initialization
 
+-(UIModalPresentationStyle)modalPresentationStyle {
+    return UIModalPresentationFullScreen;
+}
 
 + (void) initDecoder {
     
