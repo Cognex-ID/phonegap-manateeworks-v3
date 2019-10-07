@@ -1,5 +1,8 @@
 
 /*
+Version 3.1.3
+  - iOS 13 full screen fix
+
 Version 3.1.2
   - Add promise for scanImage API
 
