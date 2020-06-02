@@ -300,7 +300,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                 MWOverlay.removeOverlay();
             }
             if (handler != null) {
-                CameraManager.get().stopPreview();
+                CameraManager.get().stopPreview(true);
                 handler = null;
             }
             CameraManager.get().closeDriver();
@@ -349,13 +349,13 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
         switch (zoomLevel) {
             case 0:
-                CameraManager.get().setZoom(100);
+                CameraManager.get().setZoom(100, true);
                 break;
             case 1:
-                CameraManager.get().setZoom(firstZoom);
+                CameraManager.get().setZoom(firstZoom, true);
                 break;
             case 2:
-                CameraManager.get().setZoom(secondZoom);
+                CameraManager.get().setZoom(secondZoom, true);
                 break;
 
             default:
@@ -513,7 +513,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     }
 
     public static void startScanning() {
-        CameraManager.get().startPreview();
+        CameraManager.get().startPreview(true);
         state = State.PREVIEW;
         if (timeFromStartScanningToFirstFrame == 0 && ctimerRunning) {
             ctimerRef.cancel();

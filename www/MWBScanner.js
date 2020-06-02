@@ -1,5 +1,8 @@
 
 /*
+Version 3.1.4
+  - Android and iOS libs updated to v3.6.9
+
 Version 3.1.3
   - iOS 13 full screen fix
 

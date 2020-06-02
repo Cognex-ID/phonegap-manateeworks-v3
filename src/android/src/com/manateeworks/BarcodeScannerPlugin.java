@@ -138,7 +138,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
             cbc.success(jsonResult);
             // updateFlash();
-            CameraManager.get().stopPreview();
+            CameraManager.get().stopPreview(true);
             ScannerActivity.handler = null;
 
             CameraManager.get().closeDriver();
@@ -1285,7 +1285,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
             BarcodeScanner.MWBsetFlags(0, BarcodeScanner.MWB_CFG_GLOBAL_CALCULATE_1D_LOCATION);
         }
 
-        CameraManager.get().startPreview();
+        CameraManager.get().startPreview(true);
         ScannerActivity.state = State.PREVIEW;
         CameraManager.get().requestPreviewFrame(ScannerActivity.handler, ScannerActivity.MSG_DECODE);
         //CameraManager.get().requestAutoFocus(ScannerActivity.handler, ScannerActivity.MSG_AUTOFOCUS);
@@ -1443,7 +1443,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
                     } else if (rlSurfaceContainer != null && ScannerActivity.param_OverlayMode == ScannerActivity.OM_IMAGE) {
                         rlSurfaceContainer.removeView(overlayImage);
                     }
-                    CameraManager.get().stopPreview();
+                    CameraManager.get().stopPreview(true);
                     CameraManager.get().closeDriver();
                     getMainViewGroup().removeView(rlFullScreen);
                     rlFullScreen = null;
@@ -1475,7 +1475,7 @@ public class BarcodeScannerPlugin extends CordovaPlugin implements SurfaceHolder
 
         if (rlFullScreen != null) {
             // updateFlash();
-            CameraManager.get().stopPreview();
+            CameraManager.get().stopPreview(true);
             ScannerActivity.handler = null;
 
             CameraManager.get().closeDriver();
