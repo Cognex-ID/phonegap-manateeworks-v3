@@ -3,7 +3,12 @@
  * @brief   Barcode Decoders Library
  * @n       (C) Cognex Corporation, 2017.
  *
- *          Main user public header.
+ * \ifnot MWBSDK
+ *          Cognex Mobile Barcode SDK's easy API is preferred instead of this header file and its associated legacy API.
+ *          Unless explicitly directed to use this header/API, all new applications should now only be using ReaderDevice.
+ *          Applications that use this API, may still use it, there is no need for migraton as it will be not removed
+ *          without further notice.
+ * \endif
  */
 
 #ifndef _BARCODESCANNER_H_
@@ -25,10 +30,10 @@ typedef unsigned char uint8_t;
 
 /** @name Grayscale image size range
  ** @{ */
-#define MWB_GRAYSCALE_LENX_MIN      10
-#define MWB_GRAYSCALE_LENX_MAX      3000
-#define MWB_GRAYSCALE_LENY_MIN      10
-#define MWB_GRAYSCALE_LENY_MAX      3000
+#define MWB_GRAYSCALE_LENX_MIN      25
+#define MWB_GRAYSCALE_LENX_MAX      5000
+#define MWB_GRAYSCALE_LENY_MIN      25
+#define MWB_GRAYSCALE_LENY_MAX      5000
 /** @} */
 
 /**
@@ -96,6 +101,16 @@ typedef unsigned char uint8_t;
 /** @brief  Global decoder flags value: disable some image pre=processing, suitable for devices with weak CPU
   */
 #define  MWB_CFG_GLOBAL_DISABLE_PREPROCESSING             0x80
+    
+/** @brief  Global decoder flags value: Enable multiple barcode detection in single image
+  */
+#define  MWB_CFG_GLOBAL_ENABLE_MULTI                     0x100
+
+/** @brief  Global decoder flagss value: mulyiple scan lines density
+  */
+#define  MWB_CFG_GLOBAL_SCANLINESx2                      0x200
+#define  MWB_CFG_GLOBAL_SCANLINESx4                      0x400
+#define  MWB_CFG_GLOBAL_SCANLINESx8                      0x800
     
 
 /** @brief  Code39 decoder flags value: require checksum check
@@ -167,11 +182,24 @@ typedef unsigned char uint8_t;
 #define  MWB_CFG_CODABAR_INCLUDE_STARTSTOP         0x1
 /**/
     
+/** @brief  Datamatrix decoder flags value: enable DPM mode
+  */
+#define  MWB_CFG_DM_DPM_MODE       0x2
+/**/
+    
+/** @brief  Telepen decoder flags
+ */
+#define  MWB_CFG_TELEPEN_FORCE_NUMERIC       0x1
+/**/
+    
 /** @brief  Barcode decoder param types
  */
 #define  MWB_PAR_ID_ECI_MODE         0x08
 #define  MWB_PAR_ID_RESULT_PREFIX    0x10
 #define  MWB_PAR_ID_VERIFY_LOCATION  0x20
+
+// working for Datamatrix currently
+#define  MWB_PAR_ID_SCAN_COLOR  0x40
     
 /**/
 
@@ -188,10 +216,12 @@ typedef unsigned char uint8_t;
 #define  MWB_PAR_VALUE_VERIFY_LOCATION_OFF  0x00
 #define  MWB_PAR_VALUE_VERIFY_LOCATION_ON  0x01
     
+#define  MWB_PAR_VALUE_COLOR_NORMAL  0x01
+#define  MWB_PAR_VALUE_COLOR_INVERTED  0x02
+#define  MWB_PAR_VALUE_COLOR_BOTH  0x04 //default
+    
 /**/
 
-    
-    
 
 /** @} */
 
@@ -215,6 +245,7 @@ typedef unsigned char uint8_t;
 #define MWB_CODE_MASK_MSI                   0x00002000u
 #define MWB_CODE_MASK_MAXICODE              0x00004000u
 #define MWB_CODE_MASK_POSTAL                0x00008000u
+#define MWB_CODE_MASK_TELEPEN               0x00010000u
 #define MWB_CODE_MASK_ALL                   0x00ffffffu
 /** @} */
 
@@ -275,6 +306,7 @@ typedef unsigned char uint8_t;
 #define MWB_SUBC_MASK_EANUPC_UPC_E      0x00000008u
 #define MWB_SUBC_MASK_EANUPC_UPC_E1     0x00000010u
 /** @} */
+    
 
 /**
  * @name Bit mask identifiers for 1D scanning direction 
@@ -283,6 +315,7 @@ typedef unsigned char uint8_t;
 #define MWB_SCANDIRECTION_VERTICAL      0x00000002u
 #define MWB_SCANDIRECTION_OMNI          0x00000004u
 #define MWB_SCANDIRECTION_AUTODETECT    0x00000008u
+#define MWB_SCANDIRECTION_CUSTOM        0x00000010u
 
 /** @} */
     
@@ -328,8 +361,10 @@ enum res_types {
     FOUND_MICRO_PDF,
     FOUND_32,
     FOUND_AUSTRALIAN,
+    FOUND_TELEPEN,
     
 };
+/** @} */
 /** @} */
     
 /**
@@ -337,21 +372,21 @@ enum res_types {
  * @{ */
 
     
-    /**
-     * @name Identifiers for result types
-     * @{ */
+/**
+ * @name Identifiers for result types
+ * @{ */
     
 #define MWB_RESULT_TYPE_RAW                 0x00000001u
 #define MWB_RESULT_TYPE_MW                  0x00000002u
 //#define MWB_RESULT_TYPE_JSON                0x00000003u //not yet implemented
     
     
-    /** @} */
+/** @} */
     
     
-    /**
-     * @name Identifiers for result fields types
-     * @{ */
+/**
+ * @name Identifiers for result fields types
+ * @{ */
 #define MWB_RESULT_FT_BYTES                 0x00000001u
 #define MWB_RESULT_FT_TEXT                  0x00000002u
 #define MWB_RESULT_FT_TYPE                  0x00000003u
@@ -380,15 +415,11 @@ enum res_types {
 #define MWB_RESULT_FT_PDF_CODEWORDS         0x00000024u
     
     
+/** @} */
     
-
-    
-
-    /** @} */
-    
-    /**
-     * @name Descriptive names of result field types
-     * @{ */
+/**
+ * @name Descriptive names of result field types
+ * @{ */
 #define MWB_RESULT_FNAME_BYTES              "Bytes"
 #define MWB_RESULT_FNAME_TEXT               "Text"
 #define MWB_RESULT_FNAME_TYPE               "Type"
@@ -417,7 +448,7 @@ enum res_types {
 #define MWB_RESULT_FNAME_PDF_CODEWORDS      "PDF417 Codewords"
 
     
-    /** @} */
+/** @} */
     
     
 
@@ -437,6 +468,13 @@ enum res_types {
  * @n       Byte 0 (least significant byte):    value z
  */
 extern unsigned int MWB_getLibVersion(void);
+    
+/*
+ * Returns textual version of Barcode Scanner Library.
+ *
+ * @retval  char array with version string
+ */
+extern char* MWB_getLibVersionText(void);
 
 /**
  * Returns supported decoders in this library release.
@@ -468,6 +506,28 @@ extern unsigned int MWB_getSupportedCodes(void);
 extern int MWB_setScanningRect(const uint32_t codeMask, float left, float top, float width, float height);
     
     
+/**
+ * Sets rectangular area for targeted barcode scanning.
+ * If rectangle size is greater than zero, decoder will discard all barcodes
+ * which location doesn't interleave with this rectangle
+ * If width or height is zero, targeted scanning is disabled
+ *
+ * Parameters are interpreted as percentage of image dimensions, i.e. ranges are
+ * 0 - 100 for all parameters.
+ *
+ * @param[in]   left                X coordinate of left edge (percentage)
+ * @param[in]   top                 Y coordinate of top edge (percentage)
+ * @param[in]   width               Rectangle witdh (x axis) (percentage)
+ * @param[in]   height              Rectangle height (y axis) (percentage)
+ *
+ * @retval      MWB_RT_OK           Rectangle set successfully
+ * @retval      MWB_RT_BAD_PARAM    Rectange percentages invalid (out of range)
+ */
+extern int MWB_setTargetRect(float left, float top, float width, float height);
+    
+    
+    
+    
 
 /**
  * Get rectangular area for barcode scanning with selected single or multiple decoder type(s).
@@ -486,11 +546,26 @@ extern int MWB_setScanningRect(const uint32_t codeMask, float left, float top, f
 extern int MWB_getScanningRect(const uint32_t codeMask, float *left, float *top, float *width, float *height);
     
     
+/**
+ * Get rectangular area for targeted barcode scanning
+ * Output values are in percentages of screeen width and height (range 0 - 100)
+ *
+ * @param[out]  left                 X coordinate of left edge
+ * @param[out]  top                  Y coordinate of top edge
+ * @param[out]  width                Rectangle witdh (x axis)
+ * @param[out]  height               Rectangle height (y axis)
+ *
+ * @retval      MWB_RT_OK            Rectangle get successfully
+ * @retval      MWB_RT_NOT_SUPPORTED Rectangle get failed
+ */
+extern int MWB_getTargetRect(float *left, float *top, float *width, float *height);
+
+    
     
     
 /**
  * Registers licensing information for all SDK functionality.
- * It should be called once on app startup.
+ * It should be called just before scanning is going to be used.
  *
  * @param[in]   key                     License key string
  *
@@ -499,16 +574,16 @@ extern int MWB_getScanningRect(const uint32_t codeMask, float *left, float *top,
  */
 extern int MWB_registerSDK(const char * key);
     
-    /**
-     * Same as RegisterSDK with addition of custom string to be
-     * sent along with tracking info.
-     *
-     * @param[in]   key                     License key string
-     * @param[in]   customData              Custom string
-     *
-     * @retval      MWB_RT_OK               Registration successful
-     * @retval      < 0                     Error code - see MWB_RTREG values
-     */
+/**
+ * Same as RegisterSDK with addition of custom string to be sent along with tracking info.
+ * It should be called just before scanning is going to be used.
+ *
+ * @param[in]   key                     License key string
+ * @param[in]   customData              Custom string
+ *
+ * @retval      MWB_RT_OK               Registration successful
+ * @retval      < 0                     Error code - see MWB_RTREG values
+*/
 extern int MWB_registerSDKCustom(const char * key, const char* customData);
     
     
@@ -842,7 +917,6 @@ extern int MWB_setParam(const uint32_t codeMask, const uint32_t paramId, const u
  * @details     MWB_setParam gets specified decoder param id/value pair for decoder type specified in \a codeMask.
  * @param[in]   codeMask                Single decoder type (MWB_CODE_MASK_...)
  * @param[in]   paramId                 ID of param
- * @param[in]   paramValue              Integer value of param
  *
  * @retval      >= 0                    Param value
  * @retval      MWB_RT_BAD_PARAM        Invalid parameter specified
@@ -853,11 +927,20 @@ extern int MWB_getParam(const uint32_t codeMask, const uint32_t paramId);
 /**
  * Get active scanning direction
  *
- * @retval          ORed bit flags of active scanning directions
+ * @retval          ORed bit flags of active scanning directions given with
+ *                  MWB_SCANDIRECTION_... bit-masks
  */
 extern int MWB_getDirection(void);
-    
-  
+
+/**
+ * @brief       VIN validator
+ * @details     Checks if the input is a valid Vehicle Identification Number
+ * @param[in]   vin                  String that should be validated
+ * @param[in]   length               Length of the string
+ *
+ * @retval      MWB_RT_OK               Valid VIN
+ * @retval      MWB_RT_FAIL             Not a valid VIN
+ */   
 extern int MWB_validateVIN(char *vin, int length);
     
 /**
@@ -905,21 +988,10 @@ extern int MWB_setDuplicatesTimeout(uint32_t timeout);
  * Set code which would be check for a duplicate
  */
 extern void MWB_setDuplicate(uint8_t* barcode, int length);
-    
 
-/**
- * @brief       *Debug* QR debug helper.
- * @details     Returns list of coordinates of key points in QR symbol in last
- *              scanned image.
- * @param[out]  buffer                  User provided buffer to be filled with
- *                                      coordinates
- * @param[in]   maxLength               Buffer size - max number of points
- *                                      multiplied by two
- * @retval      > 0                     Number of points in buffer
- */
-//extern int MWB_getPointsQR(float *buffer, int maxLength);
-extern int MWB_getPointsAZTEC(float *buffer, int maxLength);
-    
+/** @} */
+
+
 #ifdef __cplusplus
 }
 #endif

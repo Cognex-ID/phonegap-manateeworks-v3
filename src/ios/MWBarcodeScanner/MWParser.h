@@ -3,7 +3,12 @@
  * @brief   Barcode Parser Library
  * @n       (C) Manatee Works, 2014.
  *
- *          Main user public header.
+ * \ifnot MWBSDK
+ *          Cognex Mobile Barcode SDK's easy API is preferred instead of this header file and its associated legacy API.
+ *          Unless explicitly directed to use this header/API, all new applications should now only be using ReaderDevice.
+ *          Applications that use this API, may still use it, there is no need for migraton as it will be not removed
+ *          without further notice.
+ * \endif
  */
 
 #ifndef MWParser_h
@@ -106,7 +111,7 @@ extern "C" {
 #define SCM_WARNING_FIELD_EXCEEDS_MAX_LENGTH	2		//possible compression used by UPS
 #define SCM_WARNING_INVALID_TERMINATOR			3		//possible compression used by UPS
 
-
+/** @} */
 
 /**
  * Returns supported parsers in this library release.
@@ -136,7 +141,6 @@ extern unsigned int MWP_getSupportedParsers(void);
  */
 extern int
     MWP_registerParser(const uint32_t parserMask, const char * userName, const char * key);
-
     
     
 /*

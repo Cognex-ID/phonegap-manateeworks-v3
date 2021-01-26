@@ -50,7 +50,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     public static CallbackContext cbc;
     private static Context mContext;
 
-    public static int param_Orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    public static int param_Orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     public static boolean param_EnableHiRes = true;
     public static boolean param_EnableFlash = true;
     public static boolean param_EnableZoom = true;
@@ -300,7 +300,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                 MWOverlay.removeOverlay();
             }
             if (handler != null) {
-                CameraManager.get().stopPreview();
+                CameraManager.get().stopPreview(false);
                 handler = null;
             }
             CameraManager.get().closeDriver();
@@ -324,10 +324,10 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
             zoomLevel = 0;
         }
 
-        updateZoom();
+        updateZoom(true);
     }
 
-    public static void updateZoom() {
+    public static void updateZoom(boolean isPreviewing) {
 
         if (param_ZoomLevel1 == 0 || param_ZoomLevel2 == 0) {
             firstZoom = 150;
@@ -349,13 +349,13 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
 
         switch (zoomLevel) {
             case 0:
-                CameraManager.get().setZoom(100);
+                CameraManager.get().setZoom(100, isPreviewing);
                 break;
             case 1:
-                CameraManager.get().setZoom(firstZoom);
+                CameraManager.get().setZoom(firstZoom, isPreviewing);
                 break;
             case 2:
-                CameraManager.get().setZoom(secondZoom);
+                CameraManager.get().setZoom(secondZoom, isPreviewing);
                 break;
 
             default:
@@ -440,7 +440,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
                         buttonZoom.setVisibility(View.VISIBLE);
                     }
                 }
-                updateZoom();
+                updateZoom(false);
             }
         } catch (IOException ioe) {
             displayFrameworkBugMessageAndExit();
@@ -513,7 +513,7 @@ public class ScannerActivity extends Activity implements SurfaceHolder.Callback 
     }
 
     public static void startScanning() {
-        CameraManager.get().startPreview();
+        CameraManager.get().startPreview(false);
         state = State.PREVIEW;
         if (timeFromStartScanningToFirstFrame == 0 && ctimerRunning) {
             ctimerRef.cancel();

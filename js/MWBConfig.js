@@ -44,7 +44,7 @@ scannerConfig = function(){
             {'method': 'MWBsetActiveCodes', 'value' : [mw_c.MWB_CODE_MASK_DM | mw_c.MWB_CODE_MASK_39 | mw_c.MWB_CODE_MASK_93 | mw_c.MWB_CODE_MASK_QR | mw_c.MWB_CODE_MASK_128 | mw_c.MWB_CODE_MASK_PDF]},
             {"method" : 'MWBenableZoom', "value" : [true]},
             {"method" : 'MWBsetZoomLevels', "value" : [200, 400, 1]},
-            // {"method" : 'MWBsetInterfaceOrientation', "value" : [mw_c.OrientationLandscapeLeft]},
+            // {"method" : 'MWBsetInterfaceOrientation', "value" : [mw_c.OrientationAll]},
             {"method" : 'MWBsetOverlayMode', "value" : [mw_c.OverlayModeImage]},
             {"method" : 'MWBsetLevel', "value" : [3]}, //3 will try to scan harder than the default which is 2
             {"method" : 'MWBenableHiRes','value' : [true]}, //possible setting
