@@ -20,7 +20,7 @@
 
 
 
-UIInterfaceOrientationMask param_Orientation = UIInterfaceOrientationMaskPortrait;
+UIInterfaceOrientationMask param_Orientation = UIInterfaceOrientationMaskAll;
 int param_activeParser = MWP_PARSER_MASK_NONE;
 
 BOOL param_EnableHiRes = YES;
