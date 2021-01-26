@@ -1,6 +1,8 @@
 # Manatee Works Barcode Scanner SDK PhoneGap Plugin
 
 
+## This framework is deprecated (no further maintenance), but it is kept for legacy purposes. If you want to use our latest framework, please check our Corodova solution for cmbSDK: https://cmbdn.cognex.com/download#Frameworks ##
+
 Guide on how to integrate the Manatee Works [Barcode Scanner SDK](https://manateeworks.com/barcode-scanner-sdk) PhoneGap plugin into your project(s).
 
 **NOTE: Now supporting Ionic!**
