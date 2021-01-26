@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
 id="manateeworks-barcodescanner-v3"
-version="3.1.3">
+version="3.1.4">
 <name>MWBarcodeScanner</name>
 <description>Manatee Works Barcode Scanner Plugin</description>
 <license>MIT</license>
@@ -30,7 +30,7 @@ version="3.1.3">
  <config-file target="AndroidManifest.xml" parent="/manifest/application">
  
  <activity android:name="com.manateeworks.ScannerActivity"
- android:configChanges="orientation|keyboardHidden"
+ android:configChanges="screenLayout|screenSize|keyboardHidden"
  android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
  </activity>
  </config-file>
