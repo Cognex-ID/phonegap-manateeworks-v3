@@ -1,5 +1,8 @@
 
 /*
+Version 3.1.5
+  - Android and iOS libs updated to v3.8.2
+
 Version 3.1.4
   - Android 11 orientation fix
   - Android and iOS libs updated to v3.6.9
