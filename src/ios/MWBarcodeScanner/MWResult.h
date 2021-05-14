@@ -38,6 +38,7 @@
 @property (readwrite) int imageHeight;
 @property (readwrite) bool isGS1;
 @property (readwrite) bool isKanji;
+@property (nonatomic, retain) NSString *textEncoding;
 @property (nonatomic, retain) MWLocation *locationPoints;
 
 

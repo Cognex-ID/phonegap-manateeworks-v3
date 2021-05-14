@@ -200,7 +200,10 @@ typedef unsigned char uint8_t;
 
 // working for Datamatrix currently
 #define  MWB_PAR_ID_SCAN_COLOR  0x40
-    
+
+//set safe zone scale factor for 1D barcode type in range 0 - 100%
+#define  MWB_PAR_ID_SAFE_ZONE_SCALE  0x80
+
 /**/
 
 /** @brief  Barcode param values
@@ -407,6 +410,8 @@ enum res_types {
     
 #define MWB_RESULT_FT_BARCODE_WIDTH         0x00000011u
 #define MWB_RESULT_FT_BARCODE_HEIGHT        0x00000012u
+
+#define MWB_RESULT_FT_TEXT_ENCODING         0x00000013u
     
 #define MWB_RESULT_FT_PDF_ROWS              0x00000020u
 #define MWB_RESULT_FT_PDF_COLUMNS           0x00000021u
@@ -427,6 +432,7 @@ enum res_types {
 #define MWB_RESULT_FNAME_SUCCESS            "Success"
 #define MWB_RESULT_FNAME_ISGS1              "GS1 compliance"
 #define MWB_RESULT_FNAME_KANJI              "Kanji encoding"
+#define MWB_RESULT_FNAME_TEXT_ENCODING      "Text encoding"
 #define MWB_RESULT_FNAME_LOCATION           "Location"
 #define MWB_RESULT_FNAME_IMAGE_WIDTH        "Image Width"
 #define MWB_RESULT_FNAME_IMAGE_HEIGHT       "Image Height"
